@@ -31,13 +31,16 @@ public class Form1Controller {
 	private Button newcategoribtn;
 
 	@FXML
+	private Button deletecategoribtn;
+
+	@FXML
 	private Button settingsBtn;
 
 	@FXML
 	private AnchorPane settingsForm;
 
 	@FXML
-	private TableView<?> settingstableview;
+	private TableView<DataBaseHelper.Category> settingstableview;
 
 	@FXML
 	private TableColumn<?, ?> settingstableviewcolumn1;
@@ -54,7 +57,7 @@ public class Form1Controller {
 	public void initialize() {
 		settingstableviewcolumn1.setCellValueFactory(new PropertyValueFactory<>("id")); // id'yi bağladık
 		settingstableviewcolumn2.setCellValueFactory(new PropertyValueFactory<>("ad")); // ad'ı bağladık
-		settingstableview.setItems(DataBaseHelper.loadKategoriData()); // Verileri yükleme
+		settingstableview.setItems(DataBaseHelper.loadKategoriData("kategoriler")); // Verileri yükleme
 	}
 
 	@FXML
@@ -88,14 +91,26 @@ public class Form1Controller {
 		if (categoriString.isEmpty()) {
 			System.out.println("Kategori kısmı boş girilemez.");
 		} else {
-			if (DataBaseHelper.kategoriVarMi(categoriString)) {
+			if (DataBaseHelper.kategoriVarMi("kategoriler", categoriString)) {
 				System.out.println("Kategori zaten mevcut...");
 			} else {
-				DataBaseHelper.kategoriEkle(categoriString);
+				DataBaseHelper.kategoriEkle("kategoriler", categoriString);
 				System.out.println("Kategori eklendi...");
 				initialize();
 			}
 		}
+	}
+
+	@FXML
+	public void valueDeleteDataBase(ActionEvent event) {
+		DataBaseHelper.Category selectCategory = settingstableview.getSelectionModel().getSelectedItem();
+		if (settingstableview.getSelectionModel().getSelectedItem() == null) {
+			System.out.println("Lütfen bir kategori seçin.");
+			return;// Eğer kategori seçilmemişse işlemi durdur
+		} else {
+			DataBaseHelper.categorySil("kategoriler", selectCategory.getId());
+		}
+		initialize();
 	}
 
 }
