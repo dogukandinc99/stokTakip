@@ -1,6 +1,5 @@
 package application;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -11,24 +10,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class DataBaseHelper {
-	static String dbName;
+	private static final String DB_URL = "jdbc:sqlite:database/kategoriler.db";
 
 	public static Connection connect() {
-		// String DB_URL = "jdbc:sqlite:database/kategoriler.db";
-		// Programın çalıştığı dizini alıyoruz
-		String workingDir = System.getProperty("user.dir");
-
-		// Veritabanının koyulacağı "database" klasörü
-		String dbFolderPath = workingDir + "/database"; // Programın çalıştığı dizinde "database" klasörünü oluşturacak
-
-		// "database" klasörünü kontrol et, yoksa oluştur
-		File folder = new File(dbFolderPath);
-		if (!folder.exists()) {
-			folder.mkdirs(); // Klasör yoksa oluştur
-		}
-		// "kategoriler.db" dosyasının yolu
-		String DB_URL = "jdbc:sqlite:" + dbFolderPath + "/" + dbName + ".db"; // Veritabanı dosyasının tam yolu
-
 		Connection conn = null;
 
 		try {
@@ -41,8 +25,13 @@ public class DataBaseHelper {
 	}
 
 	// Kategoriler tablosunu oluşturma
-	public static void createTable(String database, String sql) {
-		dbName = database;
+	public static void createTable() {
+		String sql = """
+				    CREATE TABLE IF NOT EXISTS kategoriler (
+				        id INTEGER PRIMARY KEY AUTOINCREMENT,
+				        ad TEXT NOT NULL
+				    );
+				""";
 		try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
 			stmt.execute(sql);
 			System.out.println("Kategoriler tablosu kontrol edildi/oluşturuldu.");
@@ -51,9 +40,9 @@ public class DataBaseHelper {
 		}
 	}
 
-	public static boolean kategoriVarMi(String database, String ad) {
+	public static boolean kategoriVarMi(String ad) {
 		String sql = "SELECT COUNT(*) FROM kategoriler WHERE ad = ?";
-		dbName = database;
+
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
 			pstmt.setString(1, ad);
@@ -67,9 +56,9 @@ public class DataBaseHelper {
 		return false; // Hata durumunda yeni eklenebilir kabul eder
 	}
 
-	public static void kategoriEkle(String database, String ad) {
+	public static void kategoriEkle(String ad) {
 		String sql = "INSERT INTO kategoriler (ad) VALUES (?)";
-		dbName = database;
+
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
 			pstmt.setString(1, ad); // Kategori adını yerleştir
@@ -79,11 +68,11 @@ public class DataBaseHelper {
 		}
 	}
 
-	public static class Category {
-		private int id;
-		private String ad;
+	public static class Categori {
+		private final int id;
+		private final String ad;
 
-		public Category(int id, String ad) {
+		public Categori(int id, String ad) {
 			this.id = id;
 			this.ad = ad;
 		}
@@ -98,9 +87,9 @@ public class DataBaseHelper {
 	}
 
 	// Veritabanından verileri alıp TableView'a yerleştirme
-	public static ObservableList loadKategoriData(String database) {
-		ObservableList<Category> kategoriList = FXCollections.observableArrayList();
-		dbName = database;
+	public static ObservableList loadKategoriData() {
+		ObservableList<Categori> kategoriList = FXCollections.observableArrayList();
+
 		// Veritabanından kategorileri çekme
 		try (Connection conn = DataBaseHelper.connect()) {
 			String sql = "SELECT id, ad FROM kategoriler"; // id'yi de ekledik
@@ -110,7 +99,7 @@ public class DataBaseHelper {
 			while (rs.next()) {
 				int kategoriId = rs.getInt("id");
 				String kategoriAd = rs.getString("ad");
-				kategoriList.add(new Category(kategoriId, kategoriAd)); // id ve ad'ı alıyoruz
+				kategoriList.add(new Categori(kategoriId, kategoriAd)); // id ve ad'ı alıyoruz
 			}
 		} catch (SQLException e) {
 			System.out.println("Kategori verilerini yüklerken hata oluştu: " + e.getMessage());
@@ -119,24 +108,4 @@ public class DataBaseHelper {
 		// TableView'ı verilerle doldur
 		return kategoriList;
 	}
-
-	public static void categorySil(String database, int id) {
-		String sql = "DELETE FROM kategoriler WHERE id = ?";
-		dbName = database;
-		int kategoriid = id;
-		try (Connection conn = DataBaseHelper.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-			pstmt.setInt(1, kategoriid);
-			int silinenSatir = pstmt.executeUpdate();
-			if (silinenSatir > 0) {
-				System.out.println("Kategori başarıyla silindi.");
-			} else {
-				System.out.println("Kategori bulunamadı.");
-			}
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
-
 }
