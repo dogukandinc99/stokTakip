@@ -11,7 +11,7 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/doguk/Downloads/sqlite-jdbc-3.49.1.0.jar">
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Libraries">
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>
