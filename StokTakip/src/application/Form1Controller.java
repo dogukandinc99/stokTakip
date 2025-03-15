@@ -1,9 +1,14 @@
 package application;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -11,21 +16,26 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 
 public class Form1Controller {
+	@FXML
+	private AnchorPane addStockForm;
+
+	@FXML
+	private AnchorPane mainForm;
+
+	@FXML
+	private AnchorPane settingsForm;
+
+	@FXML
+	private AnchorPane updateStockForm;
+
+	@FXML
+	private Button updateStockBtn;
 
 	@FXML
 	private Button addStockBtn;
 
 	@FXML
-	private AnchorPane addStockForm;
-
-	@FXML
-	private TextField categoriTextBox;
-
-	@FXML
 	private Button homeBtn;
-
-	@FXML
-	private AnchorPane mainForm;
 
 	@FXML
 	private Button newcategoribtn;
@@ -37,7 +47,25 @@ public class Form1Controller {
 	private Button settingsBtn;
 
 	@FXML
-	private AnchorPane settingsForm;
+	private Button addproductbtn;
+
+	@FXML
+	private TextField categoriTextBox;
+
+	@FXML
+	private TextField barkodtextbox;
+
+	@FXML
+	private TextField costtextbox;
+
+	@FXML
+	private TextField producttextbox;
+
+	@FXML
+	private ChoiceBox<String> categorychoicebox;
+
+	@FXML
+	private Spinner<Integer> productquantityspinner;
 
 	@FXML
 	private TableView<DataBaseHelper.Category> settingstableview;
@@ -48,13 +76,11 @@ public class Form1Controller {
 	@FXML
 	private TableColumn<?, ?> settingstableviewcolumn2;
 
-	@FXML
-	private Button updateStockBtn;
-
-	@FXML
-	private AnchorPane updateStockForm;
-
 	public void initialize() {
+		SpinnerValueFactory<Integer> valueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(-10000, 10000);
+		valueFactory.setValue(1);
+		productquantityspinner.setValueFactory(valueFactory);
+
 		settingstableviewcolumn1.setCellValueFactory(new PropertyValueFactory<>("id")); // id'yi bağladık
 		settingstableviewcolumn2.setCellValueFactory(new PropertyValueFactory<>("ad")); // ad'ı bağladık
 		settingstableview.setItems(DataBaseHelper.loadKategoriData("kategoriler")); // Verileri yükleme
@@ -72,6 +98,7 @@ public class Form1Controller {
 			addStockForm.setVisible(true);
 			updateStockForm.setVisible(false);
 			settingsForm.setVisible(false);
+			fillChoiceBox(categorychoicebox);
 		} else if (event.getSource() == updateStockBtn) {
 			mainForm.setVisible(false);
 			addStockForm.setVisible(false);
@@ -85,8 +112,20 @@ public class Form1Controller {
 		}
 	}
 
+	public void fillChoiceBox(ChoiceBox<String> choiceBox) {
+		ObservableList<DataBaseHelper.Category> kategoriList = DataBaseHelper.loadKategoriData("kategoriler");
+
+		// Kategori adlarını içeren bir listeye dönüştür
+		ObservableList<String> kategoriAdlari = FXCollections.observableArrayList();
+		for (DataBaseHelper.Category kategori : kategoriList) {
+			kategoriAdlari.add(kategori.getAd().toUpperCase());
+		}
+		choiceBox.setItems(kategoriAdlari);
+		choiceBox.getSelectionModel().select(0);
+	}
+
 	@FXML
-	public void valueInsertDataBase(ActionEvent event) {
+	public void valueCategoriInsertDataBase(ActionEvent event) {
 		String categoriString = categoriTextBox.getText().trim().toLowerCase();
 		if (categoriString.isEmpty()) {
 			System.out.println("Kategori kısmı boş girilemez.");
@@ -99,6 +138,11 @@ public class Form1Controller {
 				initialize();
 			}
 		}
+	}
+
+	@FXML
+	public void valueProductInsertDataBase(ActionEvent event) {
+
 	}
 
 	@FXML

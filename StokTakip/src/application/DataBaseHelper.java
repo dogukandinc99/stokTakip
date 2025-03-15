@@ -79,6 +79,23 @@ public class DataBaseHelper {
 		}
 	}
 
+	public static void addProduct(String database, String barkod, String productname, int productquantity,
+			String category, Double cost) {
+		String sql = "INSERT INTO stok (barkod,urun_adi,urun_adet,kategori,maliyet) VALUES (?,?,?,?,?)";
+		dbName = database;
+		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setString(1, barkod);
+			pstmt.setString(2, productname);
+			pstmt.setInt(3, productquantity);
+			pstmt.setString(4, category);
+			pstmt.setDouble(5, cost);
+			pstmt.executeUpdate(); // Sorguyu çalıştır
+		} catch (SQLException e) {
+			System.out.println("Kategori ekleme hatası: " + e.getMessage());
+		}
+	}
+
 	public static class Category {
 		private int id;
 		private String ad;
@@ -95,10 +112,11 @@ public class DataBaseHelper {
 		public String getAd() {
 			return ad;
 		}
+
 	}
 
 	// Veritabanından verileri alıp TableView'a yerleştirme
-	public static ObservableList loadKategoriData(String database) {
+	public static ObservableList<Category> loadKategoriData(String database) {
 		ObservableList<Category> kategoriList = FXCollections.observableArrayList();
 		dbName = database;
 		// Veritabanından kategorileri çekme
