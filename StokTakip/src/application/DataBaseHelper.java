@@ -41,22 +41,21 @@ public class DataBaseHelper {
 	}
 
 	// Kategoriler tablosunu oluşturma
-	public static void createTable(String database, String sql) {
-		dbName = database;
+	public static void createTable(String sql) {
+
 		try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
 			stmt.execute(sql);
-			System.out.println("Kategoriler tablosu kontrol edildi/oluşturuldu.");
 		} catch (SQLException e) {
 			System.out.println("Tablo oluşturma hatası: " + e.getMessage());
 		}
 	}
 
-	public static boolean kategoriVarMi(String database, String ad) {
-		String sql = "SELECT COUNT(*) FROM kategoriler WHERE ad = ?";
-		dbName = database;
+	public static boolean tabloVarMi(String tableName) {
+		String sql = "SELECT COUNT(*) FROM sqlite_master WHERE type= 'table' AND name= ? ";
+		dbName = tableName;
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-			pstmt.setString(1, ad);
+			pstmt.setString(1, tableName);
 			ResultSet rs = pstmt.executeQuery();
 			if (rs.next()) {
 				return rs.getInt(1) > 0; // Eğer 0'dan büyükse kategori zaten var
@@ -67,9 +66,25 @@ public class DataBaseHelper {
 		return false; // Hata durumunda yeni eklenebilir kabul eder
 	}
 
-	public static void kategoriEkle(String database, String ad) {
+	public static boolean kategoriVarMi(String tableName, String kategoriAdi) {
+		String sql = "SELECT COUNT(*) FROM kategoriler WHERE ad = ?";
+		dbName = tableName;
+		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setString(1, kategoriAdi);
+			ResultSet rs = pstmt.executeQuery();
+			if (rs.next()) {
+				return rs.getInt(1) > 0; // Eğer 0'dan büyükse kategori zaten var
+			}
+		} catch (SQLException e) {
+			System.out.println("Kategori kontrol hatası: " + e.getMessage());
+		}
+		return false; // Hata durumunda yeni eklenebilir kabul eder
+	}
+
+	public static void kategoriEkle(String tabloName, String ad) {
 		String sql = "INSERT INTO kategoriler (ad) VALUES (?)";
-		dbName = database;
+		dbName = tabloName;
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
 			pstmt.setString(1, ad); // Kategori adını yerleştir

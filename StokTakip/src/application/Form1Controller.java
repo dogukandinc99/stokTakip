@@ -77,13 +77,44 @@ public class Form1Controller {
 	private TableColumn<?, ?> settingstableviewcolumn2;
 
 	public void initialize() {
-		SpinnerValueFactory<Integer> valueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(-10000, 10000);
-		valueFactory.setValue(1);
+		SpinnerValueFactory<Integer> valueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(-10000, 10000,
+				1);
 		productquantityspinner.setValueFactory(valueFactory);
+
+		tablokontrol();
 
 		settingstableviewcolumn1.setCellValueFactory(new PropertyValueFactory<>("id")); // id'yi bağladık
 		settingstableviewcolumn2.setCellValueFactory(new PropertyValueFactory<>("ad")); // ad'ı bağladık
 		settingstableview.setItems(DataBaseHelper.loadKategoriData("kategoriler")); // Verileri yükleme
+	}
+
+	public void tablokontrol() {
+
+		tabloOlustur("kategoriler", """
+					    CREATE TABLE IF NOT EXISTS kategoriler (
+				        id INTEGER PRIMARY KEY AUTOINCREMENT,
+				        ad TEXT NOT NULL
+				    );
+				""");
+		tabloOlustur("stok", """
+					    CREATE TABLE IF NOT EXISTS stok (
+				        id INTEGER PRIMARY KEY AUTOINCREMENT,
+				        barkod TEXT UNIQUE NOT NULL,
+				 		urun_adi TEXT NOT NULL,
+				 		urun_adet INTEGER NOT NULL,
+				 		kategori TEXT NOT NULL,
+				 		maliyet REAL NOT NULL
+				    );
+				""");
+	}
+
+	private void tabloOlustur(String tabloName, String sql) {
+		if (DataBaseHelper.tabloVarMi(tabloName)) {
+			System.out.println(tabloName + " tablosu mevcut...");
+		} else {
+			DataBaseHelper.createTable(sql);
+			System.out.println(tabloName + " tablosu eklendi...");
+		}
 	}
 
 	@FXML
@@ -97,7 +128,7 @@ public class Form1Controller {
 			mainForm.setVisible(false);
 			addStockForm.setVisible(true);
 			updateStockForm.setVisible(false);
-			settingsForm.setVisible(false);
+			settingsForm.setVisible(false);	
 			fillChoiceBox(categorychoicebox);
 		} else if (event.getSource() == updateStockBtn) {
 			mainForm.setVisible(false);
@@ -112,6 +143,7 @@ public class Form1Controller {
 		}
 	}
 
+	@FXML
 	public void fillChoiceBox(ChoiceBox<String> choiceBox) {
 		ObservableList<DataBaseHelper.Category> kategoriList = DataBaseHelper.loadKategoriData("kategoriler");
 
@@ -130,14 +162,20 @@ public class Form1Controller {
 		if (categoriString.isEmpty()) {
 			System.out.println("Kategori kısmı boş girilemez.");
 		} else {
-			if (DataBaseHelper.kategoriVarMi("kategoriler", categoriString)) {
-				System.out.println("Kategori zaten mevcut...");
-			} else {
+			if (!DataBaseHelper.kategoriVarMi("kategoriler", categoriString)) {
 				DataBaseHelper.kategoriEkle("kategoriler", categoriString);
-				System.out.println("Kategori eklendi...");
-				initialize();
+				fillChoiceBox(categorychoicebox);
+			} else {
+				System.out.println("Bu kategori zaten var!");
 			}
 		}
+		try {
+			settingstableview.setItems(DataBaseHelper.loadKategoriData("kategoriler")); // Verileri yükleme
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println("sorun var");
+		}
+
 	}
 
 	@FXML
