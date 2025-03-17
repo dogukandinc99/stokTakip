@@ -18,48 +18,38 @@ import javafx.scene.layout.AnchorPane;
 public class Form1Controller {
 	@FXML
 	private AnchorPane addStockForm;
-
 	@FXML
 	private AnchorPane mainForm;
-
 	@FXML
 	private AnchorPane settingsForm;
-
 	@FXML
 	private AnchorPane updateStockForm;
 
 	@FXML
 	private Button updateStockBtn;
-
 	@FXML
 	private Button addStockBtn;
-
 	@FXML
 	private Button homeBtn;
-
 	@FXML
 	private Button newcategoribtn;
-
 	@FXML
 	private Button deletecategoribtn;
-
 	@FXML
 	private Button settingsBtn;
-
 	@FXML
 	private Button addproductbtn;
 
 	@FXML
 	private TextField categoriTextBox;
-
 	@FXML
 	private TextField barkodtextbox;
-
 	@FXML
 	private TextField costtextbox;
-
 	@FXML
 	private TextField producttextbox;
+	@FXML
+	private TextField mainSearchTextbox;
 
 	@FXML
 	private ChoiceBox<String> categorychoicebox;
@@ -71,12 +61,15 @@ public class Form1Controller {
 	private TableView<DataBaseHelper.VeriModel> settingstableview;
 	@FXML
 	private TableView<DataBaseHelper.VeriModel> addProductTableView;
+	@FXML
+	private TableView<DataBaseHelper.VeriModel> mainTableView;
+	@FXML
+	private TableView<DataBaseHelper.VeriModel> upgradeTableView;
 
 	@FXML
 	private TableColumn<DataBaseHelper.VeriModel, Integer> settingstableviewcolumn1;
 	@FXML
 	private TableColumn<DataBaseHelper.VeriModel, String> settingstableviewcolumn2;
-
 	@FXML
 	private TableColumn<DataBaseHelper.VeriModel, Integer> addProductTableViewColumn1;
 	@FXML
@@ -89,6 +82,30 @@ public class Form1Controller {
 	private TableColumn<DataBaseHelper.VeriModel, String> addProductTableViewColumn5;
 	@FXML
 	private TableColumn<DataBaseHelper.VeriModel, Double> addProductTableViewColumn6;
+	@FXML
+	private TableColumn<DataBaseHelper.VeriModel, Integer> mainTableViewColumn1;
+	@FXML
+	private TableColumn<DataBaseHelper.VeriModel, String> mainTableViewColumn2;
+	@FXML
+	private TableColumn<DataBaseHelper.VeriModel, String> mainTableViewColumn3;
+	@FXML
+	private TableColumn<DataBaseHelper.VeriModel, Integer> mainTableViewColumn4;
+	@FXML
+	private TableColumn<DataBaseHelper.VeriModel, String> mainTableViewColumn5;
+	@FXML
+	private TableColumn<DataBaseHelper.VeriModel, Double> mainTableViewColumn6;
+	@FXML
+	private TableColumn<DataBaseHelper.VeriModel, Integer> upgradeTableViewColumn1;
+	@FXML
+	private TableColumn<DataBaseHelper.VeriModel, String> upgradeTableViewColumn2;
+	@FXML
+	private TableColumn<DataBaseHelper.VeriModel, String> upgradeTableViewColumn3;
+	@FXML
+	private TableColumn<DataBaseHelper.VeriModel, Integer> upgradeTableViewColumn4;
+	@FXML
+	private TableColumn<DataBaseHelper.VeriModel, String> upgradeTableViewColumn5;
+	@FXML
+	private TableColumn<DataBaseHelper.VeriModel, Double> upgradeTableViewColumn6;
 
 	public void initialize() {
 		SpinnerValueFactory<Integer> valueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(-10000, 10000,
@@ -98,7 +115,7 @@ public class Form1Controller {
 		tablokontrol();
 		settingstableviewcolumn1.setCellValueFactory(new PropertyValueFactory<>("id")); // id'yi bağladık
 		settingstableviewcolumn2.setCellValueFactory(new PropertyValueFactory<>("ad")); // ad'ı bağladık
-		settingstableview.setItems(DataBaseHelper.loadData("kategoriler")); // Verileri yükleme
+		tableViewUpgrade(settingstableview, "kategoriler");
 
 		addProductTableViewColumn1.setCellValueFactory(new PropertyValueFactory<>("id"));
 		addProductTableViewColumn2.setCellValueFactory(new PropertyValueFactory<>("barkod"));
@@ -106,7 +123,23 @@ public class Form1Controller {
 		addProductTableViewColumn4.setCellValueFactory(new PropertyValueFactory<>("urunAdet"));
 		addProductTableViewColumn5.setCellValueFactory(new PropertyValueFactory<>("kategori"));
 		addProductTableViewColumn6.setCellValueFactory(new PropertyValueFactory<>("maliyet"));
-		addProductTableView.setItems(DataBaseHelper.loadData("stok"));
+		tableViewUpgrade(addProductTableView, "stok");
+
+		mainTableViewColumn1.setCellValueFactory(new PropertyValueFactory<>("id"));
+		mainTableViewColumn2.setCellValueFactory(new PropertyValueFactory<>("barkod"));
+		mainTableViewColumn3.setCellValueFactory(new PropertyValueFactory<>("urunAdi"));
+		mainTableViewColumn4.setCellValueFactory(new PropertyValueFactory<>("urunAdet"));
+		mainTableViewColumn5.setCellValueFactory(new PropertyValueFactory<>("kategori"));
+		mainTableViewColumn6.setCellValueFactory(new PropertyValueFactory<>("maliyet"));
+		tableViewUpgrade(mainTableView, "stok");
+
+		upgradeTableViewColumn1.setCellValueFactory(new PropertyValueFactory<>("id"));
+		upgradeTableViewColumn2.setCellValueFactory(new PropertyValueFactory<>("barkod"));
+		upgradeTableViewColumn3.setCellValueFactory(new PropertyValueFactory<>("urunAdi"));
+		upgradeTableViewColumn4.setCellValueFactory(new PropertyValueFactory<>("urunAdet"));
+		upgradeTableViewColumn5.setCellValueFactory(new PropertyValueFactory<>("kategori"));
+		upgradeTableViewColumn6.setCellValueFactory(new PropertyValueFactory<>("maliyet"));
+		tableViewUpgrade(upgradeTableView, "stok");
 	}
 
 	public void tablokontrol() {
@@ -145,22 +178,26 @@ public class Form1Controller {
 			addStockForm.setVisible(false);
 			updateStockForm.setVisible(false);
 			settingsForm.setVisible(false);
+			tableViewUpgrade(mainTableView, "stok");
 		} else if (event.getSource() == addStockBtn) {
 			mainForm.setVisible(false);
 			addStockForm.setVisible(true);
 			updateStockForm.setVisible(false);
 			settingsForm.setVisible(false);
 			fillChoiceBox(categorychoicebox);
+			tableViewUpgrade(addProductTableView, "stok");
 		} else if (event.getSource() == updateStockBtn) {
 			mainForm.setVisible(false);
 			addStockForm.setVisible(false);
 			updateStockForm.setVisible(true);
 			settingsForm.setVisible(false);
+			tableViewUpgrade(upgradeTableView, "stok");
 		} else if (event.getSource() == settingsBtn) {
 			mainForm.setVisible(false);
 			addStockForm.setVisible(false);
 			updateStockForm.setVisible(false);
 			settingsForm.setVisible(true);
+			tableViewUpgrade(settingstableview, "kategoriler");
 		}
 	}
 
@@ -215,12 +252,7 @@ public class Form1Controller {
 				System.out.println("Bu kategori zaten var!");
 			}
 		}
-		try {
-			addProductTableView.setItems(DataBaseHelper.loadData("stok")); // Verileri yükleme
-		} catch (Exception e) {
-			// TODO: handle exception
-			System.out.println("sorun var");
-		}
+		tableViewUpgrade(addProductTableView, "stok");
 	}
 
 	@FXML
@@ -232,7 +264,17 @@ public class Form1Controller {
 		} else {
 			DataBaseHelper.categorySil("kategoriler", selectCategory.getId());
 		}
-		initialize();
+		tableViewUpgrade(settingstableview, "kategoriler");
+	}
+
+	private void tableViewUpgrade(TableView<DataBaseHelper.VeriModel> tableView, String table) {
+		try {
+			tableView.setItems(DataBaseHelper.loadData(table)); // Verileri yükleme
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println("sorun var");
+		}
+
 	}
 
 }

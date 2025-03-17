@@ -33,23 +33,23 @@
 					<center>
 						<AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
 							<children>
-								<AnchorPane fx:id="mainForm" prefHeight="600.0" prefWidth="777.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+								<AnchorPane fx:id="mainForm" prefHeight="600.0" prefWidth="777.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 									<children>
-										<TableView layoutX="43.0" layoutY="82.0" prefHeight="479.0" prefWidth="702.0">
+										<TableView fx:id="mainTableView" layoutX="43.0" layoutY="82.0" prefHeight="479.0" prefWidth="702.0">
 											<columns>
-												<TableColumn prefWidth="117.0" text="C1" />
-												<TableColumn prefWidth="117.0" text="C2" />
-												<TableColumn prefWidth="117.0" text="C3" />
-												<TableColumn prefWidth="117.0" text="C4" />
-												<TableColumn prefWidth="117.0" text="C5" />
-												<TableColumn prefWidth="117.0" text="C6" />
+												<TableColumn fx:id="mainTableViewColumn1" prefWidth="117.0" text="C1" />
+												<TableColumn fx:id="mainTableViewColumn2" prefWidth="117.0" text="C2" />
+												<TableColumn fx:id="mainTableViewColumn3" prefWidth="117.0" text="C3" />
+												<TableColumn fx:id="mainTableViewColumn4" prefWidth="117.0" text="C4" />
+												<TableColumn fx:id="mainTableViewColumn5" prefWidth="117.0" text="C5" />
+												<TableColumn fx:id="mainTableViewColumn6" prefWidth="117.0" text="C6" />
 											</columns>
 										</TableView>
-										<TextField layoutX="43.0" layoutY="57.0" prefHeight="25.0" prefWidth="526.0" />
-										<ChoiceBox layoutX="574.0" layoutY="57.0" prefHeight="25.0" prefWidth="171.0" />
+										<TextField fx:id="mainSearchTextbox" layoutX="43.0" layoutY="57.0" prefHeight="25.0" prefWidth="526.0" />
+										<ChoiceBox fx:id="mainChoiceBox" layoutX="574.0" layoutY="57.0" prefHeight="25.0" prefWidth="171.0" />
 									</children>
 								</AnchorPane>
-								<AnchorPane fx:id="addStockForm" prefHeight="600.0" prefWidth="777.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+								<AnchorPane fx:id="addStockForm" prefHeight="600.0" prefWidth="777.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 									<children>
 										<Label layoutX="41.0" layoutY="56.0" text="BARKOD" />
 										<TextField fx:id="barkodtextbox" layoutX="41.0" layoutY="73.0" />
@@ -87,14 +87,14 @@
 										<Label layoutX="595.0" layoutY="56.0" text="MALİYET" />
 										<TextField layoutX="594.0" layoutY="73.0" />
 										<Button layoutX="323.0" layoutY="108.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="149.0" text="ÜRÜNÜ GÜNCELLE" textAlignment="CENTER" />
-										<TableView layoutX="43.0" layoutY="201.0" prefHeight="361.0" prefWidth="702.0">
+										<TableView fx:id="upgradeTableView" layoutX="43.0" layoutY="201.0" prefHeight="361.0" prefWidth="702.0">
 											<columns>
-												<TableColumn prefWidth="117.0" text="C1" />
-												<TableColumn prefWidth="117.0" text="C2" />
-												<TableColumn prefWidth="117.0" text="C3" />
-												<TableColumn prefWidth="117.0" text="C4" />
-												<TableColumn prefWidth="117.0" text="C5" />
-												<TableColumn prefWidth="117.0" text="C6" />
+												<TableColumn fx:id="upgradeTableViewColumn1" prefWidth="117.0" text="C1" />
+												<TableColumn fx:id="upgradeTableViewColumn2" prefWidth="117.0" text="C2" />
+												<TableColumn fx:id="upgradeTableViewColumn3" prefWidth="117.0" text="C3" />
+												<TableColumn fx:id="upgradeTableViewColumn4" prefWidth="117.0" text="C4" />
+												<TableColumn fx:id="upgradeTableViewColumn5" prefWidth="117.0" text="C5" />
+												<TableColumn fx:id="upgradeTableViewColumn6" prefWidth="117.0" text="C6" />
 											</columns>
 										</TableView>
 										<TextField layoutX="43.0" layoutY="176.0" prefHeight="25.0" prefWidth="526.0" />
