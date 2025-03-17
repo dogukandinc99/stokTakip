@@ -68,13 +68,27 @@ public class Form1Controller {
 	private Spinner<Integer> productquantityspinner;
 
 	@FXML
-	private TableView<DataBaseHelper.Category> settingstableview;
+	private TableView<DataBaseHelper.VeriModel> settingstableview;
+	@FXML
+	private TableView<DataBaseHelper.VeriModel> addProductTableView;
 
 	@FXML
-	private TableColumn<?, ?> settingstableviewcolumn1;
+	private TableColumn<DataBaseHelper.VeriModel, Integer> settingstableviewcolumn1;
+	@FXML
+	private TableColumn<DataBaseHelper.VeriModel, String> settingstableviewcolumn2;
 
 	@FXML
-	private TableColumn<?, ?> settingstableviewcolumn2;
+	private TableColumn<DataBaseHelper.VeriModel, Integer> addProductTableViewColumn1;
+	@FXML
+	private TableColumn<DataBaseHelper.VeriModel, String> addProductTableViewColumn2;
+	@FXML
+	private TableColumn<DataBaseHelper.VeriModel, String> addProductTableViewColumn3;
+	@FXML
+	private TableColumn<DataBaseHelper.VeriModel, Integer> addProductTableViewColumn4;
+	@FXML
+	private TableColumn<DataBaseHelper.VeriModel, String> addProductTableViewColumn5;
+	@FXML
+	private TableColumn<DataBaseHelper.VeriModel, Double> addProductTableViewColumn6;
 
 	public void initialize() {
 		SpinnerValueFactory<Integer> valueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(-10000, 10000,
@@ -82,10 +96,17 @@ public class Form1Controller {
 		productquantityspinner.setValueFactory(valueFactory);
 
 		tablokontrol();
-
 		settingstableviewcolumn1.setCellValueFactory(new PropertyValueFactory<>("id")); // id'yi bağladık
 		settingstableviewcolumn2.setCellValueFactory(new PropertyValueFactory<>("ad")); // ad'ı bağladık
-		settingstableview.setItems(DataBaseHelper.loadKategoriData("kategoriler")); // Verileri yükleme
+		settingstableview.setItems(DataBaseHelper.loadData("kategoriler")); // Verileri yükleme
+
+		addProductTableViewColumn1.setCellValueFactory(new PropertyValueFactory<>("id"));
+		addProductTableViewColumn2.setCellValueFactory(new PropertyValueFactory<>("barkod"));
+		addProductTableViewColumn3.setCellValueFactory(new PropertyValueFactory<>("urunAdi"));
+		addProductTableViewColumn4.setCellValueFactory(new PropertyValueFactory<>("urunAdet"));
+		addProductTableViewColumn5.setCellValueFactory(new PropertyValueFactory<>("kategori"));
+		addProductTableViewColumn6.setCellValueFactory(new PropertyValueFactory<>("maliyet"));
+		addProductTableView.setItems(DataBaseHelper.loadData("stok"));
 	}
 
 	public void tablokontrol() {
@@ -128,7 +149,7 @@ public class Form1Controller {
 			mainForm.setVisible(false);
 			addStockForm.setVisible(true);
 			updateStockForm.setVisible(false);
-			settingsForm.setVisible(false);	
+			settingsForm.setVisible(false);
 			fillChoiceBox(categorychoicebox);
 		} else if (event.getSource() == updateStockBtn) {
 			mainForm.setVisible(false);
@@ -145,11 +166,11 @@ public class Form1Controller {
 
 	@FXML
 	public void fillChoiceBox(ChoiceBox<String> choiceBox) {
-		ObservableList<DataBaseHelper.Category> kategoriList = DataBaseHelper.loadKategoriData("kategoriler");
+		ObservableList<DataBaseHelper.VeriModel> kategoriList = DataBaseHelper.loadData("kategoriler");
 
 		// Kategori adlarını içeren bir listeye dönüştür
 		ObservableList<String> kategoriAdlari = FXCollections.observableArrayList();
-		for (DataBaseHelper.Category kategori : kategoriList) {
+		for (DataBaseHelper.VeriModel kategori : kategoriList) {
 			kategoriAdlari.add(kategori.getAd().toUpperCase());
 		}
 		choiceBox.setItems(kategoriAdlari);
@@ -162,7 +183,7 @@ public class Form1Controller {
 		if (categoriString.isEmpty()) {
 			System.out.println("Kategori kısmı boş girilemez.");
 		} else {
-			if (!DataBaseHelper.kategoriVarMi("kategoriler", categoriString)) {
+			if (!DataBaseHelper.degerVarMi("kategoriler", "ad", categoriString)) {
 				DataBaseHelper.kategoriEkle("kategoriler", categoriString);
 				fillChoiceBox(categorychoicebox);
 			} else {
@@ -170,7 +191,7 @@ public class Form1Controller {
 			}
 		}
 		try {
-			settingstableview.setItems(DataBaseHelper.loadKategoriData("kategoriler")); // Verileri yükleme
+			settingstableview.setItems(DataBaseHelper.loadData("kategoriler")); // Verileri yükleme
 		} catch (Exception e) {
 			// TODO: handle exception
 			System.out.println("sorun var");
@@ -180,12 +201,31 @@ public class Form1Controller {
 
 	@FXML
 	public void valueProductInsertDataBase(ActionEvent event) {
-
+		String barkod = barkodtextbox.getText().trim().toLowerCase();
+		String ürünAdi = producttextbox.getText().trim().toLowerCase();
+		Integer ürünAdet = productquantityspinner.getValue();
+		String category = categorychoicebox.getValue();
+		Double maliyet = Double.parseDouble(costtextbox.getText());
+		if (barkod.isEmpty() && ürünAdi.isEmpty() && ürünAdet == 0 && maliyet == 0) {
+			System.out.println("Bazı alanlar boş...");
+		} else {
+			if (!DataBaseHelper.degerVarMi("stok", "urun_adi", ürünAdi)) {
+				DataBaseHelper.addProduct("stok", barkod, ürünAdi, ürünAdet, category, maliyet);
+			} else {
+				System.out.println("Bu kategori zaten var!");
+			}
+		}
+		try {
+			addProductTableView.setItems(DataBaseHelper.loadData("stok")); // Verileri yükleme
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println("sorun var");
+		}
 	}
 
 	@FXML
 	public void valueDeleteDataBase(ActionEvent event) {
-		DataBaseHelper.Category selectCategory = settingstableview.getSelectionModel().getSelectedItem();
+		DataBaseHelper.VeriModel selectCategory = settingstableview.getSelectionModel().getSelectedItem();
 		if (settingstableview.getSelectionModel().getSelectedItem() == null) {
 			System.out.println("Lütfen bir kategori seçin.");
 			return;// Eğer kategori seçilmemişse işlemi durdur

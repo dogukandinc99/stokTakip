@@ -66,13 +66,14 @@ public class DataBaseHelper {
 		return false; // Hata durumunda yeni eklenebilir kabul eder
 	}
 
-	public static boolean kategoriVarMi(String tableName, String kategoriAdi) {
-		String sql = "SELECT COUNT(*) FROM kategoriler WHERE ad = ?";
+	public static boolean degerVarMi(String tableName, String sütunAdi, String kategoriAdi) {
+		String sql = "SELECT COUNT(*) FROM " + tableName + " WHERE " + sütunAdi + " = ?";
 		dbName = tableName;
-		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
+		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, kategoriAdi);
 			ResultSet rs = pstmt.executeQuery();
+
 			if (rs.next()) {
 				return rs.getInt(1) > 0; // Eğer 0'dan büyükse kategori zaten var
 			}
@@ -111,46 +112,93 @@ public class DataBaseHelper {
 		}
 	}
 
-	public static class Category {
+	public static class VeriModel {
 		private int id;
-		private String ad;
+		private String barkod;
+		private String urun_Adi;
+		private int urun_Adet;
+		private String kategori;
+		private double maliyet;
+		private String ad; // Kategori için
 
-		public Category(int id, String ad) {
+		// Stok tablosu için constructor
+		public VeriModel(int id, String barkod, String urun_Adi, int urun_Adet, String kategori, double maliyet) {
+			this.id = id;
+			this.barkod = barkod;
+			this.urun_Adi = urun_Adi;
+			this.urun_Adet = urun_Adet;
+			this.kategori = kategori;
+			this.maliyet = maliyet;
+		}
+
+		// Kategori tablosu için constructor
+		public VeriModel(int id, String ad) {
 			this.id = id;
 			this.ad = ad;
 		}
 
+		// Getter metodları
 		public int getId() {
 			return id;
+		}
+
+		public String getBarkod() {
+			return barkod;
+		}
+
+		public String getUrunAdi() {
+			return urun_Adi;
+		}
+
+		public int getUrunAdet() {
+			return urun_Adet;
+		}
+
+		public String getKategori() {
+			return kategori;
+		}
+
+		public double getMaliyet() {
+			return maliyet;
 		}
 
 		public String getAd() {
 			return ad;
 		}
-
 	}
 
-	// Veritabanından verileri alıp TableView'a yerleştirme
-	public static ObservableList<Category> loadKategoriData(String database) {
-		ObservableList<Category> kategoriList = FXCollections.observableArrayList();
-		dbName = database;
-		// Veritabanından kategorileri çekme
-		try (Connection conn = DataBaseHelper.connect()) {
-			String sql = "SELECT id, ad FROM kategoriler"; // id'yi de ekledik
+	public static ObservableList<VeriModel> loadData(String tabloAdi) {
+		ObservableList<VeriModel> veriList = FXCollections.observableArrayList();
+		dbName = tabloAdi;
+		try (Connection conn = connect()) {
+			String sql = switch (tabloAdi) {
+			case "kategoriler" -> "SELECT id, ad FROM kategoriler";
+			case "stok" -> "SELECT id, barkod, urun_adi, urun_adet, kategori, maliyet FROM stok";
+			default -> {
+				System.out.println("Hatalı tablo adı: " + tabloAdi);
+				yield null;
+			}
+			};
+			System.out.println("switch case sonrası");
+			if (sql == null)
+				return veriList;
+			System.out.println(sql);
 			PreparedStatement pstmt = conn.prepareStatement(sql);
 			ResultSet rs = pstmt.executeQuery();
 
 			while (rs.next()) {
-				int kategoriId = rs.getInt("id");
-				String kategoriAd = rs.getString("ad");
-				kategoriList.add(new Category(kategoriId, kategoriAd)); // id ve ad'ı alıyoruz
+				if (tabloAdi.equals("kategoriler")) {
+					veriList.add(new VeriModel(rs.getInt("id"), rs.getString("ad")));
+				} else if (tabloAdi.equals("stok")) {
+					veriList.add(new VeriModel(rs.getInt("id"), rs.getString("barkod"), rs.getString("urun_adi"),
+							rs.getInt("urun_adet"), rs.getString("kategori"), rs.getDouble("maliyet")));
+				}
 			}
 		} catch (SQLException e) {
-			System.out.println("Kategori verilerini yüklerken hata oluştu: " + e.getMessage());
+			System.out.println("Veri yükleme hatası: " + e.getMessage());
 		}
 
-		// TableView'ı verilerle doldur
-		return kategoriList;
+		return veriList;
 	}
 
 	public static void categorySil(String database, int id) {
