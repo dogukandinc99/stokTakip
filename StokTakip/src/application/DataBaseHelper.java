@@ -179,10 +179,8 @@ public class DataBaseHelper {
 				yield null;
 			}
 			};
-			System.out.println("switch case sonrası");
 			if (sql == null)
 				return veriList;
-			System.out.println(sql);
 			PreparedStatement pstmt = conn.prepareStatement(sql);
 			ResultSet rs = pstmt.executeQuery();
 
@@ -199,6 +197,54 @@ public class DataBaseHelper {
 		}
 
 		return veriList;
+	}
+
+	public static ObservableList<VeriModel> stoklariAra(String aramaMetni) {
+		ObservableList<VeriModel> urunListesi = FXCollections.observableArrayList();
+
+		String sql = "SELECT * FROM stok WHERE " + "barkod LIKE ? OR " + "urun_adi LIKE ? OR " + "kategori LIKE ?"; // Arama
+																													// sorgusu
+
+		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setString(1, "%" + aramaMetni + "%"); // "%" ekleyerek içinde geçenleri buluyoruz
+			pstmt.setString(2, "%" + aramaMetni + "%"); // "%" ekleyerek içinde geçenleri buluyoruz
+			pstmt.setString(3, "%" + aramaMetni + "%"); // "%" ekleyerek içinde geçenleri buluyoruz
+
+			ResultSet rs = pstmt.executeQuery();
+
+			while (rs.next()) {
+				urunListesi.add(new VeriModel(rs.getInt("id"), rs.getString("barkod"), rs.getString("urun_adi"),
+						rs.getInt("urun_adet"), rs.getString("kategori"), rs.getDouble("maliyet")));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return urunListesi;
+	}
+
+	public static ObservableList<VeriModel> kategoriFiltreleme(String aramaMetni) {
+		ObservableList<VeriModel> urunListesi = FXCollections.observableArrayList();
+
+		String sql = "SELECT * FROM stok WHERE kategori LIKE ?"; // Arama
+																	// sorgusu
+
+		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setString(1, aramaMetni); // "%" ekleyerek içinde geçenleri buluyoruz
+
+			ResultSet rs = pstmt.executeQuery();
+
+			while (rs.next()) {
+				urunListesi.add(new VeriModel(rs.getInt("id"), rs.getString("barkod"), rs.getString("urun_adi"),
+						rs.getInt("urun_adet"), rs.getString("kategori"), rs.getDouble("maliyet")));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return urunListesi;
 	}
 
 	public static void categorySil(String database, int id) {

@@ -53,9 +53,17 @@ public class Form1Controller {
 
 	@FXML
 	private ChoiceBox<String> categorychoicebox;
+	@FXML
+	private ChoiceBox<String> upgradeChoiceBox;
+	@FXML
+	private ChoiceBox<String> searchChoiceBox;
+	@FXML
+	private ChoiceBox<String> mainChoiceBox;
 
 	@FXML
 	private Spinner<Integer> productquantityspinner;
+	@FXML
+	private Spinner<Integer> upgradeproductquantityspinner;
 
 	@FXML
 	private TableView<DataBaseHelper.VeriModel> settingstableview;
@@ -111,6 +119,9 @@ public class Form1Controller {
 		SpinnerValueFactory<Integer> valueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(-10000, 10000,
 				1);
 		productquantityspinner.setValueFactory(valueFactory);
+		upgradeproductquantityspinner.setValueFactory(valueFactory);
+
+		ChoiceBoxs();
 
 		tablokontrol();
 		settingstableviewcolumn1.setCellValueFactory(new PropertyValueFactory<>("id")); // id'yi bağladık
@@ -140,6 +151,16 @@ public class Form1Controller {
 		upgradeTableViewColumn5.setCellValueFactory(new PropertyValueFactory<>("kategori"));
 		upgradeTableViewColumn6.setCellValueFactory(new PropertyValueFactory<>("maliyet"));
 		tableViewUpgrade(upgradeTableView, "stok");
+
+		mainSearchTextbox.textProperty().addListener((observable, oldValue, newValue) -> {
+			if (!newValue.isEmpty()) {
+				searchProduct(mainTableView, newValue); // Kullanıcı her değişiklik yaptığında bu metot çalışır
+			}
+		});
+		mainChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+			searchCategory(mainTableView, newValue);
+		});
+
 	}
 
 	public void tablokontrol() {
@@ -184,7 +205,6 @@ public class Form1Controller {
 			addStockForm.setVisible(true);
 			updateStockForm.setVisible(false);
 			settingsForm.setVisible(false);
-			fillChoiceBox(categorychoicebox);
 			tableViewUpgrade(addProductTableView, "stok");
 		} else if (event.getSource() == updateStockBtn) {
 			mainForm.setVisible(false);
@@ -199,6 +219,13 @@ public class Form1Controller {
 			settingsForm.setVisible(true);
 			tableViewUpgrade(settingstableview, "kategoriler");
 		}
+	}
+
+	public void ChoiceBoxs() {
+		fillChoiceBox(mainChoiceBox);
+		fillChoiceBox(categorychoicebox);
+		fillChoiceBox(searchChoiceBox);
+		fillChoiceBox(upgradeChoiceBox);
 	}
 
 	@FXML
@@ -222,18 +249,42 @@ public class Form1Controller {
 		} else {
 			if (!DataBaseHelper.degerVarMi("kategoriler", "ad", categoriString)) {
 				DataBaseHelper.kategoriEkle("kategoriler", categoriString);
-				fillChoiceBox(categorychoicebox);
 			} else {
 				System.out.println("Bu kategori zaten var!");
 			}
 		}
 		try {
-			settingstableview.setItems(DataBaseHelper.loadData("kategoriler")); // Verileri yükleme
+			tableViewUpgrade(settingstableview, "kategoriler");
+			ChoiceBoxs();
 		} catch (Exception e) {
 			// TODO: handle exception
 			System.out.println("sorun var");
 		}
+	}
 
+	private void searchProduct(TableView<DataBaseHelper.VeriModel> tableView, String aramaMetni) {
+		try {
+			tableView.setItems(DataBaseHelper.stoklariAra(aramaMetni)); // Verileri yükleme
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println("sorun var");
+		}
+	}
+
+	private void searchCategory(TableView<DataBaseHelper.VeriModel> tableView, String aramaMetni) {
+		try {
+			if (!aramaMetni.equals("TÜMÜ")) {
+				tableView.setItems(DataBaseHelper.kategoriFiltreleme(aramaMetni)); // Verileri yükleme
+
+			} else if (aramaMetni.equals("TÜMÜ")) {
+				System.out.println("buradayım");
+				tableViewUpgrade(tableView, "stok");
+			}
+
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println("sorun var");
+		}
 	}
 
 	@FXML
@@ -253,6 +304,7 @@ public class Form1Controller {
 			}
 		}
 		tableViewUpgrade(addProductTableView, "stok");
+		ChoiceBoxs();
 	}
 
 	@FXML
@@ -265,6 +317,7 @@ public class Form1Controller {
 			DataBaseHelper.categorySil("kategoriler", selectCategory.getId());
 		}
 		tableViewUpgrade(settingstableview, "kategoriler");
+		ChoiceBoxs();
 	}
 
 	private void tableViewUpgrade(TableView<DataBaseHelper.VeriModel> tableView, String table) {

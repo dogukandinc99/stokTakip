@@ -81,9 +81,9 @@
 										<Label layoutX="194.0" layoutY="56.0" text="ÜRÜN ADI" />
 										<TextField layoutX="194.0" layoutY="73.0" />
 										<Label layoutX="347.0" layoutY="56.0" text="ÜRÜN ADETİ" />
-										<Spinner editable="true" layoutX="347.0" layoutY="73.0" prefHeight="25.0" prefWidth="90.0" />
+										<Spinner fx:id="upgradeproductquantityspinner" editable="true" layoutX="347.0" layoutY="73.0" prefHeight="25.0" prefWidth="90.0" />
 										<Label layoutX="442.0" layoutY="56.0" text="KATEGORİ" />
-                              <ChoiceBox layoutX="441.0" layoutY="73.0" prefWidth="150.0" />
+                              <ChoiceBox fx:id="upgradeChoiceBox" layoutX="441.0" layoutY="73.0" prefWidth="150.0" />
 										<Label layoutX="595.0" layoutY="56.0" text="MALİYET" />
 										<TextField layoutX="594.0" layoutY="73.0" />
 										<Button layoutX="323.0" layoutY="108.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="149.0" text="ÜRÜNÜ GÜNCELLE" textAlignment="CENTER" />
@@ -98,7 +98,7 @@
 											</columns>
 										</TableView>
 										<TextField layoutX="43.0" layoutY="176.0" prefHeight="25.0" prefWidth="526.0" />
-										<ChoiceBox layoutX="574.0" layoutY="176.0" prefHeight="25.0" prefWidth="171.0" />
+										<ChoiceBox fx:id="searchChoiceBox" layoutX="574.0" layoutY="176.0" prefHeight="25.0" prefWidth="171.0" />
 									</children>
 								</AnchorPane>
 								<AnchorPane fx:id="settingsForm" layoutX="10.0" layoutY="10.0" prefHeight="610.0" prefWidth="787.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
