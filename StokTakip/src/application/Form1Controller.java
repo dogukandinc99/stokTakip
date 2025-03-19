@@ -56,6 +56,12 @@ public class Form1Controller {
 	private TextField mainSearchTextbox;
 	@FXML
 	private TextField upgradeSearchTextbox;
+	@FXML
+	private TextField upgradeBarkodTextBox;
+	@FXML
+	private TextField upgradeProductNameTextbox;
+	@FXML
+	private TextField upgradeCostTextbox;
 
 	@FXML
 	private ChoiceBox<String> categorychoicebox;
@@ -163,6 +169,9 @@ public class Form1Controller {
 		setupSearchListener(upgradeSearchTextbox, upgradeTableView);
 		setupSearchListener(upgradeSearchChoiceBox, upgradeTableView);
 
+		loadProductDetailsToFields();
+		valueProductUpgradeDataBase();
+
 	}
 
 	private void setupSearchListener(TextField textField, TableView<DataBaseHelper.VeriModel> tableView) {
@@ -188,7 +197,7 @@ public class Form1Controller {
 		}
 	}
 
-	public void tablokontrol() {
+	private void tablokontrol() {
 
 		tabloOlustur("kategoriler", """
 					    CREATE TABLE IF NOT EXISTS kategoriler (
@@ -209,7 +218,7 @@ public class Form1Controller {
 	}
 
 	@FXML
-	public void switchForm(ActionEvent event) {
+	private void switchForm(ActionEvent event) {
 		if (event.getSource() == homeBtn) {
 			mainForm.setVisible(true);
 			addStockForm.setVisible(false);
@@ -237,7 +246,7 @@ public class Form1Controller {
 		}
 	}
 
-	public void ChoiceBoxs() {
+	private void ChoiceBoxs() {
 		fillChoiceBox(mainChoiceBox);
 		fillChoiceBox(categorychoicebox);
 		fillChoiceBox(upgradeSearchChoiceBox);
@@ -245,9 +254,8 @@ public class Form1Controller {
 	}
 
 	@FXML
-	public void fillChoiceBox(ChoiceBox<String> choiceBox) {
+	private void fillChoiceBox(ChoiceBox<String> choiceBox) {
 		ObservableList<DataBaseHelper.VeriModel> kategoriList = DataBaseHelper.loadData("kategoriler");
-
 		// Kategori adlarını içeren bir listeye dönüştür
 		ObservableList<String> kategoriAdlari = FXCollections.observableArrayList();
 		for (DataBaseHelper.VeriModel kategori : kategoriList) {
@@ -266,7 +274,7 @@ public class Form1Controller {
 	}
 
 	@FXML
-	public void valueCategoriInsertDataBase(ActionEvent event) {
+	private void valueCategoriInsertDataBase(ActionEvent event) {
 		String categoriString = categoriTextBox.getText().trim().toLowerCase();
 		if (categoriString.isEmpty()) {
 			System.out.println("Kategori kısmı boş girilemez.");
@@ -286,7 +294,7 @@ public class Form1Controller {
 	}
 
 	@FXML
-	public void valueCategoryDeleteDataBase(ActionEvent event) {
+	private void valueCategoryDeleteDataBase(ActionEvent event) {
 		DataBaseHelper.VeriModel selectCategory = settingstableview.getSelectionModel().getSelectedItem();
 		if (settingstableview.getSelectionModel().getSelectedItem() == null) {
 			System.out.println("Lütfen bir kategori seçin.");
@@ -299,7 +307,7 @@ public class Form1Controller {
 	}
 
 	@FXML
-	public void valueProductInsertDataBase(ActionEvent event) {
+	private void valueProductInsertDataBase(ActionEvent event) {
 		String barkod = barkodtextbox.getText().trim().toLowerCase();
 		String ürünAdi = producttextbox.getText().trim().toLowerCase();
 		Integer ürünAdet = productquantityspinner.getValue();
@@ -319,7 +327,7 @@ public class Form1Controller {
 	}
 
 	@FXML
-	public void valueProductDeleteDataBase(ActionEvent event) {
+	private void valueProductDeleteDataBase(ActionEvent event) {
 		DataBaseHelper.VeriModel selectProduct = upgradeTableView.getSelectionModel().getSelectedItem();
 		if (upgradeTableView.getSelectionModel().getSelectedItem() == null) {
 			System.out.println("Lütfen bir kategori seçin.");
@@ -328,6 +336,31 @@ public class Form1Controller {
 			DataBaseHelper.deleteProduct("stok", selectProduct.getId());
 		}
 		tableViewUpgrade(upgradeTableView, "stok");
+	}
+
+	private void loadProductDetailsToFields() {
+		upgradeTableView.getSelectionModel().selectedItemProperty().addListener((obs, eskiSecim, yeniSecim) -> {
+			if (yeniSecim != null) {
+				upgradeBarkodTextBox.setText(yeniSecim.getBarkod());
+				upgradeProductNameTextbox.setText(yeniSecim.getUrunAdi());
+				upgradeproductquantityspinner.getValueFactory().setValue(yeniSecim.getUrunAdet());
+				upgradeChoiceBox.setValue(yeniSecim.getKategori());
+				upgradeCostTextbox.setText(String.valueOf(yeniSecim.getMaliyet()));
+			}
+		});
+	}
+
+	private void valueProductUpgradeDataBase() {
+		upgradeProductBtn.setOnAction(e -> {
+			DataBaseHelper.VeriModel productList = upgradeTableView.getSelectionModel().getSelectedItem();
+			if (productList != null) {
+				DataBaseHelper.upgradeProduct(upgradeBarkodTextBox.getText().trim().toLowerCase(),
+						upgradeProductNameTextbox.getText().trim().toLowerCase(),
+						upgradeproductquantityspinner.getValue(), upgradeChoiceBox.getValue(),
+						Double.parseDouble(upgradeCostTextbox.getText()), productList.getId());
+			}
+			tableViewUpgrade(upgradeTableView, "stok");
+		});		
 	}
 
 	private void searchCategory(TableView<DataBaseHelper.VeriModel> tableView, String aramaMetni) {

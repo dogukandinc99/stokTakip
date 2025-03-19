@@ -77,15 +77,15 @@
 								<AnchorPane fx:id="updateStockForm" prefHeight="600.0" prefWidth="777.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 									<children>
 										<Label layoutX="41.0" layoutY="56.0" text="BARKOD" />
-										<TextField layoutX="41.0" layoutY="73.0" />
+										<TextField fx:id="upgradeBarkodTextBox" layoutX="41.0" layoutY="73.0" />
 										<Label layoutX="194.0" layoutY="56.0" text="ÜRÜN ADI" />
-										<TextField layoutX="194.0" layoutY="73.0" />
+										<TextField fx:id="upgradeProductNameTextbox" layoutX="194.0" layoutY="73.0" />
 										<Label layoutX="347.0" layoutY="56.0" text="ÜRÜN ADETİ" />
 										<Spinner fx:id="upgradeproductquantityspinner" editable="true" layoutX="347.0" layoutY="73.0" prefHeight="25.0" prefWidth="90.0" />
 										<Label layoutX="442.0" layoutY="56.0" text="KATEGORİ" />
 										<ChoiceBox fx:id="upgradeChoiceBox" layoutX="441.0" layoutY="73.0" prefWidth="150.0" />
 										<Label layoutX="595.0" layoutY="56.0" text="MALİYET" />
-										<TextField layoutX="594.0" layoutY="73.0" />
+										<TextField fx:id="upgradeCostTextbox" layoutX="594.0" layoutY="73.0" />
 										<Button fx:id="upgradeProductBtn" layoutX="238.0" layoutY="107.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="149.0" text="ÜRÜNÜ GÜNCELLE" textAlignment="CENTER" />
 										<Button fx:id="deleteProductBtn" layoutX="397.0" layoutY="107.0" mnemonicParsing="false" onAction="#valueProductDeleteDataBase" prefHeight="39.0" prefWidth="149.0" text="ÜRÜNÜ SİL" textAlignment="CENTER" />
 										<TableView fx:id="upgradeTableView" layoutX="43.0" layoutY="201.0" prefHeight="361.0" prefWidth="702.0">

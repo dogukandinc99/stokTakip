@@ -150,6 +150,25 @@ public class DataBaseHelper {
 		}
 	}
 
+	public static void upgradeProduct(String barkod, String productname, int productquantity, String category,
+			Double cost, int id) {
+		String sql = "UPDATE STOK SET barkod= ?, urun_adi= ?, urun_adet= ?, kategori= ?, maliyet= ? WHERE id= ?";
+
+		try (Connection conn = DataBaseHelper.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setString(1, barkod);
+			pstmt.setString(2, productname);
+			pstmt.setInt(3, productquantity);
+			pstmt.setString(4, category);
+			pstmt.setDouble(5, cost);
+			pstmt.setInt(6, id);
+			pstmt.executeUpdate();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
 	public static class VeriModel {
 		private int id;
 		private String barkod;
