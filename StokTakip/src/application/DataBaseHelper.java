@@ -66,23 +66,6 @@ public class DataBaseHelper {
 		return false; // Hata durumunda yeni eklenebilir kabul eder
 	}
 
-	public static boolean degerVarMi(String tableName, String sütunAdi, String kategoriAdi) {
-		String sql = "SELECT COUNT(*) FROM " + tableName + " WHERE " + sütunAdi + " = ?";
-		dbName = tableName;
-
-		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-			pstmt.setString(1, kategoriAdi);
-			ResultSet rs = pstmt.executeQuery();
-
-			if (rs.next()) {
-				return rs.getInt(1) > 0; // Eğer 0'dan büyükse kategori zaten var
-			}
-		} catch (SQLException e) {
-			System.out.println("Kategori kontrol hatası: " + e.getMessage());
-		}
-		return false; // Hata durumunda yeni eklenebilir kabul eder
-	}
-
 	public static void kategoriEkle(String tabloName, String ad) {
 		String sql = "INSERT INTO kategoriler (ad) VALUES (?)";
 		dbName = tabloName;
@@ -109,6 +92,61 @@ public class DataBaseHelper {
 			pstmt.executeUpdate(); // Sorguyu çalıştır
 		} catch (SQLException e) {
 			System.out.println("Kategori ekleme hatası: " + e.getMessage());
+		}
+	}
+
+	public static boolean degerVarMi(String tableName, String sütunAdi, String kategoriAdi) {
+		String sql = "SELECT COUNT(*) FROM " + tableName + " WHERE " + sütunAdi + " = ?";
+		dbName = tableName;
+
+		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setString(1, kategoriAdi);
+			ResultSet rs = pstmt.executeQuery();
+
+			if (rs.next()) {
+				return rs.getInt(1) > 0; // Eğer 0'dan büyükse kategori zaten var
+			}
+		} catch (SQLException e) {
+			System.out.println("Kategori kontrol hatası: " + e.getMessage());
+		}
+		return false; // Hata durumunda yeni eklenebilir kabul eder
+	}
+
+	public static void deleteCategory(String database, int id) {
+		String sql = "DELETE FROM kategoriler WHERE id = ?";
+		dbName = database;
+		int kategoriid = id;
+		try (Connection conn = DataBaseHelper.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setInt(1, kategoriid);
+			int silinenSatir = pstmt.executeUpdate();
+			if (silinenSatir > 0) {
+				System.out.println("Kategori başarıyla silindi.");
+			} else {
+				System.out.println("Kategori bulunamadı.");
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void deleteProduct(String database, int id) {
+		String sql = "DELETE FROM stok WHERE id = ?";
+		dbName = database;
+		int stokid = id;
+		try (Connection conn = DataBaseHelper.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setInt(1, stokid);
+			int silinenSatir = pstmt.executeUpdate();
+			if (silinenSatir > 0) {
+				System.out.println("Kategori başarıyla silindi.");
+			} else {
+				System.out.println("Kategori bulunamadı.");
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -245,25 +283,6 @@ public class DataBaseHelper {
 		}
 
 		return urunListesi;
-	}
-
-	public static void categorySil(String database, int id) {
-		String sql = "DELETE FROM kategoriler WHERE id = ?";
-		dbName = database;
-		int kategoriid = id;
-		try (Connection conn = DataBaseHelper.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-			pstmt.setInt(1, kategoriid);
-			int silinenSatir = pstmt.executeUpdate();
-			if (silinenSatir > 0) {
-				System.out.println("Kategori başarıyla silindi.");
-			} else {
-				System.out.println("Kategori bulunamadı.");
-			}
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
 	}
 
 }

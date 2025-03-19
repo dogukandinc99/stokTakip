@@ -39,6 +39,10 @@ public class Form1Controller {
 	private Button settingsBtn;
 	@FXML
 	private Button addproductbtn;
+	@FXML
+	private Button upgradeProductBtn;
+	@FXML
+	private Button deleteProductBtn;
 
 	@FXML
 	private TextField categoriTextBox;
@@ -50,13 +54,15 @@ public class Form1Controller {
 	private TextField producttextbox;
 	@FXML
 	private TextField mainSearchTextbox;
+	@FXML
+	private TextField upgradeSearchTextbox;
 
 	@FXML
 	private ChoiceBox<String> categorychoicebox;
 	@FXML
 	private ChoiceBox<String> upgradeChoiceBox;
 	@FXML
-	private ChoiceBox<String> searchChoiceBox;
+	private ChoiceBox<String> upgradeSearchChoiceBox;
 	@FXML
 	private ChoiceBox<String> mainChoiceBox;
 
@@ -152,15 +158,34 @@ public class Form1Controller {
 		upgradeTableViewColumn6.setCellValueFactory(new PropertyValueFactory<>("maliyet"));
 		tableViewUpgrade(upgradeTableView, "stok");
 
-		mainSearchTextbox.textProperty().addListener((observable, oldValue, newValue) -> {
+		setupSearchListener(mainSearchTextbox, mainTableView);
+		setupSearchListener(mainChoiceBox, mainTableView);
+		setupSearchListener(upgradeSearchTextbox, upgradeTableView);
+		setupSearchListener(upgradeSearchChoiceBox, upgradeTableView);
+
+	}
+
+	private void setupSearchListener(TextField textField, TableView<DataBaseHelper.VeriModel> tableView) {
+		textField.textProperty().addListener((observable, oldValue, newValue) -> {
 			if (!newValue.isEmpty()) {
-				searchProduct(mainTableView, newValue); // Kullanıcı her değişiklik yaptığında bu metot çalışır
+				searchProduct(tableView, newValue); // Kullanıcı her değişiklik yaptığında bu metot çalışır
 			}
 		});
-		mainChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-			searchCategory(mainTableView, newValue);
-		});
+	}
 
+	private void setupSearchListener(ChoiceBox<String> choiceBox, TableView<DataBaseHelper.VeriModel> tableView) {
+		choiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+			searchCategory(tableView, newValue);
+		});
+	}
+
+	private void tabloOlustur(String tabloName, String sql) {
+		if (DataBaseHelper.tabloVarMi(tabloName)) {
+			System.out.println(tabloName + " tablosu mevcut...");
+		} else {
+			DataBaseHelper.createTable(sql);
+			System.out.println(tabloName + " tablosu eklendi...");
+		}
 	}
 
 	public void tablokontrol() {
@@ -181,15 +206,6 @@ public class Form1Controller {
 				 		maliyet REAL NOT NULL
 				    );
 				""");
-	}
-
-	private void tabloOlustur(String tabloName, String sql) {
-		if (DataBaseHelper.tabloVarMi(tabloName)) {
-			System.out.println(tabloName + " tablosu mevcut...");
-		} else {
-			DataBaseHelper.createTable(sql);
-			System.out.println(tabloName + " tablosu eklendi...");
-		}
 	}
 
 	@FXML
@@ -224,7 +240,7 @@ public class Form1Controller {
 	public void ChoiceBoxs() {
 		fillChoiceBox(mainChoiceBox);
 		fillChoiceBox(categorychoicebox);
-		fillChoiceBox(searchChoiceBox);
+		fillChoiceBox(upgradeSearchChoiceBox);
 		fillChoiceBox(upgradeChoiceBox);
 	}
 
@@ -239,6 +255,14 @@ public class Form1Controller {
 		}
 		choiceBox.setItems(kategoriAdlari);
 		choiceBox.getSelectionModel().select(0);
+	}
+
+	private void tableViewUpgrade(TableView<DataBaseHelper.VeriModel> tableView, String table) {
+		try {
+			tableView.setItems(DataBaseHelper.loadData(table)); // Verileri yükleme
+		} catch (Exception e) {
+			System.out.println("sorun var");
+		}
 	}
 
 	@FXML
@@ -257,34 +281,21 @@ public class Form1Controller {
 			tableViewUpgrade(settingstableview, "kategoriler");
 			ChoiceBoxs();
 		} catch (Exception e) {
-			// TODO: handle exception
 			System.out.println("sorun var");
 		}
 	}
 
-	private void searchProduct(TableView<DataBaseHelper.VeriModel> tableView, String aramaMetni) {
-		try {
-			tableView.setItems(DataBaseHelper.stoklariAra(aramaMetni)); // Verileri yükleme
-		} catch (Exception e) {
-			// TODO: handle exception
-			System.out.println("sorun var");
+	@FXML
+	public void valueCategoryDeleteDataBase(ActionEvent event) {
+		DataBaseHelper.VeriModel selectCategory = settingstableview.getSelectionModel().getSelectedItem();
+		if (settingstableview.getSelectionModel().getSelectedItem() == null) {
+			System.out.println("Lütfen bir kategori seçin.");
+			return;// Eğer kategori seçilmemişse işlemi durdur
+		} else {
+			DataBaseHelper.deleteCategory("kategoriler", selectCategory.getId());
 		}
-	}
-
-	private void searchCategory(TableView<DataBaseHelper.VeriModel> tableView, String aramaMetni) {
-		try {
-			if (!aramaMetni.equals("TÜMÜ")) {
-				tableView.setItems(DataBaseHelper.kategoriFiltreleme(aramaMetni)); // Verileri yükleme
-
-			} else if (aramaMetni.equals("TÜMÜ")) {
-				System.out.println("buradayım");
-				tableViewUpgrade(tableView, "stok");
-			}
-
-		} catch (Exception e) {
-			// TODO: handle exception
-			System.out.println("sorun var");
-		}
+		tableViewUpgrade(settingstableview, "kategoriler");
+		ChoiceBoxs();
 	}
 
 	@FXML
@@ -308,26 +319,40 @@ public class Form1Controller {
 	}
 
 	@FXML
-	public void valueDeleteDataBase(ActionEvent event) {
-		DataBaseHelper.VeriModel selectCategory = settingstableview.getSelectionModel().getSelectedItem();
-		if (settingstableview.getSelectionModel().getSelectedItem() == null) {
+	public void valueProductDeleteDataBase(ActionEvent event) {
+		DataBaseHelper.VeriModel selectProduct = upgradeTableView.getSelectionModel().getSelectedItem();
+		if (upgradeTableView.getSelectionModel().getSelectedItem() == null) {
 			System.out.println("Lütfen bir kategori seçin.");
 			return;// Eğer kategori seçilmemişse işlemi durdur
 		} else {
-			DataBaseHelper.categorySil("kategoriler", selectCategory.getId());
+			DataBaseHelper.deleteProduct("stok", selectProduct.getId());
 		}
-		tableViewUpgrade(settingstableview, "kategoriler");
-		ChoiceBoxs();
+		tableViewUpgrade(upgradeTableView, "stok");
 	}
 
-	private void tableViewUpgrade(TableView<DataBaseHelper.VeriModel> tableView, String table) {
+	private void searchCategory(TableView<DataBaseHelper.VeriModel> tableView, String aramaMetni) {
 		try {
-			tableView.setItems(DataBaseHelper.loadData(table)); // Verileri yükleme
+			if (!aramaMetni.equals("TÜMÜ")) {
+				tableView.setItems(DataBaseHelper.kategoriFiltreleme(aramaMetni)); // Verileri yükleme
+
+			} else if (aramaMetni.equals("TÜMÜ")) {
+				tableViewUpgrade(tableView, "stok");
+			}
 		} catch (Exception e) {
-			// TODO: handle exception
 			System.out.println("sorun var");
 		}
-
 	}
 
+	private void searchProduct(TableView<DataBaseHelper.VeriModel> tableView, String aramaMetni) {
+		try {
+			if (aramaMetni != null && !aramaMetni.trim().isEmpty()) {
+				tableView.setItems(DataBaseHelper.stoklariAra(aramaMetni)); // Verileri yükleme
+			} else {
+				System.out.println("buradayım");
+				tableViewUpgrade(tableView, "stok"); // Tüm verileri yükle
+			}
+		} catch (Exception e) {
+			System.out.println("sorun var");
+		}
+	}
 }
