@@ -2,7 +2,6 @@ package application;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -38,7 +37,7 @@ public class Form1Controller {
 	@FXML
 	private Button settingsBtn;
 	@FXML
-	private Button addproductbtn;
+	private Button addProductBtn;
 	@FXML
 	private Button upgradeProductBtn;
 	@FXML
@@ -136,8 +135,8 @@ public class Form1Controller {
 		ChoiceBoxs();
 
 		tablokontrol();
-		settingstableviewcolumn1.setCellValueFactory(new PropertyValueFactory<>("id")); // id'yi bağladık
-		settingstableviewcolumn2.setCellValueFactory(new PropertyValueFactory<>("ad")); // ad'ı bağladık
+		settingstableviewcolumn1.setCellValueFactory(new PropertyValueFactory<>("id"));
+		settingstableviewcolumn2.setCellValueFactory(new PropertyValueFactory<>("ad"));
 		tableViewUpgrade(settingstableview, "kategoriler");
 
 		addProductTableViewColumn1.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -169,21 +168,25 @@ public class Form1Controller {
 		setupSearchListener(upgradeSearchTextbox, upgradeTableView);
 		setupSearchListener(upgradeSearchChoiceBox, upgradeTableView);
 
+		switchForm();
 		loadProductDetailsToFields();
+		valueCategoriInsertDataBase();
+		valueCategoryDeleteDataBase();
 		valueProductUpgradeDataBase();
-
+		valueProductInsertDataBase();
+		valueProductDeleteDataBase();
 	}
 
 	private void setupSearchListener(TextField textField, TableView<DataBaseHelper.VeriModel> tableView) {
-		textField.textProperty().addListener((observable, oldValue, newValue) -> {
+		textField.textProperty().addListener((_, _, newValue) -> {
 			if (!newValue.isEmpty()) {
-				searchProduct(tableView, newValue); // Kullanıcı her değişiklik yaptığında bu metot çalışır
+				searchProduct(tableView, newValue);
 			}
 		});
 	}
 
 	private void setupSearchListener(ChoiceBox<String> choiceBox, TableView<DataBaseHelper.VeriModel> tableView) {
-		choiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+		choiceBox.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
 			searchCategory(tableView, newValue);
 		});
 	}
@@ -217,33 +220,30 @@ public class Form1Controller {
 				""");
 	}
 
-	@FXML
-	private void switchForm(ActionEvent event) {
-		if (event.getSource() == homeBtn) {
-			mainForm.setVisible(true);
-			addStockForm.setVisible(false);
-			updateStockForm.setVisible(false);
-			settingsForm.setVisible(false);
-			tableViewUpgrade(mainTableView, "stok");
-		} else if (event.getSource() == addStockBtn) {
-			mainForm.setVisible(false);
-			addStockForm.setVisible(true);
-			updateStockForm.setVisible(false);
-			settingsForm.setVisible(false);
-			tableViewUpgrade(addProductTableView, "stok");
-		} else if (event.getSource() == updateStockBtn) {
-			mainForm.setVisible(false);
-			addStockForm.setVisible(false);
-			updateStockForm.setVisible(true);
-			settingsForm.setVisible(false);
-			tableViewUpgrade(upgradeTableView, "stok");
-		} else if (event.getSource() == settingsBtn) {
-			mainForm.setVisible(false);
-			addStockForm.setVisible(false);
-			updateStockForm.setVisible(false);
-			settingsForm.setVisible(true);
-			tableViewUpgrade(settingstableview, "kategoriler");
-		}
+	private void switchForm() {
+		homeBtn.setOnAction(_ -> {
+			showForm(mainForm, mainTableView, "stok");
+		});
+		addStockBtn.setOnAction(_ -> {
+			showForm(addStockForm, addProductTableView, "stok");
+		});
+		updateStockBtn.setOnAction(_ -> {
+			showForm(updateStockForm, upgradeTableView, "stok");
+		});
+		settingsBtn.setOnAction(_ -> {
+			showForm(settingsForm, settingstableview, "kategoriler");
+		});
+	}
+
+	private void showForm(AnchorPane visibleForm, TableView<DataBaseHelper.VeriModel> tableView, String tabloAdi) {
+		mainForm.setVisible(false);
+		addStockForm.setVisible(false);
+		updateStockForm.setVisible(false);
+		settingsForm.setVisible(false);
+
+		visibleForm.setVisible(true);
+
+		tableViewUpgrade(tableView, tabloAdi);
 	}
 
 	private void ChoiceBoxs() {
@@ -253,10 +253,8 @@ public class Form1Controller {
 		fillChoiceBox(upgradeChoiceBox);
 	}
 
-	@FXML
 	private void fillChoiceBox(ChoiceBox<String> choiceBox) {
 		ObservableList<DataBaseHelper.VeriModel> kategoriList = DataBaseHelper.loadData("kategoriler");
-		// Kategori adlarını içeren bir listeye dönüştür
 		ObservableList<String> kategoriAdlari = FXCollections.observableArrayList();
 		for (DataBaseHelper.VeriModel kategori : kategoriList) {
 			kategoriAdlari.add(kategori.getAd().toUpperCase());
@@ -267,79 +265,86 @@ public class Form1Controller {
 
 	private void tableViewUpgrade(TableView<DataBaseHelper.VeriModel> tableView, String table) {
 		try {
-			tableView.setItems(DataBaseHelper.loadData(table)); // Verileri yükleme
+			tableView.setItems(DataBaseHelper.loadData(table));
 		} catch (Exception e) {
-			System.out.println("sorun var");
+			System.out.println("tableViewUpgrade sorun var: " + e.getMessage());
 		}
 	}
 
 	@FXML
-	private void valueCategoriInsertDataBase(ActionEvent event) {
-		String categoriString = categoriTextBox.getText().trim().toLowerCase();
-		if (categoriString.isEmpty()) {
-			System.out.println("Kategori kısmı boş girilemez.");
-		} else {
-			if (!DataBaseHelper.degerVarMi("kategoriler", "ad", categoriString)) {
-				DataBaseHelper.kategoriEkle("kategoriler", categoriString);
+	private void valueCategoriInsertDataBase() {
+		newcategoribtn.setOnAction(_ -> {
+			String categoriString = categoriTextBox.getText().trim().toLowerCase();
+			if (categoriString.isEmpty()) {
+				System.out.println("Kategori kısmı boş girilemez.");
 			} else {
-				System.out.println("Bu kategori zaten var!");
+				if (!DataBaseHelper.degerVarMi("kategoriler", "ad", categoriString)) {
+					DataBaseHelper.kategoriEkle("kategoriler", categoriString);
+				} else {
+					System.out.println("Bu kategori zaten var!");
+				}
 			}
-		}
-		try {
+			try {
+				tableViewUpgrade(settingstableview, "kategoriler");
+				ChoiceBoxs();
+			} catch (Exception e) {
+				System.out.println("valueCategoriInsertDataBase sorun var: " + e.getMessage());
+			}
+		});
+	}
+
+	@FXML
+	private void valueCategoryDeleteDataBase() {
+		deletecategoribtn.setOnAction(_ -> {
+			DataBaseHelper.VeriModel selectCategory = settingstableview.getSelectionModel().getSelectedItem();
+			if (settingstableview.getSelectionModel().getSelectedItem() == null) {
+				System.out.println("Lütfen bir kategori seçin.");
+				return;
+			} else {
+				DataBaseHelper.deleteCategory("kategoriler", selectCategory.getId());
+			}
 			tableViewUpgrade(settingstableview, "kategoriler");
 			ChoiceBoxs();
-		} catch (Exception e) {
-			System.out.println("sorun var");
-		}
+		});
 	}
 
-	@FXML
-	private void valueCategoryDeleteDataBase(ActionEvent event) {
-		DataBaseHelper.VeriModel selectCategory = settingstableview.getSelectionModel().getSelectedItem();
-		if (settingstableview.getSelectionModel().getSelectedItem() == null) {
-			System.out.println("Lütfen bir kategori seçin.");
-			return;// Eğer kategori seçilmemişse işlemi durdur
-		} else {
-			DataBaseHelper.deleteCategory("kategoriler", selectCategory.getId());
-		}
-		tableViewUpgrade(settingstableview, "kategoriler");
-		ChoiceBoxs();
-	}
-
-	@FXML
-	private void valueProductInsertDataBase(ActionEvent event) {
-		String barkod = barkodtextbox.getText().trim().toLowerCase();
-		String ürünAdi = producttextbox.getText().trim().toLowerCase();
-		Integer ürünAdet = productquantityspinner.getValue();
-		String category = categorychoicebox.getValue();
-		Double maliyet = Double.parseDouble(costtextbox.getText());
-		if (barkod.isEmpty() && ürünAdi.isEmpty() && ürünAdet == 0 && maliyet == 0) {
-			System.out.println("Bazı alanlar boş...");
-		} else {
-			if (!DataBaseHelper.degerVarMi("stok", "urun_adi", ürünAdi)) {
-				DataBaseHelper.addProduct("stok", barkod, ürünAdi, ürünAdet, category, maliyet);
+	private void valueProductInsertDataBase() {
+		addProductBtn.setOnAction(_ -> {
+			String barkod = barkodtextbox.getText().trim().toLowerCase();
+			String ürünAdi = producttextbox.getText().trim().toLowerCase();
+			Integer ürünAdet = productquantityspinner.getValue();
+			String category = categorychoicebox.getValue();
+			Double maliyet = Double.parseDouble(costtextbox.getText());
+			if (barkod.isEmpty() && ürünAdi.isEmpty() && ürünAdet == 0 && maliyet == 0) {
+				System.out.println("Bazı alanlar boş...");
 			} else {
-				System.out.println("Bu kategori zaten var!");
+				if (!DataBaseHelper.degerVarMi("stok", "urun_adi", ürünAdi)) {
+					DataBaseHelper.addProduct("stok", barkod, ürünAdi, ürünAdet, category, maliyet);
+				} else {
+					System.out.println("Bu kategori zaten var!");
+				}
 			}
-		}
-		tableViewUpgrade(addProductTableView, "stok");
-		ChoiceBoxs();
+			tableViewUpgrade(addProductTableView, "stok");
+		});
 	}
 
 	@FXML
-	private void valueProductDeleteDataBase(ActionEvent event) {
-		DataBaseHelper.VeriModel selectProduct = upgradeTableView.getSelectionModel().getSelectedItem();
-		if (upgradeTableView.getSelectionModel().getSelectedItem() == null) {
-			System.out.println("Lütfen bir kategori seçin.");
-			return;// Eğer kategori seçilmemişse işlemi durdur
-		} else {
-			DataBaseHelper.deleteProduct("stok", selectProduct.getId());
-		}
-		tableViewUpgrade(upgradeTableView, "stok");
+	private void valueProductDeleteDataBase() {
+		deleteProductBtn.setOnAction(_ -> {
+			DataBaseHelper.VeriModel selectProduct = upgradeTableView.getSelectionModel().getSelectedItem();
+			if (upgradeTableView.getSelectionModel().getSelectedItem() == null) {
+				System.out.println("Lütfen bir kategori seçin.");
+				return;
+			} else {
+				DataBaseHelper.deleteProduct("stok", selectProduct.getId());
+			}
+			tableViewUpgrade(upgradeTableView, "stok");
+		});
+
 	}
 
 	private void loadProductDetailsToFields() {
-		upgradeTableView.getSelectionModel().selectedItemProperty().addListener((obs, eskiSecim, yeniSecim) -> {
+		upgradeTableView.getSelectionModel().selectedItemProperty().addListener((_, _, yeniSecim) -> {
 			if (yeniSecim != null) {
 				upgradeBarkodTextBox.setText(yeniSecim.getBarkod());
 				upgradeProductNameTextbox.setText(yeniSecim.getUrunAdi());
@@ -351,7 +356,7 @@ public class Form1Controller {
 	}
 
 	private void valueProductUpgradeDataBase() {
-		upgradeProductBtn.setOnAction(e -> {
+		upgradeProductBtn.setOnAction(_ -> {
 			DataBaseHelper.VeriModel productList = upgradeTableView.getSelectionModel().getSelectedItem();
 			if (productList != null) {
 				DataBaseHelper.upgradeProduct(upgradeBarkodTextBox.getText().trim().toLowerCase(),
@@ -360,32 +365,32 @@ public class Form1Controller {
 						Double.parseDouble(upgradeCostTextbox.getText()), productList.getId());
 			}
 			tableViewUpgrade(upgradeTableView, "stok");
-		});		
+		});
 	}
 
 	private void searchCategory(TableView<DataBaseHelper.VeriModel> tableView, String aramaMetni) {
 		try {
 			if (!aramaMetni.equals("TÜMÜ")) {
-				tableView.setItems(DataBaseHelper.kategoriFiltreleme(aramaMetni)); // Verileri yükleme
+				tableView.setItems(DataBaseHelper.kategoriFiltreleme(aramaMetni));
 
 			} else if (aramaMetni.equals("TÜMÜ")) {
 				tableViewUpgrade(tableView, "stok");
 			}
 		} catch (Exception e) {
-			System.out.println("sorun var");
+			System.out.println("searchCategory sorun var: " + e.getMessage());
 		}
 	}
 
 	private void searchProduct(TableView<DataBaseHelper.VeriModel> tableView, String aramaMetni) {
 		try {
 			if (aramaMetni != null && !aramaMetni.trim().isEmpty()) {
-				tableView.setItems(DataBaseHelper.stoklariAra(aramaMetni)); // Verileri yükleme
+				tableView.setItems(DataBaseHelper.stoklariAra(aramaMetni));
 			} else {
 				System.out.println("buradayım");
-				tableViewUpgrade(tableView, "stok"); // Tüm verileri yükle
+				tableViewUpgrade(tableView, "stok");
 			}
 		} catch (Exception e) {
-			System.out.println("sorun var");
+			System.out.println("searchProduct sorun var: " + e.getMessage());
 		}
 	}
 }

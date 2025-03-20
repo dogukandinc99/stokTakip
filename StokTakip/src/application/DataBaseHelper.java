@@ -14,19 +14,14 @@ public class DataBaseHelper {
 	static String dbName;
 
 	public static Connection connect() {
-		// String DB_URL = "jdbc:sqlite:database/kategoriler.db";
-		// Programın çalıştığı dizini alıyoruz
 		String workingDir = System.getProperty("user.dir");
 
-		// Veritabanının koyulacağı "database" klasörü
-		String dbFolderPath = workingDir + "/database"; // Programın çalıştığı dizinde "database" klasörünü oluşturacak
+		String dbFolderPath = workingDir + "/database";
 
-		// "database" klasörünü kontrol et, yoksa oluştur
 		File folder = new File(dbFolderPath);
 		if (!folder.exists()) {
-			folder.mkdirs(); // Klasör yoksa oluştur
+			folder.mkdirs();
 		}
-		// "kategoriler.db" dosyasının yolu
 		String DB_URL = "jdbc:sqlite:" + dbFolderPath + "/" + dbName + ".db"; // Veritabanı dosyasının tam yolu
 
 		Connection conn = null;
@@ -40,7 +35,6 @@ public class DataBaseHelper {
 		return conn;
 	}
 
-	// Kategoriler tablosunu oluşturma
 	public static void createTable(String sql) {
 
 		try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
@@ -58,12 +52,12 @@ public class DataBaseHelper {
 			pstmt.setString(1, tableName);
 			ResultSet rs = pstmt.executeQuery();
 			if (rs.next()) {
-				return rs.getInt(1) > 0; // Eğer 0'dan büyükse kategori zaten var
+				return rs.getInt(1) > 0;
 			}
 		} catch (SQLException e) {
 			System.out.println("Kategori kontrol hatası: " + e.getMessage());
 		}
-		return false; // Hata durumunda yeni eklenebilir kabul eder
+		return false;
 	}
 
 	public static void kategoriEkle(String tabloName, String ad) {
@@ -71,8 +65,8 @@ public class DataBaseHelper {
 		dbName = tabloName;
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-			pstmt.setString(1, ad); // Kategori adını yerleştir
-			pstmt.executeUpdate(); // Sorguyu çalıştır
+			pstmt.setString(1, ad);
+			pstmt.executeUpdate();
 		} catch (SQLException e) {
 			System.out.println("Kategori ekleme hatası: " + e.getMessage());
 		}
@@ -89,7 +83,7 @@ public class DataBaseHelper {
 			pstmt.setInt(3, productquantity);
 			pstmt.setString(4, category);
 			pstmt.setDouble(5, cost);
-			pstmt.executeUpdate(); // Sorguyu çalıştır
+			pstmt.executeUpdate();
 		} catch (SQLException e) {
 			System.out.println("Kategori ekleme hatası: " + e.getMessage());
 		}
@@ -104,12 +98,12 @@ public class DataBaseHelper {
 			ResultSet rs = pstmt.executeQuery();
 
 			if (rs.next()) {
-				return rs.getInt(1) > 0; // Eğer 0'dan büyükse kategori zaten var
+				return rs.getInt(1) > 0;
 			}
 		} catch (SQLException e) {
 			System.out.println("Kategori kontrol hatası: " + e.getMessage());
 		}
-		return false; // Hata durumunda yeni eklenebilir kabul eder
+		return false;
 	}
 
 	public static void deleteCategory(String database, int id) {
@@ -178,7 +172,6 @@ public class DataBaseHelper {
 		private double maliyet;
 		private String ad; // Kategori için
 
-		// Stok tablosu için constructor
 		public VeriModel(int id, String barkod, String urun_Adi, int urun_Adet, String kategori, double maliyet) {
 			this.id = id;
 			this.barkod = barkod;
@@ -188,13 +181,11 @@ public class DataBaseHelper {
 			this.maliyet = maliyet;
 		}
 
-		// Kategori tablosu için constructor
 		public VeriModel(int id, String ad) {
 			this.id = id;
 			this.ad = ad;
 		}
 
-		// Getter metodları
 		public int getId() {
 			return id;
 		}
@@ -259,14 +250,13 @@ public class DataBaseHelper {
 	public static ObservableList<VeriModel> stoklariAra(String aramaMetni) {
 		ObservableList<VeriModel> urunListesi = FXCollections.observableArrayList();
 
-		String sql = "SELECT * FROM stok WHERE " + "barkod LIKE ? OR " + "urun_adi LIKE ? OR " + "kategori LIKE ?"; // Arama
-																													// sorgusu
+		String sql = "SELECT * FROM stok WHERE " + "barkod LIKE ? OR " + "urun_adi LIKE ? OR " + "kategori LIKE ?";
 
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-			pstmt.setString(1, "%" + aramaMetni + "%"); // "%" ekleyerek içinde geçenleri buluyoruz
-			pstmt.setString(2, "%" + aramaMetni + "%"); // "%" ekleyerek içinde geçenleri buluyoruz
-			pstmt.setString(3, "%" + aramaMetni + "%"); // "%" ekleyerek içinde geçenleri buluyoruz
+			pstmt.setString(1, "%" + aramaMetni + "%");
+			pstmt.setString(2, "%" + aramaMetni + "%");
+			pstmt.setString(3, "%" + aramaMetni + "%");
 
 			ResultSet rs = pstmt.executeQuery();
 
@@ -284,12 +274,11 @@ public class DataBaseHelper {
 	public static ObservableList<VeriModel> kategoriFiltreleme(String aramaMetni) {
 		ObservableList<VeriModel> urunListesi = FXCollections.observableArrayList();
 
-		String sql = "SELECT * FROM stok WHERE kategori LIKE ?"; // Arama
-																	// sorgusu
+		String sql = "SELECT * FROM stok WHERE kategori LIKE ?";
 
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-			pstmt.setString(1, aramaMetni); // "%" ekleyerek içinde geçenleri buluyoruz
+			pstmt.setString(1, aramaMetni);
 
 			ResultSet rs = pstmt.executeQuery();
 
