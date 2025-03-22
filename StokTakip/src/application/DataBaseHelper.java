@@ -1,6 +1,5 @@
 package application;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -11,42 +10,35 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class DataBaseHelper {
-	static String dbName;
-
 	public static Connection connect() {
-		String workingDir = System.getProperty("user.dir");
 
-		String dbFolderPath = workingDir + "/database";
-
-		File folder = new File(dbFolderPath);
-		if (!folder.exists()) {
-			folder.mkdirs();
-		}
-		String DB_URL = "jdbc:sqlite:" + dbFolderPath + "/" + dbName + ".db"; // Veritabanı dosyasının tam yolu
+		String DB_URL = "jdbc:sqlite:database/urunstokdatabase.db"; // Veritabanı dosyasının tam yolu
 
 		Connection conn = null;
 
 		try {
 			conn = DriverManager.getConnection(DB_URL);
 			System.out.println("SQLite bağlantısı başarılı!");
+
 		} catch (SQLException e) {
 			System.out.println("Bağlantı hatası: " + e.getMessage());
 		}
 		return conn;
 	}
 
-	public static void createTable(String sql) {
+	public static void createTable(String sql, String tabloName) {
 
 		try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
+			stmt.execute("PRAGMA foreign_keys = ON;");
 			stmt.execute(sql);
+			System.out.println(tabloName + " oluşturuldu");
 		} catch (SQLException e) {
-			System.out.println("Tablo oluşturma hatası: " + e.getMessage());
+			System.out.println(tabloName + " Tablo oluşturma hatası: " + e.getMessage());
 		}
 	}
 
 	public static boolean tabloVarMi(String tableName) {
 		String sql = "SELECT COUNT(*) FROM sqlite_master WHERE type= 'table' AND name= ? ";
-		dbName = tableName;
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
 			pstmt.setString(1, tableName);
@@ -62,7 +54,6 @@ public class DataBaseHelper {
 
 	public static void kategoriEkle(String tabloName, String ad) {
 		String sql = "INSERT INTO kategoriler (ad) VALUES (?)";
-		dbName = tabloName;
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
 			pstmt.setString(1, ad);
@@ -72,17 +63,17 @@ public class DataBaseHelper {
 		}
 	}
 
-	public static void addProduct(String database, String barkod, String productname, int productquantity,
-			String category, Double cost) {
-		String sql = "INSERT INTO stok (barkod,urun_adi,urun_adet,kategori,maliyet) VALUES (?,?,?,?,?)";
-		dbName = database;
+	public static void addProduct(String barkod, String productname, int productquantity, String unit, int category,
+			Double cost) {
+		String sql = "INSERT INTO ürünler (barkod, urun_adi, urun_adet, birim, kategori_id, maliyet) VALUES (?,?,?,?,?,?)";
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
 			pstmt.setString(1, barkod);
 			pstmt.setString(2, productname);
 			pstmt.setInt(3, productquantity);
-			pstmt.setString(4, category);
-			pstmt.setDouble(5, cost);
+			pstmt.setString(4, unit);
+			pstmt.setInt(5, category);
+			pstmt.setDouble(6, cost);
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
 			System.out.println("Kategori ekleme hatası: " + e.getMessage());
@@ -91,8 +82,6 @@ public class DataBaseHelper {
 
 	public static boolean degerVarMi(String tableName, String sütunAdi, String kategoriAdi) {
 		String sql = "SELECT COUNT(*) FROM " + tableName + " WHERE " + sütunAdi + " = ?";
-		dbName = tableName;
-
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, kategoriAdi);
 			ResultSet rs = pstmt.executeQuery();
@@ -101,14 +90,13 @@ public class DataBaseHelper {
 				return rs.getInt(1) > 0;
 			}
 		} catch (SQLException e) {
-			System.out.println("Kategori kontrol hatası: " + e.getMessage());
+			System.out.println("Kontrol hatası: " + e.getMessage());
 		}
 		return false;
 	}
 
 	public static void deleteCategory(String database, int id) {
 		String sql = "DELETE FROM kategoriler WHERE id = ?";
-		dbName = database;
 		int kategoriid = id;
 		try (Connection conn = DataBaseHelper.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -126,17 +114,16 @@ public class DataBaseHelper {
 	}
 
 	public static void deleteProduct(String database, int id) {
-		String sql = "DELETE FROM stok WHERE id = ?";
-		dbName = database;
+		String sql = "DELETE FROM ürünler WHERE id = ?";
 		int stokid = id;
 		try (Connection conn = DataBaseHelper.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
 			pstmt.setInt(1, stokid);
 			int silinenSatir = pstmt.executeUpdate();
 			if (silinenSatir > 0) {
-				System.out.println("Kategori başarıyla silindi.");
+				System.out.println("Ürün başarıyla silindi.");
 			} else {
-				System.out.println("Kategori bulunamadı.");
+				System.out.println("Ürün bulunamadı.");
 			}
 
 		} catch (SQLException e) {
@@ -217,27 +204,27 @@ public class DataBaseHelper {
 
 	public static ObservableList<VeriModel> loadData(String tabloAdi) {
 		ObservableList<VeriModel> veriList = FXCollections.observableArrayList();
-		dbName = tabloAdi;
 		try (Connection conn = connect()) {
 			String sql = switch (tabloAdi) {
 			case "kategoriler" -> "SELECT id, ad FROM kategoriler";
-			case "stok" -> "SELECT id, barkod, urun_adi, urun_adet, kategori, maliyet FROM stok";
+			case "ürünler" -> "SELECT id, barkod, urun_adi, urun_adet, kategori_id, maliyet FROM ürünler";
 			default -> {
 				System.out.println("Hatalı tablo adı: " + tabloAdi);
 				yield null;
 			}
 			};
-			if (sql == null)
+			if (sql == null) {
 				return veriList;
+			}
 			PreparedStatement pstmt = conn.prepareStatement(sql);
 			ResultSet rs = pstmt.executeQuery();
 
 			while (rs.next()) {
 				if (tabloAdi.equals("kategoriler")) {
 					veriList.add(new VeriModel(rs.getInt("id"), rs.getString("ad")));
-				} else if (tabloAdi.equals("stok")) {
+				} else if (tabloAdi.equals("ürünler")) {
 					veriList.add(new VeriModel(rs.getInt("id"), rs.getString("barkod"), rs.getString("urun_adi"),
-							rs.getInt("urun_adet"), rs.getString("kategori"), rs.getDouble("maliyet")));
+							rs.getInt("urun_adet"), rs.getString("kategori_id"), rs.getDouble("maliyet")));
 				}
 			}
 		} catch (SQLException e) {
@@ -250,19 +237,18 @@ public class DataBaseHelper {
 	public static ObservableList<VeriModel> stoklariAra(String aramaMetni) {
 		ObservableList<VeriModel> urunListesi = FXCollections.observableArrayList();
 
-		String sql = "SELECT * FROM stok WHERE " + "barkod LIKE ? OR " + "urun_adi LIKE ? OR " + "kategori LIKE ?";
+		String sql = "SELECT * FROM ürünler WHERE " + "barkod LIKE ? OR " + "urun_adi LIKE ?";
 
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
 			pstmt.setString(1, "%" + aramaMetni + "%");
 			pstmt.setString(2, "%" + aramaMetni + "%");
-			pstmt.setString(3, "%" + aramaMetni + "%");
 
 			ResultSet rs = pstmt.executeQuery();
 
 			while (rs.next()) {
 				urunListesi.add(new VeriModel(rs.getInt("id"), rs.getString("barkod"), rs.getString("urun_adi"),
-						rs.getInt("urun_adet"), rs.getString("kategori"), rs.getDouble("maliyet")));
+						rs.getInt("urun_adet"), rs.getString("kategori_id"), rs.getDouble("maliyet")));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -271,20 +257,20 @@ public class DataBaseHelper {
 		return urunListesi;
 	}
 
-	public static ObservableList<VeriModel> kategoriFiltreleme(String aramaMetni) {
+	public static ObservableList<VeriModel> kategoriFiltreleme(int aramaMetni) {
 		ObservableList<VeriModel> urunListesi = FXCollections.observableArrayList();
 
-		String sql = "SELECT * FROM stok WHERE kategori LIKE ?";
+		String sql = "SELECT * FROM ürünler WHERE kategori_id = ?";
 
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-			pstmt.setString(1, aramaMetni);
+			pstmt.setInt(1, aramaMetni);
 
 			ResultSet rs = pstmt.executeQuery();
 
 			while (rs.next()) {
 				urunListesi.add(new VeriModel(rs.getInt("id"), rs.getString("barkod"), rs.getString("urun_adi"),
-						rs.getInt("urun_adet"), rs.getString("kategori"), rs.getDouble("maliyet")));
+						rs.getInt("urun_adet"), rs.getString("kategori_id"), rs.getDouble("maliyet")));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

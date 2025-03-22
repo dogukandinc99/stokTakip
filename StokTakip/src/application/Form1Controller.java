@@ -1,5 +1,8 @@
 package application;
 
+import java.util.Iterator;
+import java.util.Observable;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -13,6 +16,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
+import javafx.util.StringConverter;
 
 public class Form1Controller {
 	@FXML
@@ -63,13 +67,15 @@ public class Form1Controller {
 	private TextField upgradeCostTextbox;
 
 	@FXML
-	private ChoiceBox<String> categorychoicebox;
+	private ChoiceBox<DataBaseHelper.VeriModel> categorychoicebox;
 	@FXML
-	private ChoiceBox<String> upgradeChoiceBox;
+	private ChoiceBox<DataBaseHelper.VeriModel> upgradeChoiceBox;
 	@FXML
-	private ChoiceBox<String> upgradeSearchChoiceBox;
+	private ChoiceBox<DataBaseHelper.VeriModel> upgradeSearchChoiceBox;
 	@FXML
-	private ChoiceBox<String> mainChoiceBox;
+	private ChoiceBox<DataBaseHelper.VeriModel> mainChoiceBox;
+	@FXML
+	private ChoiceBox<String> unitChoiceBox;
 
 	@FXML
 	private Spinner<Integer> productquantityspinner;
@@ -132,9 +138,18 @@ public class Form1Controller {
 		productquantityspinner.setValueFactory(valueFactory);
 		upgradeproductquantityspinner.setValueFactory(valueFactory);
 
+		ObservableList<String> unitList = FXCollections.observableArrayList();
+		unitList.add("ADET");
+		unitList.add("KG");
+		unitList.add("LT");
+
+		unitChoiceBox.setItems(unitList);
+		unitChoiceBox.getSelectionModel().select(0);
+
 		ChoiceBoxs();
 
 		tablokontrol();
+
 		settingstableviewcolumn1.setCellValueFactory(new PropertyValueFactory<>("id"));
 		settingstableviewcolumn2.setCellValueFactory(new PropertyValueFactory<>("ad"));
 		tableViewUpgrade(settingstableview, "kategoriler");
@@ -145,7 +160,7 @@ public class Form1Controller {
 		addProductTableViewColumn4.setCellValueFactory(new PropertyValueFactory<>("urunAdet"));
 		addProductTableViewColumn5.setCellValueFactory(new PropertyValueFactory<>("kategori"));
 		addProductTableViewColumn6.setCellValueFactory(new PropertyValueFactory<>("maliyet"));
-		tableViewUpgrade(addProductTableView, "stok");
+		tableViewUpgrade(addProductTableView, "ürünler");
 
 		mainTableViewColumn1.setCellValueFactory(new PropertyValueFactory<>("id"));
 		mainTableViewColumn2.setCellValueFactory(new PropertyValueFactory<>("barkod"));
@@ -153,7 +168,7 @@ public class Form1Controller {
 		mainTableViewColumn4.setCellValueFactory(new PropertyValueFactory<>("urunAdet"));
 		mainTableViewColumn5.setCellValueFactory(new PropertyValueFactory<>("kategori"));
 		mainTableViewColumn6.setCellValueFactory(new PropertyValueFactory<>("maliyet"));
-		tableViewUpgrade(mainTableView, "stok");
+		tableViewUpgrade(mainTableView, "ürünler");
 
 		upgradeTableViewColumn1.setCellValueFactory(new PropertyValueFactory<>("id"));
 		upgradeTableViewColumn2.setCellValueFactory(new PropertyValueFactory<>("barkod"));
@@ -161,7 +176,7 @@ public class Form1Controller {
 		upgradeTableViewColumn4.setCellValueFactory(new PropertyValueFactory<>("urunAdet"));
 		upgradeTableViewColumn5.setCellValueFactory(new PropertyValueFactory<>("kategori"));
 		upgradeTableViewColumn6.setCellValueFactory(new PropertyValueFactory<>("maliyet"));
-		tableViewUpgrade(upgradeTableView, "stok");
+		tableViewUpgrade(upgradeTableView, "ürünler");
 
 		setupSearchListener(mainSearchTextbox, mainTableView);
 		setupSearchListener(mainChoiceBox, mainTableView);
@@ -172,9 +187,10 @@ public class Form1Controller {
 		loadProductDetailsToFields();
 		valueCategoriInsertDataBase();
 		valueCategoryDeleteDataBase();
-		valueProductUpgradeDataBase();
+		// valueProductUpgradeDataBase();
 		valueProductInsertDataBase();
 		valueProductDeleteDataBase();
+
 	}
 
 	private void setupSearchListener(TextField textField, TableView<DataBaseHelper.VeriModel> tableView) {
@@ -185,9 +201,10 @@ public class Form1Controller {
 		});
 	}
 
-	private void setupSearchListener(ChoiceBox<String> choiceBox, TableView<DataBaseHelper.VeriModel> tableView) {
+	private void setupSearchListener(ChoiceBox<DataBaseHelper.VeriModel> choiceBox,
+			TableView<DataBaseHelper.VeriModel> tableView) {
 		choiceBox.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
-			searchCategory(tableView, newValue);
+			searchCategory(tableView, newValue.getId());
 		});
 	}
 
@@ -195,7 +212,7 @@ public class Form1Controller {
 		if (DataBaseHelper.tabloVarMi(tabloName)) {
 			System.out.println(tabloName + " tablosu mevcut...");
 		} else {
-			DataBaseHelper.createTable(sql);
+			DataBaseHelper.createTable(sql, tabloName);
 			System.out.println(tabloName + " tablosu eklendi...");
 		}
 	}
@@ -208,16 +225,29 @@ public class Form1Controller {
 				        ad TEXT NOT NULL
 				    );
 				""");
-		tabloOlustur("stok", """
-					    CREATE TABLE IF NOT EXISTS stok (
-				        id INTEGER PRIMARY KEY AUTOINCREMENT,
-				        barkod TEXT UNIQUE NOT NULL,
-				 		urun_adi TEXT NOT NULL,
-				 		urun_adet INTEGER NOT NULL,
-				 		kategori TEXT NOT NULL,
-				 		maliyet REAL NOT NULL
-				    );
+		tabloOlustur("ürünler", """
+						CREATE TABLE IF NOT EXISTS ürünler (
+						id INTEGER PRIMARY KEY AUTOINCREMENT,
+						barkod TEXT UNIQUE NOT NULL,
+						urun_adi TEXT NOT NULL,
+						urun_adet INTEGER NOT NULL DEFAULT 0,
+						birim TEXT NOT NULL,
+						kategori_id INTEGER NOT NULL,
+						maliyet REAL NOT NULL,
+						FOREIGN KEY (kategori_id) REFERENCES kategoriler(id) ON DELETE CASCADE
+					);
 				""");
+		tabloOlustur("product_ingredients", """
+						 CREATE TABLE IF NOT EXISTS product_ingredients (
+				    	urun_id INTEGER NOT NULL,  -- Nihai ürün ID
+				    	hammadde_id INTEGER NOT NULL, -- Kullanılan ham madde ID
+				   		miktar REAL NOT NULL,       -- Kullanılan miktar
+				    	PRIMARY KEY (urun_id, hammadde_id),  -- Duplicate kayıtları önler
+				    	FOREIGN KEY (urun_id) REFERENCES ürünler(id) ON DELETE CASCADE,
+				    	FOREIGN KEY (hammadde_id) REFERENCES ürünler(id) ON DELETE CASCADE
+				);
+				""");
+
 	}
 
 	private void switchForm() {
@@ -243,7 +273,7 @@ public class Form1Controller {
 
 		visibleForm.setVisible(true);
 
-		tableViewUpgrade(tableView, tabloAdi);
+		// tableViewUpgrade(tableView, tabloAdi);
 	}
 
 	private void ChoiceBoxs() {
@@ -253,14 +283,23 @@ public class Form1Controller {
 		fillChoiceBox(upgradeChoiceBox);
 	}
 
-	private void fillChoiceBox(ChoiceBox<String> choiceBox) {
+	private void fillChoiceBox(ChoiceBox<DataBaseHelper.VeriModel> choiceBox) {
 		ObservableList<DataBaseHelper.VeriModel> kategoriList = DataBaseHelper.loadData("kategoriler");
-		ObservableList<String> kategoriAdlari = FXCollections.observableArrayList();
-		for (DataBaseHelper.VeriModel kategori : kategoriList) {
-			kategoriAdlari.add(kategori.getAd().toUpperCase());
-		}
-		choiceBox.setItems(kategoriAdlari);
+		choiceBox.setItems(kategoriList);
+
 		choiceBox.getSelectionModel().select(0);
+		choiceBox.setConverter(new StringConverter<DataBaseHelper.VeriModel>() {
+			@Override
+			public String toString(DataBaseHelper.VeriModel kategori) {
+				return kategori.getAd().toUpperCase(); // Kullanıcıya sadece adını göster
+			}
+
+			@Override
+			public DataBaseHelper.VeriModel fromString(String string) {
+				return null; // Gerek yok
+			}
+		});
+
 	}
 
 	private void tableViewUpgrade(TableView<DataBaseHelper.VeriModel> tableView, String table) {
@@ -313,22 +352,27 @@ public class Form1Controller {
 			String barkod = barkodtextbox.getText().trim().toLowerCase();
 			String ürünAdi = producttextbox.getText().trim().toLowerCase();
 			Integer ürünAdet = productquantityspinner.getValue();
-			String category = categorychoicebox.getValue();
+			String birim = unitChoiceBox.getValue();
+			DataBaseHelper.VeriModel category = categorychoicebox.getValue();
 			Double maliyet = Double.parseDouble(costtextbox.getText());
-			if (barkod.isEmpty() && ürünAdi.isEmpty() && ürünAdet == 0 && maliyet == 0) {
-				System.out.println("Bazı alanlar boş...");
-			} else {
-				if (!DataBaseHelper.degerVarMi("stok", "urun_adi", ürünAdi)) {
-					DataBaseHelper.addProduct("stok", barkod, ürünAdi, ürünAdet, category, maliyet);
+
+			if (!categorychoicebox.getValue().equals("SEÇİNİZ...")) {
+				System.out.println("Kategori Seçimi yapmanız gerekmektedir.");
+			} else if (!categorychoicebox.getValue().equals("ÜRÜNLER")) {
+				if (barkod.isEmpty() && ürünAdi.isEmpty() && ürünAdet == 0 && maliyet == 0) {
+					System.out.println("Bazı alanlar boş...");
 				} else {
-					System.out.println("Bu kategori zaten var!");
+					if (!DataBaseHelper.degerVarMi("ürünler", "urun_adi", ürünAdi)) {
+						DataBaseHelper.addProduct(barkod, ürünAdi, ürünAdet, birim, category.getId(), maliyet);
+					} else {
+						System.out.println("Bu ürün zaten var!");
+					}
 				}
 			}
-			tableViewUpgrade(addProductTableView, "stok");
+			tableViewUpgrade(addProductTableView, "ürünler");
 		});
 	}
 
-	@FXML
 	private void valueProductDeleteDataBase() {
 		deleteProductBtn.setOnAction(_ -> {
 			DataBaseHelper.VeriModel selectProduct = upgradeTableView.getSelectionModel().getSelectedItem();
@@ -336,9 +380,9 @@ public class Form1Controller {
 				System.out.println("Lütfen bir kategori seçin.");
 				return;
 			} else {
-				DataBaseHelper.deleteProduct("stok", selectProduct.getId());
+				DataBaseHelper.deleteProduct("ürünler", selectProduct.getId());
 			}
-			tableViewUpgrade(upgradeTableView, "stok");
+			tableViewUpgrade(upgradeTableView, "ürünler");
 		});
 
 	}
@@ -349,35 +393,32 @@ public class Form1Controller {
 				upgradeBarkodTextBox.setText(yeniSecim.getBarkod());
 				upgradeProductNameTextbox.setText(yeniSecim.getUrunAdi());
 				upgradeproductquantityspinner.getValueFactory().setValue(yeniSecim.getUrunAdet());
-				upgradeChoiceBox.setValue(yeniSecim.getKategori());
+				upgradeChoiceBox.getSelectionModel().select((Integer.parseInt(yeniSecim.getKategori()) - 1));
 				upgradeCostTextbox.setText(String.valueOf(yeniSecim.getMaliyet()));
 			}
 		});
 	}
 
-	private void valueProductUpgradeDataBase() {
-		upgradeProductBtn.setOnAction(_ -> {
-			DataBaseHelper.VeriModel productList = upgradeTableView.getSelectionModel().getSelectedItem();
-			if (productList != null) {
-				DataBaseHelper.upgradeProduct(upgradeBarkodTextBox.getText().trim().toLowerCase(),
-						upgradeProductNameTextbox.getText().trim().toLowerCase(),
-						upgradeproductquantityspinner.getValue(), upgradeChoiceBox.getValue(),
-						Double.parseDouble(upgradeCostTextbox.getText()), productList.getId());
-			}
-			tableViewUpgrade(upgradeTableView, "stok");
-		});
-	}
-
-	private void searchCategory(TableView<DataBaseHelper.VeriModel> tableView, String aramaMetni) {
+	/*
+	 * private void valueProductUpgradeDataBase() { upgradeProductBtn.setOnAction(_
+	 * -> { DataBaseHelper.VeriModel productList =
+	 * upgradeTableView.getSelectionModel().getSelectedItem(); if (productList !=
+	 * null) { DataBaseHelper.upgradeProduct(upgradeBarkodTextBox.getText().trim().
+	 * toLowerCase(), upgradeProductNameTextbox.getText().trim().toLowerCase(),
+	 * upgradeproductquantityspinner.getValue(), upgradeChoiceBox.getValue(),
+	 * Double.parseDouble(upgradeCostTextbox.getText()), productList.getId()); }
+	 * tableViewUpgrade(upgradeTableView, "stok"); }); }
+	 */
+	private void searchCategory(TableView<DataBaseHelper.VeriModel> tableView, int aramaMetni) {
 		try {
-			if (!aramaMetni.equals("TÜMÜ")) {
+			if (aramaMetni != 1) {
 				tableView.setItems(DataBaseHelper.kategoriFiltreleme(aramaMetni));
 
-			} else if (aramaMetni.equals("TÜMÜ")) {
-				tableViewUpgrade(tableView, "stok");
+			} else if (aramaMetni == 1) {
+				tableViewUpgrade(tableView, "ürünler");
 			}
 		} catch (Exception e) {
-			System.out.println("searchCategory sorun var: " + e.getMessage());
+			System.out.println("search Category sorun var: " + e.getMessage());
 		}
 	}
 
@@ -386,11 +427,10 @@ public class Form1Controller {
 			if (aramaMetni != null && !aramaMetni.trim().isEmpty()) {
 				tableView.setItems(DataBaseHelper.stoklariAra(aramaMetni));
 			} else {
-				System.out.println("buradayım");
-				tableViewUpgrade(tableView, "stok");
+				tableViewUpgrade(tableView, "ürünler");
 			}
 		} catch (Exception e) {
-			System.out.println("searchProduct sorun var: " + e.getMessage());
+			System.out.println("search Product sorun var: " + e.getMessage());
 		}
 	}
 }
