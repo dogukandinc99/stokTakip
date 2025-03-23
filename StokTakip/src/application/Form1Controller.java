@@ -3,12 +3,17 @@ package application;
 import java.util.Iterator;
 import java.util.Observable;
 
+import javax.xml.catalog.CatalogException;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.SelectionModel;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TableColumn;
@@ -75,12 +80,21 @@ public class Form1Controller {
 	@FXML
 	private ChoiceBox<DataBaseHelper.VeriModel> mainChoiceBox;
 	@FXML
+	private ChoiceBox<DataBaseHelper.VeriModel> materialsQuantityChoiceBox;
+	@FXML
 	private ChoiceBox<String> unitChoiceBox;
+
+	@FXML
+	private Label materialsLabel;
+	@FXML
+	private Label materialsQuantityLabel;
 
 	@FXML
 	private Spinner<Integer> productquantityspinner;
 	@FXML
 	private Spinner<Integer> upgradeproductquantityspinner;
+	@FXML
+	private Spinner<Integer> materialsQuantitySpinner;
 
 	@FXML
 	private TableView<DataBaseHelper.VeriModel> settingstableview;
@@ -160,6 +174,7 @@ public class Form1Controller {
 		addProductTableViewColumn4.setCellValueFactory(new PropertyValueFactory<>("urunAdet"));
 		addProductTableViewColumn5.setCellValueFactory(new PropertyValueFactory<>("kategori"));
 		addProductTableViewColumn6.setCellValueFactory(new PropertyValueFactory<>("maliyet"));
+		addProductTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		tableViewUpgrade(addProductTableView, "ürünler");
 
 		mainTableViewColumn1.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -184,6 +199,9 @@ public class Form1Controller {
 		setupSearchListener(upgradeSearchChoiceBox, upgradeTableView);
 
 		switchForm();
+
+		categoryChoiceboxVisible();
+
 		loadProductDetailsToFields();
 		valueCategoriInsertDataBase();
 		valueCategoryDeleteDataBase();
@@ -347,7 +365,25 @@ public class Form1Controller {
 		});
 	}
 
+	void categoryChoiceboxVisible() {
+		categorychoicebox.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, newValue) -> {
+			DataBaseHelper.VeriModel categoryChoiceBoxValue = newValue;
+			if (categoryChoiceBoxValue.getAd().equals("ürünler")) {
+				materialsLabel.setVisible(true);
+				materialsQuantityChoiceBox.setVisible(true);
+				materialsQuantityLabel.setVisible(true);
+				materialsQuantitySpinner.setVisible(true);
+			} else {
+				materialsLabel.setVisible(false);
+				materialsQuantityChoiceBox.setVisible(false);
+				materialsQuantityLabel.setVisible(false);
+				materialsQuantitySpinner.setVisible(false);
+			}
+		});
+	}
+
 	private void valueProductInsertDataBase() {
+
 		addProductBtn.setOnAction(_ -> {
 			String barkod = barkodtextbox.getText().trim().toLowerCase();
 			String ürünAdi = producttextbox.getText().trim().toLowerCase();
@@ -356,9 +392,9 @@ public class Form1Controller {
 			DataBaseHelper.VeriModel category = categorychoicebox.getValue();
 			Double maliyet = Double.parseDouble(costtextbox.getText());
 
-			if (!categorychoicebox.getValue().equals("SEÇİNİZ...")) {
+			if (category.getAd().equals("seçiniz...")) {
 				System.out.println("Kategori Seçimi yapmanız gerekmektedir.");
-			} else if (!categorychoicebox.getValue().equals("ÜRÜNLER")) {
+			} else if (!category.getAd().equals("ürünler")) {
 				if (barkod.isEmpty() && ürünAdi.isEmpty() && ürünAdet == 0 && maliyet == 0) {
 					System.out.println("Bazı alanlar boş...");
 				} else {
@@ -370,6 +406,7 @@ public class Form1Controller {
 				}
 			}
 			tableViewUpgrade(addProductTableView, "ürünler");
+			return;
 		});
 	}
 
