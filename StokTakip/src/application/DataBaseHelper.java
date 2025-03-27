@@ -98,12 +98,13 @@ public class DataBaseHelper {
 		return lastId;
 	}
 
-	public static void addProductIngredients(int urun_id, int hammadde_id, double adet) {
-		String sql = "INSERT INTO product_ingredients (urun_id,hammadde_id,miktar) VALUES (?,?,?)";
+	public static void addProductIngredients(int urun_id, int hammadde_id, double adet, String birim) {
+		String sql = "INSERT INTO product_ingredients (urun_id,hammadde_id,miktar,birim) VALUES (?,?,?,?)";
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setInt(1, urun_id);
 			pstmt.setInt(2, hammadde_id);
 			pstmt.setDouble(3, adet);
+			pstmt.setString(4, birim);
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
 			System.out.println("Kategori ekleme hatası: " + e.getMessage());
@@ -185,15 +186,18 @@ public class DataBaseHelper {
 		private String barkod;
 		private String urun_Adi;
 		private int urun_Adet;
+		private String birim;
 		private String kategori;
 		private double maliyet;
 		private String ad; // Kategori için
 
-		public VeriModel(int id, String barkod, String urun_Adi, int urun_Adet, String kategori, double maliyet) {
+		public VeriModel(int id, String barkod, String urun_Adi, int urun_Adet, String birim, String kategori,
+				double maliyet) {
 			this.id = id;
 			this.barkod = barkod;
 			this.urun_Adi = urun_Adi;
 			this.urun_Adet = urun_Adet;
+			this.birim = birim;
 			this.kategori = kategori;
 			this.maliyet = maliyet;
 		}
@@ -217,6 +221,10 @@ public class DataBaseHelper {
 
 		public int getUrunAdet() {
 			return urun_Adet;
+		}
+
+		public String getBirim() {
+			return birim;
 		}
 
 		public String getKategori() {
@@ -255,7 +263,7 @@ public class DataBaseHelper {
 					veriList.add(new VeriModel(rs.getInt("id"), rs.getString("ad")));
 				} else if (tabloAdi.equals("ürünler")) {
 					veriList.add(new VeriModel(rs.getInt("id"), rs.getString("barkod"), rs.getString("urun_adi"),
-							rs.getInt("urun_adet"), rs.getString("kategori_adi").toUpperCase(),
+							rs.getInt("urun_adet"), rs.getString("birim"), rs.getString("kategori_adi").toUpperCase(),
 							rs.getDouble("maliyet")));
 				}
 			}
@@ -281,7 +289,8 @@ public class DataBaseHelper {
 
 			while (rs.next()) {
 				urunListesi.add(new VeriModel(rs.getInt("id"), rs.getString("barkod"), rs.getString("urun_adi"),
-						rs.getInt("urun_adet"), rs.getString("kategori_adi").toUpperCase(), rs.getDouble("maliyet")));
+						rs.getInt("urun_adet"), rs.getString("birim"), rs.getString("kategori_adi").toUpperCase(),
+						rs.getDouble("maliyet")));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -304,7 +313,8 @@ public class DataBaseHelper {
 
 			while (rs.next()) {
 				urunListesi.add(new VeriModel(rs.getInt("id"), rs.getString("barkod"), rs.getString("urun_adi"),
-						rs.getInt("urun_adet"), rs.getString("kategori_adi").toUpperCase(), rs.getDouble("maliyet")));
+						rs.getInt("urun_adet"), rs.getString("birim"), rs.getString("kategori_adi").toUpperCase(),
+						rs.getDouble("maliyet")));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

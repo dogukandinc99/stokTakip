@@ -15,12 +15,8 @@ public class Main extends Application {
 			primaryStage.setTitle("STOK TAKİP");
 			primaryStage.setScene(new Scene(root));
 			primaryStage.show();
-			/*
-			 * BorderPane root = new BorderPane(); Scene scene = new Scene(root,400,400);
-			 * scene.getStylesheets().add(getClass().getResource("application.css").
-			 * toExternalForm()); primaryStage.setScene(scene); primaryStage.show();
-			 */
-		} catch (Exception e) {
+		} 
+		catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
