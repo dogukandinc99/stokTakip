@@ -1,19 +1,18 @@
 package application;
 
-import java.util.Iterator;
-import java.util.Observable;
-
-import javax.xml.catalog.CatalogException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.SelectionMode;
-import javafx.scene.control.SelectionModel;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TableColumn;
@@ -21,6 +20,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
 public class Form1Controller {
@@ -256,7 +258,8 @@ public class Form1Controller {
 					);
 				""");
 		tabloOlustur("product_ingredients", """
-						 CREATE TABLE IF NOT EXISTS product_ingredients (
+						CREATE TABLE IF NOT EXISTS product_ingredients (
+						id INTEGER PRIMARY KEY AUTOINCREMENT,
 				    	urun_id INTEGER NOT NULL,  -- Nihai ürün ID
 				    	hammadde_id INTEGER NOT NULL, -- Kullanılan ham madde ID
 				   		miktar REAL NOT NULL,       -- Kullanılan miktar
@@ -390,7 +393,18 @@ public class Form1Controller {
 			Integer ürünAdet = productquantityspinner.getValue();
 			String birim = unitChoiceBox.getValue();
 			DataBaseHelper.VeriModel category = categorychoicebox.getValue();
-			Double maliyet = Double.parseDouble(costtextbox.getText());
+			Double maliyet = 0.0;
+			
+			if (!gecerliMi(barkod, ürünAdi, ürünAdet, birim, category, maliyet)) {
+				return;
+			}
+			
+			try {
+				maliyet = Double.parseDouble(costtextbox.getText());
+			} catch (NumberFormatException e) {
+				System.out.println("Geçerli bir maliyet değeri girin.");
+				return;
+			}	
 
 			if (category.getAd().equals("seçiniz...")) {
 				System.out.println("Kategori Seçimi yapmanız gerekmektedir.");
@@ -404,10 +418,92 @@ public class Form1Controller {
 						System.out.println("Bu ürün zaten var!");
 					}
 				}
+			} else if (category.getAd().equals("ürünler")) {
+				if (barkod.isEmpty() && ürünAdi.isEmpty() && ürünAdet == 0 && maliyet == 0) {
+					System.out.println("Bazı alanlar boş...");
+				} else {
+					if (!DataBaseHelper.degerVarMi("ürünler", "urun_adi", ürünAdi)) {
+						ObservableList<DataBaseHelper.VeriModel> tableSelectedList = addProductTableView
+								.getSelectionModel().getSelectedItems();
+						if (tableSelectedList.size() < 1) {
+							System.out.println("Tablodan Ham Madde Seçimi Yapmanız Gerekmektedir...");
+						} else {
+							try {
+								int lastId = (DataBaseHelper.getLastInsertedProductId() + 1);
+								if (valueProductMaterialsInsertDataBase(lastId, tableSelectedList)) {
+									DataBaseHelper.addProduct(barkod, ürünAdi, ürünAdet, birim, category.getId(),
+											maliyet);
+								}
+							} catch (Exception e) {
+								System.out.println(e.getMessage());
+							}
+						}
+					} else {
+						System.out.println("Bu ürün zaten var!");
+					}
+				}
 			}
 			tableViewUpgrade(addProductTableView, "ürünler");
 			return;
 		});
+	}
+
+	private boolean gecerliMi(String barkod, String ürünAdi, Integer ürünAdet, String birim,
+			DataBaseHelper.VeriModel category, Double maliyet) {
+		if (category == null || category.getAd().equals("seçiniz...")) {
+			System.out.println("Kategori seçimi yapmanız gerekmektedir.");
+			return false;
+		}
+
+		if (barkod.isEmpty() || ürünAdi.isEmpty() || ürünAdet == null || ürünAdet <= 0 || birim == null
+				|| maliyet == null || maliyet <= 0) {
+			System.out.println("Lütfen tüm alanları eksiksiz ve doğru doldurun.");
+			return false;
+		}
+
+		return true;
+	}
+
+	boolean valueProductMaterialsInsertDataBase(int urun_id,
+			ObservableList<DataBaseHelper.VeriModel> selectedMaterials) {
+		Stage stage = new Stage();
+		VBox vBox = new VBox(10);
+		vBox.setPadding(new Insets(10));
+
+		Label titleLabel = new Label("Hammadde Miktarlarını Girin:");
+		vBox.getChildren().add(titleLabel);
+
+		List<Spinner<Integer>> spinners = new ArrayList<>();
+		List<DataBaseHelper.VeriModel> selectedItems = new ArrayList<>();
+
+		for (DataBaseHelper.VeriModel material : selectedMaterials) {
+			Label label = new Label(material.getUrunAdi() + ":");
+			Spinner<Integer> spinner = new Spinner<Integer>(0, 10000, 1);
+			spinners.add(spinner);
+			selectedItems.add(material);
+
+			HBox row = new HBox(10, label, spinner);
+			vBox.getChildren().add(row); // VBox içine ekliyoruz
+		}
+		Button saveButton = new Button("Kaydet");
+		try {
+			saveButton.setOnAction(e -> {
+				for (int i = 0; i < selectedItems.size(); i++) {
+					DataBaseHelper.addProductIngredients(urun_id, selectedItems.get(i).getId(),
+							spinners.get(i).getValue());
+				}
+			});
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+
+		vBox.getChildren().add(saveButton);
+
+		Scene scene = new Scene(vBox);
+		stage.setScene(scene);
+		stage.setTitle("Hammadde Seçimi");
+		stage.show();
+		return true;
 	}
 
 	private void valueProductDeleteDataBase() {

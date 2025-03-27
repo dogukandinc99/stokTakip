@@ -12,7 +12,7 @@ import javafx.collections.ObservableList;
 public class DataBaseHelper {
 	public static Connection connect() {
 
-		String DB_URL = "jdbc:sqlite:database/urunstokdatabase.db"; // Veritabanı dosyasının tam yolu
+		String DB_URL = "jdbc:sqlite:database/urunstokdatabase.db";
 
 		Connection conn = null;
 
@@ -74,6 +74,36 @@ public class DataBaseHelper {
 			pstmt.setString(4, unit);
 			pstmt.setInt(5, category);
 			pstmt.setDouble(6, cost);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println("Kategori ekleme hatası: " + e.getMessage());
+		}
+	}
+
+	public static int getLastInsertedProductId() {
+		int lastId = -1;
+
+		String sql = "SELECT id FROM ürünler ORDER BY id DESC LIMIT 1";
+		try (Connection conn = connect();
+				PreparedStatement pstmt = conn.prepareStatement(sql);
+				ResultSet rs = pstmt.executeQuery()) {
+
+			if (rs.next()) {
+				lastId = rs.getInt("id");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return lastId;
+	}
+
+	public static void addProductIngredients(int urun_id, int hammadde_id, double adet) {
+		String sql = "INSERT INTO product_ingredients (urun_id,hammadde_id,miktar) VALUES (?,?,?)";
+		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setInt(1, urun_id);
+			pstmt.setInt(2, hammadde_id);
+			pstmt.setDouble(3, adet);
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
 			System.out.println("Kategori ekleme hatası: " + e.getMessage());
@@ -207,7 +237,8 @@ public class DataBaseHelper {
 		try (Connection conn = connect()) {
 			String sql = switch (tabloAdi) {
 			case "kategoriler" -> "SELECT id, ad FROM kategoriler";
-			case "ürünler" -> "SELECT id, barkod, urun_adi, urun_adet, kategori_id, maliyet FROM ürünler";
+			case "ürünler" ->
+				"SELECT u.*, k.ad AS kategori_adi FROM ürünler u JOIN kategoriler k ON u.kategori_id = k.id;";
 			default -> {
 				System.out.println("Hatalı tablo adı: " + tabloAdi);
 				yield null;
@@ -224,7 +255,8 @@ public class DataBaseHelper {
 					veriList.add(new VeriModel(rs.getInt("id"), rs.getString("ad")));
 				} else if (tabloAdi.equals("ürünler")) {
 					veriList.add(new VeriModel(rs.getInt("id"), rs.getString("barkod"), rs.getString("urun_adi"),
-							rs.getInt("urun_adet"), rs.getString("kategori_id"), rs.getDouble("maliyet")));
+							rs.getInt("urun_adet"), rs.getString("kategori_adi").toUpperCase(),
+							rs.getDouble("maliyet")));
 				}
 			}
 		} catch (SQLException e) {
@@ -237,7 +269,8 @@ public class DataBaseHelper {
 	public static ObservableList<VeriModel> stoklariAra(String aramaMetni) {
 		ObservableList<VeriModel> urunListesi = FXCollections.observableArrayList();
 
-		String sql = "SELECT * FROM ürünler WHERE " + "barkod LIKE ? OR " + "urun_adi LIKE ?";
+		String sql = "SELECT u.*, k.ad AS kategori_adi FROM ürünler u " + "JOIN kategoriler k ON u.kategori_id = k.id"
+				+ " WHERE " + "barkod LIKE ? OR " + "urun_adi LIKE ? ";
 
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -248,7 +281,7 @@ public class DataBaseHelper {
 
 			while (rs.next()) {
 				urunListesi.add(new VeriModel(rs.getInt("id"), rs.getString("barkod"), rs.getString("urun_adi"),
-						rs.getInt("urun_adet"), rs.getString("kategori_id"), rs.getDouble("maliyet")));
+						rs.getInt("urun_adet"), rs.getString("kategori_adi").toUpperCase(), rs.getDouble("maliyet")));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -260,7 +293,8 @@ public class DataBaseHelper {
 	public static ObservableList<VeriModel> kategoriFiltreleme(int aramaMetni) {
 		ObservableList<VeriModel> urunListesi = FXCollections.observableArrayList();
 
-		String sql = "SELECT * FROM ürünler WHERE kategori_id = ?";
+		String sql = "SELECT u.*, k.ad AS kategori_adi"
+				+ " FROM ürünler u JOIN kategoriler k ON u.kategori_id = k.id WHERE kategori_id = ? ";
 
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -270,7 +304,7 @@ public class DataBaseHelper {
 
 			while (rs.next()) {
 				urunListesi.add(new VeriModel(rs.getInt("id"), rs.getString("barkod"), rs.getString("urun_adi"),
-						rs.getInt("urun_adet"), rs.getString("kategori_id"), rs.getDouble("maliyet")));
+						rs.getInt("urun_adet"), rs.getString("kategori_adi").toUpperCase(), rs.getDouble("maliyet")));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
