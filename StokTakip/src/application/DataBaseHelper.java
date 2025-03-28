@@ -63,14 +63,14 @@ public class DataBaseHelper {
 		}
 	}
 
-	public static void addProduct(String barkod, String productname, int productquantity, String unit, int category,
+	public static void addProduct(String barkod, String productname, Double productquantity, String unit, int category,
 			Double cost) {
 		String sql = "INSERT INTO ürünler (barkod, urun_adi, urun_adet, birim, kategori_id, maliyet) VALUES (?,?,?,?,?,?)";
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
 			pstmt.setString(1, barkod);
 			pstmt.setString(2, productname);
-			pstmt.setInt(3, productquantity);
+			pstmt.setDouble(3, productquantity);
 			pstmt.setString(4, unit);
 			pstmt.setInt(5, category);
 			pstmt.setDouble(6, cost);
@@ -162,14 +162,14 @@ public class DataBaseHelper {
 		}
 	}
 
-	public static void upgradeProduct(String barkod, String productname, int productquantity, String category,
+	public static void upgradeProduct(String barkod, String productname, Double productquantity, String category,
 			Double cost, int id) {
 		String sql = "UPDATE STOK SET barkod= ?, urun_adi= ?, urun_adet= ?, kategori= ?, maliyet= ? WHERE id= ?";
 
 		try (Connection conn = DataBaseHelper.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, barkod);
 			pstmt.setString(2, productname);
-			pstmt.setInt(3, productquantity);
+			pstmt.setDouble(3, productquantity);
 			pstmt.setString(4, category);
 			pstmt.setDouble(5, cost);
 			pstmt.setInt(6, id);
@@ -185,13 +185,13 @@ public class DataBaseHelper {
 		private int id;
 		private String barkod;
 		private String urun_Adi;
-		private int urun_Adet;
+		private Double urun_Adet;
 		private String birim;
 		private String kategori;
 		private double maliyet;
 		private String ad; // Kategori için
 
-		public VeriModel(int id, String barkod, String urun_Adi, int urun_Adet, String birim, String kategori,
+		public VeriModel(int id, String barkod, String urun_Adi, Double urun_Adet, String birim, String kategori,
 				double maliyet) {
 			this.id = id;
 			this.barkod = barkod;
@@ -219,7 +219,7 @@ public class DataBaseHelper {
 			return urun_Adi;
 		}
 
-		public int getUrunAdet() {
+		public Double getUrunAdet() {
 			return urun_Adet;
 		}
 
@@ -263,8 +263,8 @@ public class DataBaseHelper {
 					veriList.add(new VeriModel(rs.getInt("id"), rs.getString("ad")));
 				} else if (tabloAdi.equals("ürünler")) {
 					veriList.add(new VeriModel(rs.getInt("id"), rs.getString("barkod"), rs.getString("urun_adi"),
-							rs.getInt("urun_adet"), rs.getString("birim"), rs.getString("kategori_adi").toUpperCase(),
-							rs.getDouble("maliyet")));
+							rs.getDouble("urun_adet"), rs.getString("birim"),
+							rs.getString("kategori_adi").toUpperCase(), rs.getDouble("maliyet")));
 				}
 			}
 		} catch (SQLException e) {
@@ -289,7 +289,7 @@ public class DataBaseHelper {
 
 			while (rs.next()) {
 				urunListesi.add(new VeriModel(rs.getInt("id"), rs.getString("barkod"), rs.getString("urun_adi"),
-						rs.getInt("urun_adet"), rs.getString("birim"), rs.getString("kategori_adi").toUpperCase(),
+						rs.getDouble("urun_adet"), rs.getString("birim"), rs.getString("kategori_adi").toUpperCase(),
 						rs.getDouble("maliyet")));
 			}
 		} catch (SQLException e) {
@@ -313,7 +313,7 @@ public class DataBaseHelper {
 
 			while (rs.next()) {
 				urunListesi.add(new VeriModel(rs.getInt("id"), rs.getString("barkod"), rs.getString("urun_adi"),
-						rs.getInt("urun_adet"), rs.getString("birim"), rs.getString("kategori_adi").toUpperCase(),
+						rs.getDouble("urun_adet"), rs.getString("birim"), rs.getString("kategori_adi").toUpperCase(),
 						rs.getDouble("maliyet")));
 			}
 		} catch (SQLException e) {
@@ -326,7 +326,7 @@ public class DataBaseHelper {
 	public static String getHamMaddeler(int urunId) {
 		StringBuilder hamMaddelListesi = new StringBuilder();
 
-		String sql = "SELECT u.urun_adi, pi.miktar, u.birim"
+		String sql = "SELECT u.urun_adi, pi.miktar, u.birim, u.maliyet"
 				+ " FROM product_ingredients pi JOIN ürünler u ON pi.hammadde_id = u.id where pi.urun_id = ? ";
 
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -338,8 +338,9 @@ public class DataBaseHelper {
 			hamMaddelListesi.append("İÇİNDEKİLER\n");
 			while (rs.next()) {
 				varMı = true;
-				hamMaddelListesi.append(rs.getString("urun_adi").toUpperCase()).append(": ").append(rs.getInt("miktar"))
-						.append(" ").append(rs.getString("birim")).append("\n");
+				hamMaddelListesi.append(rs.getString("urun_adi").toUpperCase()).append(": ")
+						.append(rs.getDouble("miktar")).append(" ").append(rs.getString("birim"))
+						.append(" Maliyet(1 Adet): ").append(rs.getString("maliyet")).append("\n");
 
 			}
 			if (!varMı) {

@@ -1,12 +1,10 @@
 package application;
 
-import java.sql.DatabaseMetaData;
 import java.util.ArrayList;
 import java.util.List;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -95,11 +93,11 @@ public class Form1Controller {
 	private Label materialsQuantityLabel;
 
 	@FXML
-	private Spinner<Integer> productquantityspinner;
+	private Spinner<Double> productquantityspinner;
 	@FXML
-	private Spinner<Integer> upgradeproductquantityspinner;
+	private Spinner<Double> upgradeproductquantityspinner;
 	@FXML
-	private Spinner<Integer> materialsQuantitySpinner;
+	private Spinner<Double> materialsQuantitySpinner;
 
 	@FXML
 	private TableView<DataBaseHelper.VeriModel> settingstableview;
@@ -151,13 +149,13 @@ public class Form1Controller {
 	@FXML
 	private TableColumn<DataBaseHelper.VeriModel, Double> upgradeTableViewColumn6;
 
+	ObservableList<String> unitList = FXCollections.observableArrayList();
+
 	public void initialize() {
-		SpinnerValueFactory<Integer> valueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(-10000, 10000,
-				1);
+		SpinnerValueFactory<Double> valueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(-10000, 10000, 1);
 		productquantityspinner.setValueFactory(valueFactory);
 		upgradeproductquantityspinner.setValueFactory(valueFactory);
 
-		ObservableList<String> unitList = FXCollections.observableArrayList();
 		unitList.add("ADET");
 		unitList.add("LİTRE");
 		unitList.add("MİLİLİTRE");
@@ -239,7 +237,7 @@ public class Form1Controller {
 						id INTEGER PRIMARY KEY AUTOINCREMENT,
 						barkod TEXT UNIQUE NOT NULL,
 						urun_adi TEXT NOT NULL,
-						urun_adet INTEGER NOT NULL DEFAULT 0,
+						urun_adet REAL NOT NULL DEFAULT 0,
 						birim TEXT NOT NULL,
 						kategori_id INTEGER NOT NULL,
 						maliyet REAL NOT NULL,
@@ -367,7 +365,7 @@ public class Form1Controller {
 	}
 
 	void categoryChoiceboxVisible() {
-		categorychoicebox.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, newValue) -> {
+		categorychoicebox.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
 			DataBaseHelper.VeriModel categoryChoiceBoxValue = newValue;
 			if (categoryChoiceBoxValue.getAd().equals("ürünler")) {
 				materialsLabel.setVisible(true);
@@ -388,7 +386,7 @@ public class Form1Controller {
 		addProductBtn.setOnAction(_ -> {
 			String barkod = barkodtextbox.getText().trim().toLowerCase();
 			String ürünAdi = producttextbox.getText().trim().toLowerCase();
-			Integer ürünAdet = productquantityspinner.getValue();
+			Double ürünAdet = productquantityspinner.getValue();
 			String birim = unitChoiceBox.getValue();
 			DataBaseHelper.VeriModel category = categorychoicebox.getValue();
 			Double maliyet = 0.0;
@@ -426,13 +424,8 @@ public class Form1Controller {
 							System.out.println("Tablodan Ham Madde Seçimi Yapmanız Gerekmektedir...");
 						} else {
 							try {
-								int lastId = (DataBaseHelper.getLastInsertedProductId() + 1);
-								if (valueProductMaterialsInsertDataBase(lastId, tableSelectedList)) {
-									DataBaseHelper.addProduct(barkod, ürünAdi, ürünAdet, birim, category.getId(),
-											maliyet);
-								} else {
-									System.out.println("sorun var.");
-								}
+								valueProductMaterialsInsertDataBase(barkod, ürünAdi, ürünAdet, birim, category.getId(),
+										tableSelectedList);
 							} catch (Exception e) {
 								System.out.println(e.getMessage());
 							}
@@ -447,7 +440,7 @@ public class Form1Controller {
 		});
 	}
 
-	private boolean gecerliMi(String barkod, String ürünAdi, Integer ürünAdet, String birim,
+	private boolean gecerliMi(String barkod, String ürünAdi, Double ürünAdet, String birim,
 			DataBaseHelper.VeriModel category, Double maliyet) {
 		if (category == null || category.getAd().equals("hepsi")) {
 			System.out.println("Kategori seçimi yapmanız gerekmektedir.");
@@ -464,8 +457,9 @@ public class Form1Controller {
 		return true;
 	}
 
-	boolean valueProductMaterialsInsertDataBase(int urun_id,
+	void valueProductMaterialsInsertDataBase(String barkod, String urunAdi, Double urunAdet, String birim, int kategori,
 			ObservableList<DataBaseHelper.VeriModel> selectedMaterials) {
+
 		Stage stage = new Stage();
 		VBox vBox = new VBox(10);
 		vBox.setPadding(new Insets(10));
@@ -478,16 +472,17 @@ public class Form1Controller {
 
 		for (DataBaseHelper.VeriModel material : selectedMaterials) {
 			Label label = new Label(material.getUrunAdi() + ":");
+			Label birimlb = new Label(material.getBirim().toUpperCase());
 			Spinner<Integer> spinner = new Spinner<Integer>(0, 10000, 1);
 			spinners.add(spinner);
 			selectedItems.add(material);
-			HBox row = new HBox(10, label, spinner);
+			HBox row = new HBox(10, label, spinner, birimlb);
 			vBox.getChildren().add(row);
 		}
 
-		final boolean[] isSave = { false };
 		Button saveButton = new Button("Kaydet");
-		saveButton.setOnAction(e -> {
+
+		saveButton.setOnAction(_ -> {
 			boolean kontrol = true;
 
 			for (DataBaseHelper.VeriModel material : selectedItems) {
@@ -499,11 +494,14 @@ public class Form1Controller {
 			}
 			try {
 				if (kontrol) {
+					double maliyetToplam = 0;
+					int lastId = (DataBaseHelper.getLastInsertedProductId() + 1);
 					for (int i = 0; i < selectedItems.size(); i++) {
-						DataBaseHelper.addProductIngredients(urun_id, selectedItems.get(i).getId(),
+						DataBaseHelper.addProductIngredients(lastId, selectedItems.get(i).getId(),
 								spinners.get(i).getValue(), selectedItems.get(i).getBirim());
+						maliyetToplam += (selectedItems.get(i).getUrunAdet() * selectedItems.get(i).getMaliyet());
 					}
-					isSave[0] = true;
+					DataBaseHelper.addProduct(barkod, urunAdi, urunAdet, birim, kategori, maliyetToplam);
 					stage.close();
 				} else {
 					System.out.println("Sadece ham madde veya ambalaj ekleyebilirsiniz.");
@@ -521,7 +519,6 @@ public class Form1Controller {
 		stage.setTitle("Hammadde Seçimi");
 		stage.showAndWait();
 
-		return isSave[0];
 	}
 
 	private void valueProductDeleteDataBase() {
@@ -544,7 +541,12 @@ public class Form1Controller {
 				upgradeBarkodTextBox.setText(yeniSecim.getBarkod());
 				upgradeProductNameTextbox.setText(yeniSecim.getUrunAdi());
 				upgradeproductquantityspinner.getValueFactory().setValue(yeniSecim.getUrunAdet());
-				upgradeChoiceBox.getSelectionModel().select((Integer.parseInt(yeniSecim.getKategori()) - 1));
+				ObservableList<DataBaseHelper.VeriModel> kategoriList = DataBaseHelper.loadData("kategoriler");
+				for (DataBaseHelper.VeriModel veri : kategoriList) {
+					if (yeniSecim.getKategori().toLowerCase().equals(veri.getAd())) {
+						upgradeChoiceBox.getSelectionModel().select(veri.getId() - 1);
+					}
+				}
 				upgradeCostTextbox.setText(String.valueOf(yeniSecim.getMaliyet()));
 			}
 		});
@@ -601,9 +603,9 @@ public class Form1Controller {
 	}
 
 	private void setTooltipForTableview(TableView<DataBaseHelper.VeriModel> tableView) {
-		tableView.setRowFactory(tv -> {
+		tableView.setRowFactory(_ -> {
 			TableRow<DataBaseHelper.VeriModel> row = new TableRow<>();
-			row.setOnMouseEntered(e -> {
+			row.setOnMouseEntered(_ -> {
 				if (!row.isEmpty()) {
 					DataBaseHelper.VeriModel urun = row.getItem();
 					String hamMaddelerString = DataBaseHelper.getHamMaddeler(urun.getId());
