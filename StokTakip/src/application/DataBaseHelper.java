@@ -323,4 +323,33 @@ public class DataBaseHelper {
 		return urunListesi;
 	}
 
+	public static String getHamMaddeler(int urunId) {
+		StringBuilder hamMaddelListesi = new StringBuilder();
+
+		String sql = "SELECT u.urun_adi, pi.miktar, u.birim"
+				+ " FROM product_ingredients pi JOIN ürünler u ON pi.hammadde_id = u.id where pi.urun_id = ? ";
+
+		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setInt(1, urunId);
+
+			ResultSet rs = pstmt.executeQuery();
+
+			boolean varMı = false;
+			hamMaddelListesi.append("İÇİNDEKİLER\n");
+			while (rs.next()) {
+				varMı = true;
+				hamMaddelListesi.append(rs.getString("urun_adi").toUpperCase()).append(": ").append(rs.getInt("miktar"))
+						.append(" ").append(rs.getString("birim")).append("\n");
+
+			}
+			if (!varMı) {
+				return "İÇİNDEKİLER\nBulunamadı...";
+			}
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+
+		return hamMaddelListesi.toString();
+	}
+
 }

@@ -1,11 +1,12 @@
 package application;
 
+import java.sql.DatabaseMetaData;
 import java.util.ArrayList;
 import java.util.List;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -16,8 +17,10 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
@@ -220,6 +223,7 @@ public class Form1Controller {
 		valueProductInsertDataBase();
 		valueProductDeleteDataBase();
 
+		setTooltipForTableview(addProductTableView);
 	}
 
 	private void tablokontrol() {
@@ -594,5 +598,22 @@ public class Form1Controller {
 		} catch (Exception e) {
 			System.out.println("search Product sorun var: " + e.getMessage());
 		}
+	}
+
+	private void setTooltipForTableview(TableView<DataBaseHelper.VeriModel> tableView) {
+		tableView.setRowFactory(tv -> {
+			TableRow<DataBaseHelper.VeriModel> row = new TableRow<>();
+			row.setOnMouseEntered(e -> {
+				if (!row.isEmpty()) {
+					DataBaseHelper.VeriModel urun = row.getItem();
+					String hamMaddelerString = DataBaseHelper.getHamMaddeler(urun.getId());
+					if (!hamMaddelerString.isEmpty()) {
+						Tooltip tooltip = new Tooltip(hamMaddelerString);
+						Tooltip.install(row, tooltip);
+					}
+				}
+			});
+			return row;
+		});
 	}
 }
