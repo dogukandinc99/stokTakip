@@ -86,6 +86,8 @@ public class Form1Controller {
 	private ChoiceBox<DataBaseHelper.VeriModel> materialsQuantityChoiceBox;
 	@FXML
 	private ChoiceBox<String> unitChoiceBox;
+	@FXML
+	private ChoiceBox<String> upgradeUnitChoiceBox;
 
 	@FXML
 	private Label materialsLabel;
@@ -125,6 +127,8 @@ public class Form1Controller {
 	@FXML
 	private TableColumn<DataBaseHelper.VeriModel, Double> addProductTableViewColumn6;
 	@FXML
+	private TableColumn<DataBaseHelper.VeriModel, String> addProductTableViewColumn7;
+	@FXML
 	private TableColumn<DataBaseHelper.VeriModel, Integer> mainTableViewColumn1;
 	@FXML
 	private TableColumn<DataBaseHelper.VeriModel, String> mainTableViewColumn2;
@@ -137,6 +141,8 @@ public class Form1Controller {
 	@FXML
 	private TableColumn<DataBaseHelper.VeriModel, Double> mainTableViewColumn6;
 	@FXML
+	private TableColumn<DataBaseHelper.VeriModel, String> mainTableViewColumn7;
+	@FXML
 	private TableColumn<DataBaseHelper.VeriModel, Integer> upgradeTableViewColumn1;
 	@FXML
 	private TableColumn<DataBaseHelper.VeriModel, String> upgradeTableViewColumn2;
@@ -148,6 +154,8 @@ public class Form1Controller {
 	private TableColumn<DataBaseHelper.VeriModel, String> upgradeTableViewColumn5;
 	@FXML
 	private TableColumn<DataBaseHelper.VeriModel, Double> upgradeTableViewColumn6;
+	@FXML
+	private TableColumn<DataBaseHelper.VeriModel, String> upgradeTableViewColumn7;
 
 	ObservableList<String> unitList = FXCollections.observableArrayList();
 
@@ -171,6 +179,8 @@ public class Form1Controller {
 
 		unitChoiceBox.setItems(unitList);
 		unitChoiceBox.getSelectionModel().select(0);
+		upgradeUnitChoiceBox.setItems(unitList);
+		upgradeUnitChoiceBox.getSelectionModel().select(0);
 
 		ChoiceBoxs();
 
@@ -186,6 +196,7 @@ public class Form1Controller {
 		addProductTableViewColumn4.setCellValueFactory(new PropertyValueFactory<>("urunAdet"));
 		addProductTableViewColumn5.setCellValueFactory(new PropertyValueFactory<>("kategori"));
 		addProductTableViewColumn6.setCellValueFactory(new PropertyValueFactory<>("maliyet"));
+		addProductTableViewColumn7.setCellValueFactory(new PropertyValueFactory<>("birim"));
 		addProductTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		tableViewUpgrade(addProductTableView, "ürünler");
 
@@ -195,6 +206,7 @@ public class Form1Controller {
 		mainTableViewColumn4.setCellValueFactory(new PropertyValueFactory<>("urunAdet"));
 		mainTableViewColumn5.setCellValueFactory(new PropertyValueFactory<>("kategori"));
 		mainTableViewColumn6.setCellValueFactory(new PropertyValueFactory<>("maliyet"));
+		mainTableViewColumn7.setCellValueFactory(new PropertyValueFactory<>("birim"));
 		tableViewUpgrade(mainTableView, "ürünler");
 
 		upgradeTableViewColumn1.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -203,6 +215,7 @@ public class Form1Controller {
 		upgradeTableViewColumn4.setCellValueFactory(new PropertyValueFactory<>("urunAdet"));
 		upgradeTableViewColumn5.setCellValueFactory(new PropertyValueFactory<>("kategori"));
 		upgradeTableViewColumn6.setCellValueFactory(new PropertyValueFactory<>("maliyet"));
+		upgradeTableViewColumn7.setCellValueFactory(new PropertyValueFactory<>("birim"));
 		tableViewUpgrade(upgradeTableView, "ürünler");
 
 		setupSearchListener(mainSearchTextbox, mainTableView);
@@ -308,15 +321,14 @@ public class Form1Controller {
 		choiceBox.setConverter(new StringConverter<DataBaseHelper.VeriModel>() {
 			@Override
 			public String toString(DataBaseHelper.VeriModel kategori) {
-				return kategori.getAd().toUpperCase(); // Kullanıcıya sadece adını göster
+				return kategori.getAd().toUpperCase();
 			}
 
 			@Override
 			public DataBaseHelper.VeriModel fromString(String string) {
-				return null; // Gerek yok
+				return null;
 			}
 		});
-
 	}
 
 	private void tableViewUpgrade(TableView<DataBaseHelper.VeriModel> tableView, String table) {
@@ -368,15 +380,9 @@ public class Form1Controller {
 		categorychoicebox.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
 			DataBaseHelper.VeriModel categoryChoiceBoxValue = newValue;
 			if (categoryChoiceBoxValue.getAd().equals("ürünler")) {
-				materialsLabel.setVisible(true);
-				materialsQuantityChoiceBox.setVisible(true);
-				materialsQuantityLabel.setVisible(true);
-				materialsQuantitySpinner.setVisible(true);
+				costtextbox.setDisable(true);
 			} else {
-				materialsLabel.setVisible(false);
-				materialsQuantityChoiceBox.setVisible(false);
-				materialsQuantityLabel.setVisible(false);
-				materialsQuantitySpinner.setVisible(false);
+				costtextbox.setDisable(false);
 			}
 		});
 	}
