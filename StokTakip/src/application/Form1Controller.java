@@ -230,7 +230,7 @@ public class Form1Controller {
 		loadProductDetailsToFields();
 		valueCategoriInsertDataBase();
 		valueCategoryDeleteDataBase();
-		// valueProductUpgradeDataBase();
+		valueProductUpgradeDataBase();
 		valueProductInsertDataBase();
 		valueProductDeleteDataBase();
 
@@ -388,7 +388,6 @@ public class Form1Controller {
 	}
 
 	private void valueProductInsertDataBase() {
-
 		addProductBtn.setOnAction(_ -> {
 			String barkod = barkodtextbox.getText().trim().toLowerCase();
 			String ürünAdi = producttextbox.getText().trim().toLowerCase();
@@ -524,7 +523,6 @@ public class Form1Controller {
 		stage.setScene(scene);
 		stage.setTitle("Hammadde Seçimi");
 		stage.showAndWait();
-
 	}
 
 	private void valueProductDeleteDataBase() {
@@ -558,6 +556,36 @@ public class Form1Controller {
 		});
 	}
 
+	private void valueProductUpgradeDataBase() {
+		upgradeProductBtn.setOnAction(_ -> {
+			DataBaseHelper.VeriModel productList = upgradeTableView.getSelectionModel().getSelectedItem();
+			if (productList != null) {
+				if (productList.getKategori().toLowerCase().equals("ürünler")) {
+					System.out.println("ürünler");
+				} else if (productList.getKategori().toLowerCase().equals("ham maddeler")
+						|| productList.getKategori().toLowerCase().equals("ambalajlar")) {
+					if (productList.getMaliyet() != Double.parseDouble(upgradeCostTextbox.getText())) {
+						DataBaseHelper.ingredientsList(productList.getId(),
+								Double.parseDouble(upgradeCostTextbox.getText()));
+					}
+					DataBaseHelper.upgradeProduct(upgradeBarkodTextBox.getText().trim().toLowerCase(),
+							upgradeProductNameTextbox.getText().trim().toLowerCase(),
+							upgradeproductquantityspinner.getValue(), upgradeUnitChoiceBox.getValue(),
+							upgradeChoiceBox.getValue().getId(), Double.parseDouble(upgradeCostTextbox.getText()),
+							productList.getId());
+				} else {
+					DataBaseHelper.upgradeProduct(upgradeBarkodTextBox.getText().trim().toLowerCase(),
+							upgradeProductNameTextbox.getText().trim().toLowerCase(),
+							upgradeproductquantityspinner.getValue(), upgradeUnitChoiceBox.getValue(),
+							upgradeChoiceBox.getValue().getId(), Double.parseDouble(upgradeCostTextbox.getText()),
+							productList.getId());
+				}
+
+			}
+			tableViewUpgrade(upgradeTableView, "ürünler");
+		});
+	}
+
 	private void setupSearchListener(TextField textField, TableView<DataBaseHelper.VeriModel> tableView) {
 		textField.textProperty().addListener((_, _, newValue) -> {
 			if (!newValue.isEmpty()) {
@@ -573,16 +601,6 @@ public class Form1Controller {
 		});
 	}
 
-	/*
-	 * private void valueProductUpgradeDataBase() { upgradeProductBtn.setOnAction(_
-	 * -> { DataBaseHelper.VeriModel productList =
-	 * upgradeTableView.getSelectionModel().getSelectedItem(); if (productList !=
-	 * null) { DataBaseHelper.upgradeProduct(upgradeBarkodTextBox.getText().trim().
-	 * toLowerCase(), upgradeProductNameTextbox.getText().trim().toLowerCase(),
-	 * upgradeproductquantityspinner.getValue(), upgradeChoiceBox.getValue(),
-	 * Double.parseDouble(upgradeCostTextbox.getText()), productList.getId()); }
-	 * tableViewUpgrade(upgradeTableView, "stok"); }); }
-	 */
 	private void searchCategory(TableView<DataBaseHelper.VeriModel> tableView, int aramaMetni) {
 		try {
 			if (aramaMetni != 1) {

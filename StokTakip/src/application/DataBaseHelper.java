@@ -10,7 +10,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class DataBaseHelper {
-	public static Connection connect() {
+	static Connection connect() {
 
 		String DB_URL = "jdbc:sqlite:database/urunstokdatabase.db";
 
@@ -27,7 +27,6 @@ public class DataBaseHelper {
 	}
 
 	public static void createTable(String sql, String tabloName) {
-
 		try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
 			stmt.execute("PRAGMA foreign_keys = ON;");
 			stmt.execute(sql);
@@ -80,6 +79,19 @@ public class DataBaseHelper {
 		}
 	}
 
+	public static void addProductIngredients(int urun_id, int hammadde_id, double adet, String birim) {
+		String sql = "INSERT INTO product_ingredients (urun_id,hammadde_id,miktar,birim) VALUES (?,?,?,?)";
+		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setInt(1, urun_id);
+			pstmt.setInt(2, hammadde_id);
+			pstmt.setDouble(3, adet);
+			pstmt.setString(4, birim);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println("Kategori ekleme hatası: " + e.getMessage());
+		}
+	}
+
 	public static int getLastInsertedProductId() {
 		int lastId = -1;
 
@@ -96,19 +108,6 @@ public class DataBaseHelper {
 		}
 
 		return lastId;
-	}
-
-	public static void addProductIngredients(int urun_id, int hammadde_id, double adet, String birim) {
-		String sql = "INSERT INTO product_ingredients (urun_id,hammadde_id,miktar,birim) VALUES (?,?,?,?)";
-		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-			pstmt.setInt(1, urun_id);
-			pstmt.setInt(2, hammadde_id);
-			pstmt.setDouble(3, adet);
-			pstmt.setString(4, birim);
-			pstmt.executeUpdate();
-		} catch (SQLException e) {
-			System.out.println("Kategori ekleme hatası: " + e.getMessage());
-		}
 	}
 
 	public static boolean degerVarMi(String tableName, String sütunAdi, String kategoriAdi) {
@@ -162,23 +161,75 @@ public class DataBaseHelper {
 		}
 	}
 
-	public static void upgradeProduct(String barkod, String productname, Double productquantity, String category,
-			Double cost, int id) {
-		String sql = "UPDATE STOK SET barkod= ?, urun_adi= ?, urun_adet= ?, kategori= ?, maliyet= ? WHERE id= ?";
+	public static void upgradeProduct(String barkod, String productname, Double productquantity, String unit,
+			int category, Double cost, int id) {
+		String sql = "UPDATE ürünler SET barkod= ?, urun_adi= ?, urun_adet= ?, birim= ?, kategori_id= ?, maliyet= ? WHERE id= ?";
 
-		try (Connection conn = DataBaseHelper.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, barkod);
 			pstmt.setString(2, productname);
 			pstmt.setDouble(3, productquantity);
-			pstmt.setString(4, category);
-			pstmt.setDouble(5, cost);
-			pstmt.setInt(6, id);
+			pstmt.setString(4, unit);
+			pstmt.setInt(5, category);
+			pstmt.setDouble(6, cost);
+			pstmt.setInt(7, id);
 			pstmt.executeUpdate();
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
+	}
+
+	public static void ingredientsList(int hammaddeId, double yeniHammaddeMaliyet) {
+		String productIngredientsSql = "Select urun_id, miktar FROM product_ingredients WHERE hammadde_id= ?";
+		String ürünlerSql = "SELECT pi.hammadde_id, pi.miktar, u.maliyet FROM product_ingredients pi "
+				+ "JOIN ürünler u ON pi.hammadde_id = u.id WHERE pi.urun_id = ?";
+		String ürünGüncelle = "UPDATE ürünler SET maliyet= ? WHERE id= ? ";
+
+		try (Connection conn = connect();
+				PreparedStatement urunBulStmt = conn.prepareStatement(productIngredientsSql);
+				PreparedStatement tumHamMaddelerStmt = conn.prepareStatement(ürünlerSql);
+				PreparedStatement maliyetGuncelleStmt = conn.prepareStatement(ürünGüncelle)) {
+
+			// 1. Bu ham maddeyi kullanan tüm ürünleri bul
+			urunBulStmt.setInt(1, hammaddeId);
+			ResultSet urunRs = urunBulStmt.executeQuery();
+
+			while (urunRs.next()) {
+				int urunId = urunRs.getInt("urun_id");
+
+				// 2. Ürünün içindeki tüm ham maddeleri ve miktarlarını getir
+				tumHamMaddelerStmt.setInt(1, urunId);
+				ResultSet hamMaddeRs = tumHamMaddelerStmt.executeQuery();
+
+				double yeniToplamMaliyet = 0.0;
+
+				while (hamMaddeRs.next()) {
+					int mevcutHammaddeId = hamMaddeRs.getInt("hammadde_id");
+					double miktar = hamMaddeRs.getDouble("miktar");
+					double hammaddeMaliyeti = hamMaddeRs.getDouble("maliyet");
+
+					// 3. Eğer güncellenen ham madde buysa yeni maliyeti kullan, değilse eski
+					// maliyeti
+					if (mevcutHammaddeId == hammaddeId) {
+						yeniToplamMaliyet += (miktar * yeniHammaddeMaliyet);
+					} else {
+						yeniToplamMaliyet += (miktar * hammaddeMaliyeti);
+					}
+				}
+
+				// 4. Ürünün yeni maliyetini güncelle
+				maliyetGuncelleStmt.setDouble(1, yeniToplamMaliyet);
+				maliyetGuncelleStmt.setInt(2, urunId);
+				maliyetGuncelleStmt.executeUpdate();
+
+				System.out.println("Ürün ID: " + urunId + " yeni maliyet: " + yeniToplamMaliyet);
+			}
+
+		} catch (SQLException e) {
+			System.out.println("Maliyet güncelleme hatası: " + e.getMessage());
+		}
 	}
 
 	public static class VeriModel {
