@@ -248,14 +248,13 @@ public class Form1Controller {
 				""");
 		tabloOlustur("ürünler", """
 						CREATE TABLE IF NOT EXISTS ürünler (
-						id INTEGER PRIMARY KEY AUTOINCREMENT,
+						id INTEGER PRIMARY KEY,
 						barkod TEXT UNIQUE NOT NULL,
 						urun_adi TEXT NOT NULL,
 						urun_adet REAL NOT NULL DEFAULT 0,
 						birim TEXT NOT NULL,
-						kategori_id INTEGER NOT NULL,
-						maliyet REAL NOT NULL,
-						FOREIGN KEY (kategori_id) REFERENCES kategoriler(id) ON DELETE CASCADE
+						kategori_ad TEXT NOT NULL,
+						maliyet REAL NOT NULL
 					);
 				""");
 		tabloOlustur("product_ingredients", """
@@ -315,7 +314,7 @@ public class Form1Controller {
 	}
 
 	private void fillChoiceBox(ChoiceBox<DataBaseHelper.VeriModel> choiceBox) {
-		ObservableList<DataBaseHelper.VeriModel> kategoriList = DataBaseHelper.loadData("kategoriler");
+		ObservableList<DataBaseHelper.VeriModel> kategoriList = services.ürünListele("kategoriler");
 		choiceBox.setItems(kategoriList);
 
 		choiceBox.getSelectionModel().select(0);
@@ -386,17 +385,22 @@ public class Form1Controller {
 
 	private void valueProductInsertDataBase() {
 		addProductBtn.setOnAction(_ -> {
+			int ürünId = DataBaseHelper.getLastInsertedProductId();
 			String barkod = barkodtextbox.getText().trim().toLowerCase();
 			String ürünAdi = producttextbox.getText().trim().toLowerCase();
 			Double ürünAdet = productquantityspinner.getValue();
 			String birim = unitChoiceBox.getValue();
 			DataBaseHelper.VeriModel category = categorychoicebox.getValue();
 			Double maliyet = 0.0;
+
+			try {
+				maliyet = Double.parseDouble(costtextbox.getText());
+			} catch (NumberFormatException e) {
+				System.out.println("Geçerli bir maliyet değeri girin.");
+				return;
+			}
+
 			/*
-			 * try { maliyet = Double.parseDouble(costtextbox.getText()); } catch
-			 * (NumberFormatException e) {
-			 * System.out.println("Geçerli bir maliyet değeri girin."); return; }
-			 * 
 			 * if (!gecerliMi(barkod, ürünAdi, ürünAdet, birim, category, maliyet)) {
 			 * return; }
 			 */
@@ -407,7 +411,7 @@ public class Form1Controller {
 				if (barkod.isEmpty() && ürünAdi.isEmpty() && ürünAdet == 0 && maliyet == 0) {
 					System.out.println("Bazı alanlar boş...");
 				} else {
-					services.ürünEkle(barkod, ürünAdi, ürünAdet, birim, category.getId(), maliyet);
+					services.ürünEkle(ürünId, barkod, ürünAdi, ürünAdet, birim, category.getAd(), maliyet);
 				}
 			} else if (category.getAd().equals("ürünler")) {
 				if (barkod.isEmpty() && ürünAdi.isEmpty() && ürünAdet == 0 && maliyet == 0) {
@@ -420,8 +424,8 @@ public class Form1Controller {
 							System.out.println("Tablodan Ham Madde Seçimi Yapmanız Gerekmektedir...");
 						} else {
 							try {
-								valueProductMaterialsInsertDataBase(barkod, ürünAdi, ürünAdet, birim, category.getId(),
-										tableSelectedList);
+								valueProductMaterialsInsertDataBase(ürünId, barkod, ürünAdi, ürünAdet, birim,
+										category.getAd(), tableSelectedList);
 							} catch (Exception e) {
 								System.out.println(e.getMessage());
 							}
@@ -451,8 +455,8 @@ public class Form1Controller {
 	 * 
 	 * return true; }
 	 */
-	void valueProductMaterialsInsertDataBase(String barkod, String urunAdi, Double urunAdet, String birim, int kategori,
-			ObservableList<DataBaseHelper.VeriModel> selectedMaterials) {
+	void valueProductMaterialsInsertDataBase(int ürünId, String barkod, String urunAdi, Double urunAdet, String birim,
+			String kategori, ObservableList<DataBaseHelper.VeriModel> selectedMaterials) {
 
 		Stage stage = new Stage();
 		VBox vBox = new VBox(10);
@@ -482,7 +486,8 @@ public class Form1Controller {
 
 			for (DataBaseHelper.VeriModel material : selectedItems) {
 				System.out.println(material.getKategori().toString());
-				if (!(material.getKategori().equals("HAM MADDELER") || material.getKategori().equals("AMBALAJLAR"))) {
+				if (!(material.getKategori().toString().equals("HAM MADDELER")
+						|| material.getKategori().toString().equals("AMBALAJLAR"))) {
 					kontrol = false;
 					break;
 				}
@@ -490,14 +495,14 @@ public class Form1Controller {
 			try {
 				if (kontrol) {
 					double maliyetToplam = 0;
-					services.ürünEkle(barkod, urunAdi, urunAdet, birim, kategori, maliyetToplam);
+
 					int lastId = (DataBaseHelper.getLastInsertedProductId());
 					for (int i = 0; i < selectedItems.size(); i++) {
 						services.içindekileriEkle(lastId, selectedItems.get(i).getId(),
 								(spinners.get(i).getValue()).doubleValue(), selectedItems.get(i).getBirim());
 						maliyetToplam += (selectedItems.get(i).getUrunAdet() * selectedItems.get(i).getMaliyet());
 					}
-
+					services.ürünEkle(ürünId, barkod, urunAdi, urunAdet, birim, kategori, maliyetToplam);
 					stage.close();
 				} else {
 					System.out.println("Sadece ham madde veya ambalaj ekleyebilirsiniz.");
@@ -537,7 +542,7 @@ public class Form1Controller {
 				upgradeProductNameTextbox.setText(yeniSecim.getUrunAdi());
 				upgradeproductquantityspinner.getValueFactory().setValue(yeniSecim.getUrunAdet());
 				upgradeUnitChoiceBox.getSelectionModel().select(yeniSecim.getBirim().toString());
-				ObservableList<DataBaseHelper.VeriModel> kategoriList = DataBaseHelper.loadData("kategoriler");
+				ObservableList<DataBaseHelper.VeriModel> kategoriList = services.ürünListele("kategoriler");
 				for (DataBaseHelper.VeriModel veri : kategoriList) {
 					if (yeniSecim.getKategori().toLowerCase().equals(veri.getAd())) {
 						upgradeChoiceBox.getSelectionModel().select(veri.getId() - 1);

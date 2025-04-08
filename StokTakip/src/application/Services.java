@@ -19,10 +19,10 @@ public class Services {
 		DataBaseHelper.deleteValueTable("kategoriler", "id=?", kategoriId);
 	}
 
-	public void ürünEkle(String barkod, String ürünAdi, Double ürünMiktari, String birim, int kategori,
+	public void ürünEkle(int id, String barkod, String ürünAdi, Double ürünMiktari, String birim, String kategori,
 			Double maliyet) {
 		if (!DataBaseHelper.degerVarMi("ürünler", "urun_adi", ürünAdi)) {
-			DataBaseHelper.insertTable("ürünler", "barkod,urun_adi,urun_adet,birim,kategori_id,maliyet", barkod,
+			DataBaseHelper.insertTable("ürünler", "id,barkod,urun_adi,urun_adet,birim,kategori_ad,maliyet", id, barkod,
 					ürünAdi, ürünMiktari, birim, kategori, maliyet);
 		} else {
 			System.out.println("Bu ürün zaten var!");

@@ -8,7 +8,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -110,7 +109,7 @@ public class DataBaseHelper {
 					liste.add(new VeriModel(rs.getInt("id"), rs.getString("ad")));
 				} else if (tablo.startsWith("ürünler")) {
 					liste.add(new VeriModel(rs.getInt("id"), rs.getString("barkod"), rs.getString("urun_adi"),
-							rs.getDouble("urun_adet"), rs.getString("birim"), rs.getString("kategori_id").toUpperCase(),
+							rs.getDouble("urun_adet"), rs.getString("birim"), rs.getString("kategori_ad").toUpperCase(),
 							rs.getDouble("maliyet")));
 				}
 			}
@@ -161,7 +160,7 @@ public class DataBaseHelper {
 	}
 
 	public static int getLastInsertedProductId() {
-		int lastId = -1;
+		int lastId = 0;
 
 		String sql = "SELECT id FROM ürünler ORDER BY id DESC LIMIT 1";
 		try (Connection conn = connect();
@@ -175,7 +174,7 @@ public class DataBaseHelper {
 			e.printStackTrace();
 		}
 
-		return lastId;
+		return (lastId + 1);
 	}
 
 	public static boolean degerVarMi(String tableName, String sütunAdi, String kategoriAdi) {
