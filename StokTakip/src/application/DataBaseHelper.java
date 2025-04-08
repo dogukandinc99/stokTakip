@@ -6,12 +6,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -42,109 +36,6 @@ public class DataBaseHelper {
 		}
 	}
 
-	public static void insertTable(String tablo, String kolonlar, Object... degerler) {
-		String placeHolders = String.join(",", Collections.nCopies(degerler.length, "?"));
-		String sql = "INSERT INTO " + tablo + " (" + (kolonlar) + ") VALUES (" + placeHolders + ")";
-
-		sqlSorguCalistir(sql, degerler);
-	}
-
-	public static void updateTable(String tablo, Map<String, Object> yeniDegerler, Map<String, Object> kosullar) {
-		StringBuilder sql = new StringBuilder("UPDATE " + tablo + " SET ");
-		List<Object> parametreler = new ArrayList<>();
-
-		for (String kolon : yeniDegerler.keySet()) {
-			if (!parametreler.isEmpty()) {
-				sql.append(", ");
-			}
-			sql.append(kolon).append("=?");
-			parametreler.add(yeniDegerler.get(kolon));
-		}
-
-		if (!kosullar.isEmpty()) {
-			sql.append(" WHERE ");
-			for (String kosul : kosullar.keySet()) {
-				if (parametreler.size() > yeniDegerler.size())
-					sql.append(" AND ");
-				sql.append(kosul).append(" = ?");
-				parametreler.add(kosullar.get(kosul));
-			}
-		}
-
-		sqlSorguCalistir(sql.toString(), parametreler.toArray());
-	}
-
-	public static void deleteValueTable(String tablo, String kosul, Object... kosuldegerleri) {
-		String placeHolders = String.join(",", Collections.nCopies(kosuldegerleri.length, "?"));
-		String sql = "DELETE FROM " + tablo + " WHERE " + kosul;
-
-		sqlSorguCalistir(sql, kosuldegerleri);
-	}
-
-	public static ObservableList<VeriModel> listele(String kolonlar, String tablo, Map<String, String> joinler,
-			Map<String, Object> kosullar) {
-		ObservableList<VeriModel> liste = FXCollections.observableArrayList();
-		StringBuilder sql = new StringBuilder("SELECT " + kolonlar + " FROM " + tablo + " ");
-
-		List<Object> parametreler = new ArrayList<>();
-
-		if (joinler != null) {
-			for (Map.Entry<String, String> join : joinler.entrySet()) {
-				sql.append("JOIN ").append(join.getKey()).append(" ON ").append(join.getValue()).append(" ");
-			}
-		}
-
-		if (kosullar != null && !kosullar.isEmpty()) {
-			sql.append("WHERE ");
-			int i = 0;
-			for (Map.Entry<String, Object> kosul : kosullar.entrySet()) {
-				if (i++ > 0)
-					sql.append(" AND ");
-				sql.append(kosul.getKey()).append(" = ?");
-				parametreler.add(kosul.getValue());
-			}
-		}
-		try (ResultSet rs = sqlListeleSorguCalistir(sql.toString(), parametreler.toArray())) {
-			while (rs.next()) {
-				if (tablo.startsWith("kategoriler")) {
-					liste.add(new VeriModel(rs.getInt("id"), rs.getString("ad")));
-				} else if (tablo.startsWith("ürünler")) {
-					liste.add(new VeriModel(rs.getInt("id"), rs.getString("barkod"), rs.getString("urun_adi"),
-							rs.getDouble("urun_adet"), rs.getString("birim"), rs.getString("kategori_id").toUpperCase(),
-							rs.getDouble("maliyet")));
-				}
-			}
-		} catch (SQLException e) {
-			System.out.println("Listeleme hatası: " + e.getMessage());
-		}
-		return liste;
-	}
-
-	public static ResultSet sqlListeleSorguCalistir(String sql, Object... parametreler) {
-		try {
-			Connection conn = connect();
-			PreparedStatement pstmt = conn.prepareStatement(sql);
-			for (int i = 0; i < parametreler.length; i++) {
-				pstmt.setObject(i + 1, parametreler[i]);
-			}
-			return pstmt.executeQuery();
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
-	public static void sqlSorguCalistir(String sql, Object... degerler) {
-		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-			for (int i = 0; i < degerler.length; i++) {
-				pstmt.setObject(i + 1, degerler[i]);
-			}
-			pstmt.executeUpdate();
-		} catch (Exception e) {
-			System.out.println("Sorgu çalıştırılırken bir sorun ile karşılaştım...\n" + e.getMessage());
-		}
-	}
-
 	public static boolean tabloVarMi(String tableName) {
 		String sql = "SELECT COUNT(*) FROM sqlite_master WHERE type= 'table' AND name= ? ";
 		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -158,6 +49,47 @@ public class DataBaseHelper {
 			System.out.println("Kategori kontrol hatası: " + e.getMessage());
 		}
 		return false;
+	}
+
+	public static void kategoriEkle(String tabloName, String ad) {
+		String sql = "INSERT INTO kategoriler (ad) VALUES (?)";
+		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setString(1, ad);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println("Kategori ekleme hatası: " + e.getMessage());
+		}
+	}
+
+	public static void addProduct(String barkod, String productname, Double productquantity, String unit, int category,
+			Double cost) {
+		String sql = "INSERT INTO ürünler (barkod, urun_adi, urun_adet, birim, kategori_id, maliyet) VALUES (?,?,?,?,?,?)";
+		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setString(1, barkod);
+			pstmt.setString(2, productname);
+			pstmt.setDouble(3, productquantity);
+			pstmt.setString(4, unit);
+			pstmt.setInt(5, category);
+			pstmt.setDouble(6, cost);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println("Kategori ekleme hatası: " + e.getMessage());
+		}
+	}
+
+	public static void addProductIngredients(int urun_id, int hammadde_id, double adet, String birim) {
+		String sql = "INSERT INTO product_ingredients (urun_id,hammadde_id,miktar,birim) VALUES (?,?,?,?)";
+		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setInt(1, urun_id);
+			pstmt.setInt(2, hammadde_id);
+			pstmt.setDouble(3, adet);
+			pstmt.setString(4, birim);
+			pstmt.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println("Kategori ekleme hatası: " + e.getMessage());
+		}
 	}
 
 	public static int getLastInsertedProductId() {
@@ -191,6 +123,62 @@ public class DataBaseHelper {
 			System.out.println("Kontrol hatası: " + e.getMessage());
 		}
 		return false;
+	}
+
+	public static void deleteCategory(String database, int id) {
+		String sql = "DELETE FROM kategoriler WHERE id = ?";
+		int kategoriid = id;
+		try (Connection conn = DataBaseHelper.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setInt(1, kategoriid);
+			int silinenSatir = pstmt.executeUpdate();
+			if (silinenSatir > 0) {
+				System.out.println("Kategori başarıyla silindi.");
+			} else {
+				System.out.println("Kategori bulunamadı.");
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void deleteProduct(String database, int id) {
+		String sql = "DELETE FROM ürünler WHERE id = ?";
+		int stokid = id;
+		try (Connection conn = DataBaseHelper.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setInt(1, stokid);
+			int silinenSatir = pstmt.executeUpdate();
+			if (silinenSatir > 0) {
+				System.out.println("Ürün başarıyla silindi.");
+			} else {
+				System.out.println("Ürün bulunamadı.");
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void upgradeProduct(String barkod, String productname, Double productquantity, String unit,
+			int category, Double cost, int id) {
+		String sql = "UPDATE ürünler SET barkod= ?, urun_adi= ?, urun_adet= ?, birim= ?, kategori_id= ?, maliyet= ? WHERE id= ?";
+
+		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setString(1, barkod);
+			pstmt.setString(2, productname);
+			pstmt.setDouble(3, productquantity);
+			pstmt.setString(4, unit);
+			pstmt.setInt(5, category);
+			pstmt.setDouble(6, cost);
+			pstmt.setInt(7, id);
+			pstmt.executeUpdate();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	public static void ingredientsList(int hammaddeId, double yeniHammaddeMaliyet) {
