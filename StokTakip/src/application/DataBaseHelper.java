@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import application.VeriModel;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.util.Pair;
@@ -117,6 +115,8 @@ public class DataBaseHelper {
 					liste.add(new VeriModel(rs.getInt("id"), rs.getString("barkod"), rs.getString("urun_adi"),
 							rs.getDouble("urun_adet"), rs.getString("birim"), rs.getString("kategori_ad").toUpperCase(),
 							rs.getDouble("maliyet")));
+				} else if (tablo.startsWith("sqlite_master")) {
+					liste.add(new VeriModel(rs.getString("name")));
 				}
 			}
 		} catch (SQLException e) {
@@ -150,25 +150,10 @@ public class DataBaseHelper {
 		}
 	}
 
-	public static boolean tabloVarMi(String tableName) {
-		String sql = "SELECT COUNT(*) FROM sqlite_master WHERE type= 'table' AND name= ? ";
-		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-			pstmt.setString(1, tableName);
-			ResultSet rs = pstmt.executeQuery();
-			if (rs.next()) {
-				return rs.getInt(1) > 0;
-			}
-		} catch (SQLException e) {
-			System.out.println("Kategori kontrol hatası: " + e.getMessage());
-		}
-		return false;
-	}
-
-	public static int getLastInsertedProductId() {
+	public static int getLastInsertedProductId(String tabloAdi) {
 		int lastId = 0;
 
-		String sql = "SELECT id FROM ürünler ORDER BY id DESC LIMIT 1";
+		String sql = "SELECT id FROM " + tabloAdi + " ORDER BY id DESC LIMIT 1";
 		try (Connection conn = connect();
 				PreparedStatement pstmt = conn.prepareStatement(sql);
 				ResultSet rs = pstmt.executeQuery()) {
@@ -181,21 +166,6 @@ public class DataBaseHelper {
 		}
 
 		return (lastId + 1);
-	}
-
-	public static boolean degerVarMi(String tableName, String sütunAdi, String kategoriAdi) {
-		String sql = "SELECT COUNT(*) FROM " + tableName + " WHERE " + sütunAdi + " = ?";
-		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-			pstmt.setString(1, kategoriAdi);
-			ResultSet rs = pstmt.executeQuery();
-
-			if (rs.next()) {
-				return rs.getInt(1) > 0;
-			}
-		} catch (SQLException e) {
-			System.out.println("Kontrol hatası: " + e.getMessage());
-		}
-		return false;
 	}
 
 	public static void ingredientsList(int hammaddeId, double yeniHammaddeMaliyet) {
@@ -248,36 +218,6 @@ public class DataBaseHelper {
 			System.out.println("Maliyet güncelleme hatası: " + e.getMessage());
 		}
 	}
-
-	/*
-	 * public static class VeriModel { private int id; private String barkod;
-	 * private String urun_Adi; private Double urun_Adet; private String birim;
-	 * private String kategori; private double maliyet; private String ad; //
-	 * Kategori için
-	 * 
-	 * public VeriModel(int id, String barkod, String urun_Adi, Double urun_Adet,
-	 * String birim, String kategori, double maliyet) { this.id = id; this.barkod =
-	 * barkod; this.urun_Adi = urun_Adi; this.urun_Adet = urun_Adet; this.birim =
-	 * birim; this.kategori = kategori; this.maliyet = maliyet; }
-	 * 
-	 * public VeriModel(int id, String ad) { this.id = id; this.ad = ad; }
-	 * 
-	 * public int getId() { return id; }
-	 * 
-	 * public String getBarkod() { return barkod; }
-	 * 
-	 * public String getUrunAdi() { return urun_Adi; }
-	 * 
-	 * public Double getUrunAdet() { return urun_Adet; }
-	 * 
-	 * public String getBirim() { return birim; }
-	 * 
-	 * public String getKategori() { return kategori; }
-	 * 
-	 * public double getMaliyet() { return maliyet; }
-	 * 
-	 * public String getAd() { return ad; } }
-	 */
 
 	public static String getHamMaddeler(int urunId) {
 		StringBuilder hamMaddelListesi = new StringBuilder();

@@ -2,7 +2,6 @@ package application;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -242,7 +241,7 @@ public class Form1Controller {
 
 		tabloOlustur("kategoriler", """
 					    CREATE TABLE IF NOT EXISTS kategoriler (
-				        id INTEGER PRIMARY KEY AUTOINCREMENT,
+				        id INTEGER PRIMARY KEY,
 				        ad TEXT NOT NULL
 				    );
 				""");
@@ -272,7 +271,7 @@ public class Form1Controller {
 	}
 
 	private void tabloOlustur(String tabloName, String sql) {
-		if (DataBaseHelper.tabloVarMi(tabloName)) {
+		if (services.tabloVarMi(tabloName)) {
 			System.out.println(tabloName + " tablosu mevcut...");
 		} else {
 			DataBaseHelper.createTable(sql, tabloName);
@@ -385,7 +384,6 @@ public class Form1Controller {
 
 	private void valueProductInsertDataBase() {
 		addProductBtn.setOnAction(_ -> {
-			int ürünId = DataBaseHelper.getLastInsertedProductId();
 			String barkod = barkodtextbox.getText().trim().toLowerCase();
 			String ürünAdi = producttextbox.getText().trim().toLowerCase();
 			Double ürünAdet = productquantityspinner.getValue();
@@ -411,27 +409,23 @@ public class Form1Controller {
 				if (barkod.isEmpty() && ürünAdi.isEmpty() && ürünAdet == 0 && maliyet == 0) {
 					System.out.println("Bazı alanlar boş...");
 				} else {
-					services.ürünEkle(ürünId, barkod, ürünAdi, ürünAdet, birim, category.getAd(), maliyet);
+					services.ürünEkle(barkod, ürünAdi, ürünAdet, birim, category.getAd(), maliyet);
 				}
 			} else if (category.getAd().equals("ürünler")) {
 				if (barkod.isEmpty() && ürünAdi.isEmpty() && ürünAdet == 0 && maliyet == 0) {
 					System.out.println("Bazı alanlar boş...");
 				} else {
-					if (!DataBaseHelper.degerVarMi("ürünler", "urun_adi", ürünAdi)) {
-						ObservableList<VeriModel> tableSelectedList = addProductTableView.getSelectionModel()
-								.getSelectedItems();
-						if (tableSelectedList.size() < 1) {
-							System.out.println("Tablodan Ham Madde Seçimi Yapmanız Gerekmektedir...");
-						} else {
-							try {
-								valueProductMaterialsInsertDataBase(ürünId, barkod, ürünAdi, ürünAdet, birim,
-										category.getAd(), tableSelectedList);
-							} catch (Exception e) {
-								System.out.println(e.getMessage());
-							}
-						}
+					ObservableList<VeriModel> tableSelectedList = addProductTableView.getSelectionModel()
+							.getSelectedItems();
+					if (tableSelectedList.size() < 1) {
+						System.out.println("Tablodan Ham Madde Seçimi Yapmanız Gerekmektedir...");
 					} else {
-						System.out.println("Bu ürün zaten var!");
+						try {
+							valueProductMaterialsInsertDataBase(barkod, ürünAdi, ürünAdet, birim, category.getAd(),
+									tableSelectedList);
+						} catch (Exception e) {
+							System.out.println(e.getMessage());
+						}
 					}
 				}
 			}
@@ -455,7 +449,7 @@ public class Form1Controller {
 	 * 
 	 * return true; }
 	 */
-	void valueProductMaterialsInsertDataBase(int ürünId, String barkod, String urunAdi, Double urunAdet, String birim,
+	void valueProductMaterialsInsertDataBase(String barkod, String urunAdi, Double urunAdet, String birim,
 			String kategori, ObservableList<VeriModel> selectedMaterials) {
 
 		Stage stage = new Stage();
@@ -496,13 +490,12 @@ public class Form1Controller {
 				if (kontrol) {
 					double maliyetToplam = 0;
 
-					int lastId = (DataBaseHelper.getLastInsertedProductId());
 					for (int i = 0; i < selectedItems.size(); i++) {
-						services.içindekileriEkle(lastId, selectedItems.get(i).getId(),
+						services.içindekileriEkle(selectedItems.get(i).getId(),
 								(spinners.get(i).getValue()).doubleValue(), selectedItems.get(i).getBirim());
 						maliyetToplam += (selectedItems.get(i).getUrunAdet() * selectedItems.get(i).getMaliyet());
 					}
-					services.ürünEkle(ürünId, barkod, urunAdi, urunAdet, birim, kategori, maliyetToplam);
+					services.ürünEkle(barkod, urunAdi, urunAdet, birim, kategori, maliyetToplam);
 					stage.close();
 				} else {
 					System.out.println("Sadece ham madde veya ambalaj ekleyebilirsiniz.");

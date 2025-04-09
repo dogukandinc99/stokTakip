@@ -26,6 +26,10 @@ public class VeriModel {
 		this.ad = ad;
 	}
 
+	public VeriModel(String ad) {
+		this.ad = ad;
+	}
+
 	public int getId() {
 		return id;
 	}
