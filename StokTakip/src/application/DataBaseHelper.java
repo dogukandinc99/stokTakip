@@ -10,9 +10,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import application.VeriModel;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.util.Pair;
 
 public class DataBaseHelper {
 	static Connection connect() {
@@ -80,27 +82,31 @@ public class DataBaseHelper {
 		sqlSorguCalistir(sql, kosuldegerleri);
 	}
 
-	public static ObservableList<VeriModel> listele(String kolonlar, String tablo, Map<String, String> joinler,
-			Map<String, Object> kosullar) {
+	public static ObservableList<VeriModel> listele(String kolonlar, String tablo,
+			Map<String, Pair<String, String>> joinler, Map<String, Pair<String, Object>> kosullar,
+			String baglantiTipi) {
 		ObservableList<VeriModel> liste = FXCollections.observableArrayList();
 		StringBuilder sql = new StringBuilder("SELECT " + kolonlar + " FROM " + tablo + " ");
 
 		List<Object> parametreler = new ArrayList<>();
 
 		if (joinler != null) {
-			for (Map.Entry<String, String> join : joinler.entrySet()) {
-				sql.append("JOIN ").append(join.getKey()).append(" ON ").append(join.getValue()).append(" ");
+			for (Map.Entry<String, Pair<String, String>> join : joinler.entrySet()) {
+				sql.append(join.getValue().getKey()).append(" ").append(join.getKey()).append(" ON ")
+						.append(join.getValue().getValue()).append(" ");
 			}
 		}
 
 		if (kosullar != null && !kosullar.isEmpty()) {
 			sql.append("WHERE ");
 			int i = 0;
-			for (Map.Entry<String, Object> kosul : kosullar.entrySet()) {
+			for (Map.Entry<String, Pair<String, Object>> kosul : kosullar.entrySet()) {
 				if (i++ > 0)
-					sql.append(" AND ");
-				sql.append(kosul.getKey()).append(" = ?");
-				parametreler.add(kosul.getValue());
+					if (baglantiTipi != null) {
+						sql.append(" " + baglantiTipi + " ");
+					}
+				sql.append(kosul.getKey()).append(" ").append(kosul.getValue().getKey()).append(" ?");
+				parametreler.add(kosul.getValue().getValue());
 			}
 		}
 		try (ResultSet rs = sqlListeleSorguCalistir(sql.toString(), parametreler.toArray())) {
@@ -243,147 +249,35 @@ public class DataBaseHelper {
 		}
 	}
 
-	public static class VeriModel {
-		private int id;
-		private String barkod;
-		private String urun_Adi;
-		private Double urun_Adet;
-		private String birim;
-		private String kategori;
-		private double maliyet;
-		private String ad; // Kategori için
-
-		public VeriModel(int id, String barkod, String urun_Adi, Double urun_Adet, String birim, String kategori,
-				double maliyet) {
-			this.id = id;
-			this.barkod = barkod;
-			this.urun_Adi = urun_Adi;
-			this.urun_Adet = urun_Adet;
-			this.birim = birim;
-			this.kategori = kategori;
-			this.maliyet = maliyet;
-		}
-
-		public VeriModel(int id, String ad) {
-			this.id = id;
-			this.ad = ad;
-		}
-
-		public int getId() {
-			return id;
-		}
-
-		public String getBarkod() {
-			return barkod;
-		}
-
-		public String getUrunAdi() {
-			return urun_Adi;
-		}
-
-		public Double getUrunAdet() {
-			return urun_Adet;
-		}
-
-		public String getBirim() {
-			return birim;
-		}
-
-		public String getKategori() {
-			return kategori;
-		}
-
-		public double getMaliyet() {
-			return maliyet;
-		}
-
-		public String getAd() {
-			return ad;
-		}
-	}
-
-	public static ObservableList<VeriModel> loadData(String tabloAdi) {
-		ObservableList<VeriModel> veriList = FXCollections.observableArrayList();
-		try (Connection conn = connect()) {
-			String sql = switch (tabloAdi) {
-			case "kategoriler" -> "SELECT id, ad FROM kategoriler";
-			case "ürünler" ->
-				"SELECT u.*, k.ad AS kategori_adi FROM ürünler u JOIN kategoriler k ON u.kategori_id = k.id;";
-			default -> {
-				System.out.println("Hatalı tablo adı: " + tabloAdi);
-				yield null;
-			}
-			};
-			if (sql == null) {
-				return veriList;
-			}
-			PreparedStatement pstmt = conn.prepareStatement(sql);
-			ResultSet rs = pstmt.executeQuery();
-
-			while (rs.next()) {
-				if (tabloAdi.equals("kategoriler")) {
-					veriList.add(new VeriModel(rs.getInt("id"), rs.getString("ad")));
-				} else if (tabloAdi.equals("ürünler")) {
-					veriList.add(new VeriModel(rs.getInt("id"), rs.getString("barkod"), rs.getString("urun_adi"),
-							rs.getDouble("urun_adet"), rs.getString("birim"),
-							rs.getString("kategori_adi").toUpperCase(), rs.getDouble("maliyet")));
-				}
-			}
-		} catch (SQLException e) {
-			System.out.println("Veri yükleme hatası: " + e.getMessage());
-		}
-
-		return veriList;
-	}
-
-	public static ObservableList<VeriModel> stoklariAra(String aramaMetni) {
-		ObservableList<VeriModel> urunListesi = FXCollections.observableArrayList();
-
-		String sql = "SELECT u.*, k.ad AS kategori_adi FROM ürünler u " + "JOIN kategoriler k ON u.kategori_id = k.id"
-				+ " WHERE " + "barkod LIKE ? OR " + "urun_adi LIKE ? ";
-
-		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-			pstmt.setString(1, "%" + aramaMetni + "%");
-			pstmt.setString(2, "%" + aramaMetni + "%");
-
-			ResultSet rs = pstmt.executeQuery();
-
-			while (rs.next()) {
-				urunListesi.add(new VeriModel(rs.getInt("id"), rs.getString("barkod"), rs.getString("urun_adi"),
-						rs.getDouble("urun_adet"), rs.getString("birim"), rs.getString("kategori_adi").toUpperCase(),
-						rs.getDouble("maliyet")));
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
-		return urunListesi;
-	}
-
-	public static ObservableList<VeriModel> kategoriFiltreleme(int aramaMetni) {
-		ObservableList<VeriModel> urunListesi = FXCollections.observableArrayList();
-
-		String sql = "SELECT u.*, k.ad AS kategori_adi"
-				+ " FROM ürünler u JOIN kategoriler k ON u.kategori_id = k.id WHERE kategori_id = ? ";
-
-		try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-			pstmt.setInt(1, aramaMetni);
-
-			ResultSet rs = pstmt.executeQuery();
-
-			while (rs.next()) {
-				urunListesi.add(new VeriModel(rs.getInt("id"), rs.getString("barkod"), rs.getString("urun_adi"),
-						rs.getDouble("urun_adet"), rs.getString("birim"), rs.getString("kategori_adi").toUpperCase(),
-						rs.getDouble("maliyet")));
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
-		return urunListesi;
-	}
+	/*
+	 * public static class VeriModel { private int id; private String barkod;
+	 * private String urun_Adi; private Double urun_Adet; private String birim;
+	 * private String kategori; private double maliyet; private String ad; //
+	 * Kategori için
+	 * 
+	 * public VeriModel(int id, String barkod, String urun_Adi, Double urun_Adet,
+	 * String birim, String kategori, double maliyet) { this.id = id; this.barkod =
+	 * barkod; this.urun_Adi = urun_Adi; this.urun_Adet = urun_Adet; this.birim =
+	 * birim; this.kategori = kategori; this.maliyet = maliyet; }
+	 * 
+	 * public VeriModel(int id, String ad) { this.id = id; this.ad = ad; }
+	 * 
+	 * public int getId() { return id; }
+	 * 
+	 * public String getBarkod() { return barkod; }
+	 * 
+	 * public String getUrunAdi() { return urun_Adi; }
+	 * 
+	 * public Double getUrunAdet() { return urun_Adet; }
+	 * 
+	 * public String getBirim() { return birim; }
+	 * 
+	 * public String getKategori() { return kategori; }
+	 * 
+	 * public double getMaliyet() { return maliyet; }
+	 * 
+	 * public String getAd() { return ad; } }
+	 */
 
 	public static String getHamMaddeler(int urunId) {
 		StringBuilder hamMaddelListesi = new StringBuilder();

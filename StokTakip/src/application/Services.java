@@ -2,8 +2,8 @@ package application;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import javafx.collections.ObservableList;
+import javafx.util.Pair;
 
 public class Services {
 	public void kategoriEkle(String kategoriAdı) {
@@ -39,14 +39,14 @@ public class Services {
 		DataBaseHelper.deleteValueTable("ürünler", "id=?", ürünId);
 	}
 
-	public void ürünGüncelle(int ürünId, String barkod, String ürünAdi, Double ürünMiktari, String birim, int kategori,
-			Double maliyet) {
+	public void ürünGüncelle(int ürünId, String barkod, String ürünAdi, Double ürünMiktari, String birim,
+			String kategori, Double maliyet) {
 		Map<String, Object> yeniDeger = new HashMap<String, Object>();
 		yeniDeger.put("barkod", barkod);
 		yeniDeger.put("urun_adi", ürünAdi);
 		yeniDeger.put("urun_adet", ürünMiktari);
 		yeniDeger.put("birim", birim);
-		yeniDeger.put("kategori_id", kategori);
+		yeniDeger.put("kategori_ad", kategori);
 		yeniDeger.put("maliyet", maliyet);
 
 		Map<String, Object> kosul = new HashMap<String, Object>();
@@ -55,8 +55,23 @@ public class Services {
 		DataBaseHelper.updateTable("ürünler", yeniDeger, kosul);
 	}
 
-	public ObservableList<DataBaseHelper.VeriModel> ürünListele(String tabloAdi) {
-		ObservableList<DataBaseHelper.VeriModel> liste = DataBaseHelper.listele("*", tabloAdi, null, null);
+	public ObservableList<VeriModel> ürünListele(String tabloAdi) {
+		ObservableList<VeriModel> liste = DataBaseHelper.listele("*", tabloAdi, null, null, null);
+		return liste;
+	}
+
+	public ObservableList<VeriModel> stokAra(String tablaAdi, String arammaMetni) {
+		Map<String, Pair<String, Object>> sorgu = new HashMap<String, Pair<String, Object>>();
+		sorgu.put("barkod", new Pair<>("LIKE", ("%" + arammaMetni + "%")));
+		sorgu.put("urun_adi", new Pair<>("LIKE", ("%" + arammaMetni + "%")));
+		ObservableList<VeriModel> liste = DataBaseHelper.listele("*", tablaAdi, null, sorgu, "OR");
+		return liste;
+	}
+
+	public ObservableList<VeriModel> kategoriFiltrele(String tablaAdi, String arammaMetni) {
+		Map<String, Pair<String, Object>> sorgu = new HashMap<String, Pair<String, Object>>();
+		sorgu.put("kategori_ad", new Pair<>("=", arammaMetni));
+		ObservableList<VeriModel> liste = DataBaseHelper.listele("*", tablaAdi, null, sorgu, "OR");
 		return liste;
 	}
 }

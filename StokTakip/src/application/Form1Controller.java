@@ -75,15 +75,15 @@ public class Form1Controller {
 	private TextField upgradeCostTextbox;
 
 	@FXML
-	private ChoiceBox<DataBaseHelper.VeriModel> categorychoicebox;
+	private ChoiceBox<VeriModel> categorychoicebox;
 	@FXML
-	private ChoiceBox<DataBaseHelper.VeriModel> upgradeChoiceBox;
+	private ChoiceBox<VeriModel> upgradeChoiceBox;
 	@FXML
-	private ChoiceBox<DataBaseHelper.VeriModel> upgradeSearchChoiceBox;
+	private ChoiceBox<VeriModel> upgradeSearchChoiceBox;
 	@FXML
-	private ChoiceBox<DataBaseHelper.VeriModel> mainChoiceBox;
+	private ChoiceBox<VeriModel> mainChoiceBox;
 	@FXML
-	private ChoiceBox<DataBaseHelper.VeriModel> materialsQuantityChoiceBox;
+	private ChoiceBox<VeriModel> materialsQuantityChoiceBox;
 	@FXML
 	private ChoiceBox<String> unitChoiceBox;
 	@FXML
@@ -102,60 +102,60 @@ public class Form1Controller {
 	private Spinner<Double> materialsQuantitySpinner;
 
 	@FXML
-	private TableView<DataBaseHelper.VeriModel> settingstableview;
+	private TableView<VeriModel> settingstableview;
 	@FXML
-	private TableView<DataBaseHelper.VeriModel> addProductTableView;
+	private TableView<VeriModel> addProductTableView;
 	@FXML
-	private TableView<DataBaseHelper.VeriModel> mainTableView;
+	private TableView<VeriModel> mainTableView;
 	@FXML
-	private TableView<DataBaseHelper.VeriModel> upgradeTableView;
+	private TableView<VeriModel> upgradeTableView;
 
 	@FXML
-	private TableColumn<DataBaseHelper.VeriModel, Integer> settingstableviewcolumn1;
+	private TableColumn<VeriModel, Integer> settingstableviewcolumn1;
 	@FXML
-	private TableColumn<DataBaseHelper.VeriModel, String> settingstableviewcolumn2;
+	private TableColumn<VeriModel, String> settingstableviewcolumn2;
 	@FXML
-	private TableColumn<DataBaseHelper.VeriModel, Integer> addProductTableViewColumn1;
+	private TableColumn<VeriModel, Integer> addProductTableViewColumn1;
 	@FXML
-	private TableColumn<DataBaseHelper.VeriModel, String> addProductTableViewColumn2;
+	private TableColumn<VeriModel, String> addProductTableViewColumn2;
 	@FXML
-	private TableColumn<DataBaseHelper.VeriModel, String> addProductTableViewColumn3;
+	private TableColumn<VeriModel, String> addProductTableViewColumn3;
 	@FXML
-	private TableColumn<DataBaseHelper.VeriModel, Integer> addProductTableViewColumn4;
+	private TableColumn<VeriModel, Integer> addProductTableViewColumn4;
 	@FXML
-	private TableColumn<DataBaseHelper.VeriModel, String> addProductTableViewColumn5;
+	private TableColumn<VeriModel, String> addProductTableViewColumn5;
 	@FXML
-	private TableColumn<DataBaseHelper.VeriModel, Double> addProductTableViewColumn6;
+	private TableColumn<VeriModel, Double> addProductTableViewColumn6;
 	@FXML
-	private TableColumn<DataBaseHelper.VeriModel, String> addProductTableViewColumn7;
+	private TableColumn<VeriModel, String> addProductTableViewColumn7;
 	@FXML
-	private TableColumn<DataBaseHelper.VeriModel, Integer> mainTableViewColumn1;
+	private TableColumn<VeriModel, Integer> mainTableViewColumn1;
 	@FXML
-	private TableColumn<DataBaseHelper.VeriModel, String> mainTableViewColumn2;
+	private TableColumn<VeriModel, String> mainTableViewColumn2;
 	@FXML
-	private TableColumn<DataBaseHelper.VeriModel, String> mainTableViewColumn3;
+	private TableColumn<VeriModel, String> mainTableViewColumn3;
 	@FXML
-	private TableColumn<DataBaseHelper.VeriModel, Integer> mainTableViewColumn4;
+	private TableColumn<VeriModel, Integer> mainTableViewColumn4;
 	@FXML
-	private TableColumn<DataBaseHelper.VeriModel, String> mainTableViewColumn5;
+	private TableColumn<VeriModel, String> mainTableViewColumn5;
 	@FXML
-	private TableColumn<DataBaseHelper.VeriModel, Double> mainTableViewColumn6;
+	private TableColumn<VeriModel, Double> mainTableViewColumn6;
 	@FXML
-	private TableColumn<DataBaseHelper.VeriModel, String> mainTableViewColumn7;
+	private TableColumn<VeriModel, String> mainTableViewColumn7;
 	@FXML
-	private TableColumn<DataBaseHelper.VeriModel, Integer> upgradeTableViewColumn1;
+	private TableColumn<VeriModel, Integer> upgradeTableViewColumn1;
 	@FXML
-	private TableColumn<DataBaseHelper.VeriModel, String> upgradeTableViewColumn2;
+	private TableColumn<VeriModel, String> upgradeTableViewColumn2;
 	@FXML
-	private TableColumn<DataBaseHelper.VeriModel, String> upgradeTableViewColumn3;
+	private TableColumn<VeriModel, String> upgradeTableViewColumn3;
 	@FXML
-	private TableColumn<DataBaseHelper.VeriModel, Integer> upgradeTableViewColumn4;
+	private TableColumn<VeriModel, Integer> upgradeTableViewColumn4;
 	@FXML
-	private TableColumn<DataBaseHelper.VeriModel, String> upgradeTableViewColumn5;
+	private TableColumn<VeriModel, String> upgradeTableViewColumn5;
 	@FXML
-	private TableColumn<DataBaseHelper.VeriModel, Double> upgradeTableViewColumn6;
+	private TableColumn<VeriModel, Double> upgradeTableViewColumn6;
 	@FXML
-	private TableColumn<DataBaseHelper.VeriModel, String> upgradeTableViewColumn7;
+	private TableColumn<VeriModel, String> upgradeTableViewColumn7;
 
 	ObservableList<String> unitList = FXCollections.observableArrayList();
 	Services services = new Services();
@@ -295,7 +295,7 @@ public class Form1Controller {
 		});
 	}
 
-	private void showForm(AnchorPane visibleForm, TableView<DataBaseHelper.VeriModel> tableView, String tabloAdi) {
+	private void showForm(AnchorPane visibleForm, TableView<VeriModel> tableView, String tabloAdi) {
 		mainForm.setVisible(false);
 		addStockForm.setVisible(false);
 		updateStockForm.setVisible(false);
@@ -313,25 +313,25 @@ public class Form1Controller {
 		fillChoiceBox(upgradeChoiceBox);
 	}
 
-	private void fillChoiceBox(ChoiceBox<DataBaseHelper.VeriModel> choiceBox) {
-		ObservableList<DataBaseHelper.VeriModel> kategoriList = services.ürünListele("kategoriler");
+	private void fillChoiceBox(ChoiceBox<VeriModel> choiceBox) {
+		ObservableList<VeriModel> kategoriList = services.ürünListele("kategoriler");
 		choiceBox.setItems(kategoriList);
 
 		choiceBox.getSelectionModel().select(0);
-		choiceBox.setConverter(new StringConverter<DataBaseHelper.VeriModel>() {
+		choiceBox.setConverter(new StringConverter<VeriModel>() {
 			@Override
-			public String toString(DataBaseHelper.VeriModel kategori) {
+			public String toString(VeriModel kategori) {
 				return kategori.getAd().toUpperCase();
 			}
 
 			@Override
-			public DataBaseHelper.VeriModel fromString(String string) {
+			public VeriModel fromString(String string) {
 				return null;
 			}
 		});
 	}
 
-	private void tableViewUpgrade(TableView<DataBaseHelper.VeriModel> tableView, String table) {
+	private void tableViewUpgrade(TableView<VeriModel> tableView, String table) {
 		try {
 			tableView.setItems(services.ürünListele(table));
 		} catch (Exception e) {
@@ -360,7 +360,7 @@ public class Form1Controller {
 	@FXML
 	private void valueCategoryDeleteDataBase() {
 		deletecategoribtn.setOnAction(_ -> {
-			DataBaseHelper.VeriModel selectCategory = settingstableview.getSelectionModel().getSelectedItem();
+			VeriModel selectCategory = settingstableview.getSelectionModel().getSelectedItem();
 			if (settingstableview.getSelectionModel().getSelectedItem() == null) {
 				System.out.println("Lütfen bir kategori seçin.");
 				return;
@@ -374,7 +374,7 @@ public class Form1Controller {
 
 	void categoryChoiceboxVisible() {
 		categorychoicebox.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
-			DataBaseHelper.VeriModel categoryChoiceBoxValue = newValue;
+			VeriModel categoryChoiceBoxValue = newValue;
 			if (categoryChoiceBoxValue.getAd().equals("ürünler")) {
 				costtextbox.setDisable(true);
 			} else {
@@ -390,7 +390,7 @@ public class Form1Controller {
 			String ürünAdi = producttextbox.getText().trim().toLowerCase();
 			Double ürünAdet = productquantityspinner.getValue();
 			String birim = unitChoiceBox.getValue();
-			DataBaseHelper.VeriModel category = categorychoicebox.getValue();
+			VeriModel category = categorychoicebox.getValue();
 			Double maliyet = 0.0;
 
 			try {
@@ -418,8 +418,8 @@ public class Form1Controller {
 					System.out.println("Bazı alanlar boş...");
 				} else {
 					if (!DataBaseHelper.degerVarMi("ürünler", "urun_adi", ürünAdi)) {
-						ObservableList<DataBaseHelper.VeriModel> tableSelectedList = addProductTableView
-								.getSelectionModel().getSelectedItems();
+						ObservableList<VeriModel> tableSelectedList = addProductTableView.getSelectionModel()
+								.getSelectedItems();
 						if (tableSelectedList.size() < 1) {
 							System.out.println("Tablodan Ham Madde Seçimi Yapmanız Gerekmektedir...");
 						} else {
@@ -442,8 +442,8 @@ public class Form1Controller {
 
 	/*
 	 * private boolean gecerliMi(String barkod, String ürünAdi, Double ürünAdet,
-	 * String birim, DataBaseHelper.VeriModel category, Double maliyet) { if
-	 * (category == null || category.getAd().equals("hepsi")) {
+	 * String birim, VeriModel category, Double maliyet) { if (category == null ||
+	 * category.getAd().equals("hepsi")) {
 	 * System.out.println("Kategori seçimi yapmanız gerekmektedir."); return false;
 	 * }
 	 * 
@@ -456,7 +456,7 @@ public class Form1Controller {
 	 * return true; }
 	 */
 	void valueProductMaterialsInsertDataBase(int ürünId, String barkod, String urunAdi, Double urunAdet, String birim,
-			String kategori, ObservableList<DataBaseHelper.VeriModel> selectedMaterials) {
+			String kategori, ObservableList<VeriModel> selectedMaterials) {
 
 		Stage stage = new Stage();
 		VBox vBox = new VBox(10);
@@ -466,9 +466,9 @@ public class Form1Controller {
 		vBox.getChildren().add(titleLabel);
 
 		List<Spinner<Double>> spinners = new ArrayList<>();
-		List<DataBaseHelper.VeriModel> selectedItems = new ArrayList<>();
+		List<VeriModel> selectedItems = new ArrayList<>();
 
-		for (DataBaseHelper.VeriModel material : selectedMaterials) {
+		for (VeriModel material : selectedMaterials) {
 			Label label = new Label(material.getUrunAdi() + ":");
 			Label birimlb = new Label(material.getBirim().toUpperCase());
 			Spinner<Double> spinner = new Spinner<>();
@@ -484,7 +484,7 @@ public class Form1Controller {
 		saveButton.setOnAction(_ -> {
 			boolean kontrol = true;
 
-			for (DataBaseHelper.VeriModel material : selectedItems) {
+			for (VeriModel material : selectedItems) {
 				System.out.println(material.getKategori().toString());
 				if (!(material.getKategori().toString().equals("HAM MADDELER")
 						|| material.getKategori().toString().equals("AMBALAJLAR"))) {
@@ -523,7 +523,7 @@ public class Form1Controller {
 
 	private void valueProductDeleteDataBase() {
 		deleteProductBtn.setOnAction(_ -> {
-			DataBaseHelper.VeriModel selectProduct = upgradeTableView.getSelectionModel().getSelectedItem();
+			VeriModel selectProduct = upgradeTableView.getSelectionModel().getSelectedItem();
 			if (upgradeTableView.getSelectionModel().getSelectedItem() == null) {
 				System.out.println("Lütfen bir kategori seçin.");
 				return;
@@ -542,8 +542,8 @@ public class Form1Controller {
 				upgradeProductNameTextbox.setText(yeniSecim.getUrunAdi());
 				upgradeproductquantityspinner.getValueFactory().setValue(yeniSecim.getUrunAdet());
 				upgradeUnitChoiceBox.getSelectionModel().select(yeniSecim.getBirim().toString());
-				ObservableList<DataBaseHelper.VeriModel> kategoriList = services.ürünListele("kategoriler");
-				for (DataBaseHelper.VeriModel veri : kategoriList) {
+				ObservableList<VeriModel> kategoriList = services.ürünListele("kategoriler");
+				for (VeriModel veri : kategoriList) {
 					if (yeniSecim.getKategori().toLowerCase().equals(veri.getAd())) {
 						upgradeChoiceBox.getSelectionModel().select(veri.getId() - 1);
 					}
@@ -555,7 +555,7 @@ public class Form1Controller {
 
 	private void valueProductUpgradeDataBase() {
 		upgradeProductBtn.setOnAction(_ -> {
-			DataBaseHelper.VeriModel productList = upgradeTableView.getSelectionModel().getSelectedItem();
+			VeriModel productList = upgradeTableView.getSelectionModel().getSelectedItem();
 			if (productList != null) {
 				if (productList.getKategori().toLowerCase().equals("ürünler")) {
 					System.out.println("ürünler");
@@ -568,12 +568,12 @@ public class Form1Controller {
 					services.ürünGüncelle(productList.getId(), upgradeBarkodTextBox.getText().trim().toLowerCase(),
 							upgradeProductNameTextbox.getText().trim().toLowerCase(),
 							upgradeproductquantityspinner.getValue(), upgradeUnitChoiceBox.getValue(),
-							upgradeChoiceBox.getValue().getId(), Double.parseDouble(upgradeCostTextbox.getText()));
+							upgradeChoiceBox.getValue().getAd(), Double.parseDouble(upgradeCostTextbox.getText()));
 				} else {
 					services.ürünGüncelle(productList.getId(), upgradeBarkodTextBox.getText().trim().toLowerCase(),
 							upgradeProductNameTextbox.getText().trim().toLowerCase(),
 							upgradeproductquantityspinner.getValue(), upgradeUnitChoiceBox.getValue(),
-							upgradeChoiceBox.getValue().getId(), Double.parseDouble(upgradeCostTextbox.getText()));
+							upgradeChoiceBox.getValue().getAd(), Double.parseDouble(upgradeCostTextbox.getText()));
 				}
 
 			}
@@ -581,7 +581,7 @@ public class Form1Controller {
 		});
 	}
 
-	private void setupSearchListener(TextField textField, TableView<DataBaseHelper.VeriModel> tableView) {
+	private void setupSearchListener(TextField textField, TableView<VeriModel> tableView) {
 		textField.textProperty().addListener((_, _, newValue) -> {
 			if (!newValue.isEmpty()) {
 				searchProduct(tableView, newValue);
@@ -589,19 +589,18 @@ public class Form1Controller {
 		});
 	}
 
-	private void setupSearchListener(ChoiceBox<DataBaseHelper.VeriModel> choiceBox,
-			TableView<DataBaseHelper.VeriModel> tableView) {
+	private void setupSearchListener(ChoiceBox<VeriModel> choiceBox, TableView<VeriModel> tableView) {
 		choiceBox.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
-			searchCategory(tableView, newValue.getId());
+			searchCategory(tableView, newValue.getAd());
 		});
 	}
 
-	private void searchCategory(TableView<DataBaseHelper.VeriModel> tableView, int aramaMetni) {
+	private void searchCategory(TableView<VeriModel> tableView, String aramaMetni) {
 		try {
-			if (aramaMetni != 1) {
-				tableView.setItems(DataBaseHelper.kategoriFiltreleme(aramaMetni));
-
-			} else if (aramaMetni == 1) {
+			if (!aramaMetni.equals("hepsi")) {
+				tableView.setItems(services.kategoriFiltrele("ürünler", aramaMetni));
+			} else if (aramaMetni.equals("hepsi")) {
+				System.out.println("kaldı");
 				tableViewUpgrade(tableView, "ürünler");
 			}
 		} catch (Exception e) {
@@ -609,10 +608,10 @@ public class Form1Controller {
 		}
 	}
 
-	private void searchProduct(TableView<DataBaseHelper.VeriModel> tableView, String aramaMetni) {
+	private void searchProduct(TableView<VeriModel> tableView, String aramaMetni) {
 		try {
 			if (aramaMetni != null && !aramaMetni.trim().isEmpty()) {
-				tableView.setItems(DataBaseHelper.stoklariAra(aramaMetni));
+				tableView.setItems(services.stokAra("ürünler", aramaMetni));
 			} else {
 				tableViewUpgrade(tableView, "ürünler");
 			}
@@ -621,12 +620,12 @@ public class Form1Controller {
 		}
 	}
 
-	private void setTooltipForTableview(TableView<DataBaseHelper.VeriModel> tableView) {
+	private void setTooltipForTableview(TableView<VeriModel> tableView) {
 		tableView.setRowFactory(_ -> {
-			TableRow<DataBaseHelper.VeriModel> row = new TableRow<>();
+			TableRow<VeriModel> row = new TableRow<>();
 			row.setOnMouseEntered(_ -> {
 				if (!row.isEmpty()) {
-					DataBaseHelper.VeriModel urun = row.getItem();
+					VeriModel urun = row.getItem();
 					String hamMaddelerString = DataBaseHelper.getHamMaddeler(urun.getId());
 					if (!hamMaddelerString.isEmpty()) {
 						Tooltip tooltip = new Tooltip(hamMaddelerString);
