@@ -109,18 +109,54 @@ public class DataBaseHelper {
 		}
 		try (ResultSet rs = sqlListeleSorguCalistir(sql.toString(), parametreler.toArray())) {
 			while (rs.next()) {
-				if (tablo.startsWith("kategoriler")) {
-					liste.add(new VeriModel(rs.getInt("id"), rs.getString("ad")));
-				} else if (tablo.startsWith("ürünler")) {
-					liste.add(new VeriModel(rs.getInt("id"), rs.getString("barkod"), rs.getString("urun_adi"),
-							rs.getDouble("urun_adet"), rs.getString("birim"), rs.getString("kategori_ad").toUpperCase(),
-							rs.getDouble("maliyet")));
-				} else if (tablo.startsWith("sqlite_master")) {
-					liste.add(new VeriModel(rs.getString("name")));
-				} else if (tablo.startsWith("product_ingredients")) {
-					liste.add(new VeriModel(rs.getInt("urun_id"), rs.getInt("hammadde_id"), rs.getDouble("miktar"),
-							rs.getString("birim")));
+				VeriModel v = new VeriModel();
+
+				try {
+					v.setUrunId(rs.getInt("urun_id"));
+				} catch (Exception e) {
 				}
+				try {
+					v.setUrunId(rs.getInt("id"));
+				} catch (Exception e) {
+				}
+				try {
+					v.setHamMaddeId(rs.getInt("hammadde_id"));
+				} catch (Exception e) {
+				}
+				try {
+					v.setMiktar(rs.getDouble("miktar"));
+				} catch (Exception e) {
+				}
+				try {
+					v.setBarkod(rs.getString("barkod"));
+				} catch (Exception e) {
+				}
+				try {
+					v.setUrunAdi(rs.getString("urun_adi"));
+				} catch (Exception e) {
+				}
+				try {
+					v.setUrunAdet(rs.getDouble("urun_adet"));
+				} catch (Exception e) {
+				}
+				try {
+					v.setBirim(rs.getString("birim"));
+				} catch (Exception e) {
+				}
+				try {
+					v.setKategori(rs.getString("ad"));
+				} catch (Exception e) {
+				}
+				try {
+					v.setKategoriId(rs.getInt("id"));
+				} catch (Exception e) {
+				}
+				try {
+					v.setMaliyet(rs.getDouble("maliyet"));
+				} catch (Exception e) {
+				}
+
+				liste.add(v);
 			}
 		} catch (SQLException e) {
 			System.out.println("Listeleme hatası: " + e.getMessage());

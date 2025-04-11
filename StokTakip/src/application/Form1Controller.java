@@ -186,11 +186,11 @@ public class Form1Controller {
 
 		tablokontrol();
 
-		settingstableviewcolumn1.setCellValueFactory(new PropertyValueFactory<>("id"));
-		settingstableviewcolumn2.setCellValueFactory(new PropertyValueFactory<>("ad"));
+		settingstableviewcolumn1.setCellValueFactory(new PropertyValueFactory<>("kategoriId"));
+		settingstableviewcolumn2.setCellValueFactory(new PropertyValueFactory<>("kategori"));
 		tableViewUpgrade(settingstableview, "kategoriler");
 
-		addProductTableViewColumn1.setCellValueFactory(new PropertyValueFactory<>("id"));
+		addProductTableViewColumn1.setCellValueFactory(new PropertyValueFactory<>("urunId"));
 		addProductTableViewColumn2.setCellValueFactory(new PropertyValueFactory<>("barkod"));
 		addProductTableViewColumn3.setCellValueFactory(new PropertyValueFactory<>("urunAdi"));
 		addProductTableViewColumn4.setCellValueFactory(new PropertyValueFactory<>("urunAdet"));
@@ -200,7 +200,7 @@ public class Form1Controller {
 		addProductTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		tableViewUpgrade(addProductTableView, "ürünler");
 
-		mainTableViewColumn1.setCellValueFactory(new PropertyValueFactory<>("id"));
+		mainTableViewColumn1.setCellValueFactory(new PropertyValueFactory<>("urunId"));
 		mainTableViewColumn2.setCellValueFactory(new PropertyValueFactory<>("barkod"));
 		mainTableViewColumn3.setCellValueFactory(new PropertyValueFactory<>("urunAdi"));
 		mainTableViewColumn4.setCellValueFactory(new PropertyValueFactory<>("urunAdet"));
@@ -209,7 +209,7 @@ public class Form1Controller {
 		mainTableViewColumn7.setCellValueFactory(new PropertyValueFactory<>("birim"));
 		tableViewUpgrade(mainTableView, "ürünler");
 
-		upgradeTableViewColumn1.setCellValueFactory(new PropertyValueFactory<>("id"));
+		upgradeTableViewColumn1.setCellValueFactory(new PropertyValueFactory<>("urunId"));
 		upgradeTableViewColumn2.setCellValueFactory(new PropertyValueFactory<>("barkod"));
 		upgradeTableViewColumn3.setCellValueFactory(new PropertyValueFactory<>("urunAdi"));
 		upgradeTableViewColumn4.setCellValueFactory(new PropertyValueFactory<>("urunAdet"));
@@ -320,7 +320,7 @@ public class Form1Controller {
 		choiceBox.setConverter(new StringConverter<VeriModel>() {
 			@Override
 			public String toString(VeriModel kategori) {
-				return kategori.getAd().toUpperCase();
+				return kategori.getKategori().toUpperCase();
 			}
 
 			@Override
@@ -364,7 +364,7 @@ public class Form1Controller {
 				System.out.println("Lütfen bir kategori seçin.");
 				return;
 			} else {
-				services.kategoriSil(selectCategory.getId());
+				services.kategoriSil(selectCategory.getKategoriId());
 			}
 			tableViewUpgrade(settingstableview, "kategoriler");
 			ChoiceBoxs();
@@ -374,7 +374,7 @@ public class Form1Controller {
 	void categoryChoiceboxVisible() {
 		categorychoicebox.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
 			VeriModel categoryChoiceBoxValue = newValue;
-			if (categoryChoiceBoxValue.getAd().equals("ürünler")) {
+			if (categoryChoiceBoxValue.getKategori().equals("ürünler")) {
 				costtextbox.setDisable(true);
 			} else {
 				costtextbox.setDisable(false);
@@ -403,15 +403,15 @@ public class Form1Controller {
 			 * return; }
 			 */
 
-			if (category.getAd().equals("hepsi")) {
+			if (category.getKategori().equals("hepsi")) {
 				System.out.println("Kategori Seçimi yapmanız gerekmektedir.");
-			} else if (!category.getAd().equals("ürünler")) {
+			} else if (!category.getKategori().equals("ürünler")) {
 				if (barkod.isEmpty() && ürünAdi.isEmpty() && ürünAdet == 0 && maliyet == 0) {
 					System.out.println("Bazı alanlar boş...");
 				} else {
-					services.ürünEkle(barkod, ürünAdi, ürünAdet, birim, category.getAd(), maliyet);
+					services.ürünEkle(barkod, ürünAdi, ürünAdet, birim, category.getKategori(), maliyet);
 				}
-			} else if (category.getAd().equals("ürünler")) {
+			} else if (category.getKategori().equals("ürünler")) {
 				if (barkod.isEmpty() && ürünAdi.isEmpty() && ürünAdet == 0 && maliyet == 0) {
 					System.out.println("Bazı alanlar boş...");
 				} else {
@@ -421,8 +421,8 @@ public class Form1Controller {
 						System.out.println("Tablodan Ham Madde Seçimi Yapmanız Gerekmektedir...");
 					} else {
 						try {
-							valueProductMaterialsInsertDataBase(barkod, ürünAdi, ürünAdet, birim, category.getAd(),
-									tableSelectedList);
+							valueProductMaterialsInsertDataBase(barkod, ürünAdi, ürünAdet, birim,
+									category.getKategori(), tableSelectedList);
 						} catch (Exception e) {
 							System.out.println(e.getMessage());
 						}
@@ -491,7 +491,7 @@ public class Form1Controller {
 					double maliyetToplam = 0;
 
 					for (int i = 0; i < selectedItems.size(); i++) {
-						services.içindekileriEkle(selectedItems.get(i).getId(),
+						services.içindekileriEkle(selectedItems.get(i).getUrunId(),
 								(spinners.get(i).getValue()).doubleValue(), selectedItems.get(i).getBirim());
 						maliyetToplam += (selectedItems.get(i).getUrunAdet() * selectedItems.get(i).getMaliyet());
 					}
@@ -521,7 +521,7 @@ public class Form1Controller {
 				System.out.println("Lütfen bir kategori seçin.");
 				return;
 			} else {
-				services.ürünSil(selectProduct.getId());
+				services.ürünSil(selectProduct.getUrunId());
 			}
 			tableViewUpgrade(upgradeTableView, "ürünler");
 		});
@@ -537,8 +537,8 @@ public class Form1Controller {
 				upgradeUnitChoiceBox.getSelectionModel().select(yeniSecim.getBirim().toString());
 				ObservableList<VeriModel> kategoriList = services.ürünListele("kategoriler");
 				for (VeriModel veri : kategoriList) {
-					if (yeniSecim.getKategori().toLowerCase().equals(veri.getAd())) {
-						upgradeChoiceBox.getSelectionModel().select(veri.getId() - 1);
+					if (yeniSecim.getKategori().toLowerCase().equals(veri.getKategori())) {
+						upgradeChoiceBox.getSelectionModel().select(veri.getKategoriId() - 1);
 					}
 				}
 				upgradeCostTextbox.setText(String.valueOf(yeniSecim.getMaliyet()));
@@ -555,17 +555,20 @@ public class Form1Controller {
 				} else if (productList.getKategori().toLowerCase().equals("ham maddeler")
 						|| productList.getKategori().toLowerCase().equals("ambalajlar")) {
 					if (productList.getMaliyet() != Double.parseDouble(upgradeCostTextbox.getText())) {
-						services.maliyetGüncelle(productList.getId(), Double.parseDouble(upgradeCostTextbox.getText()));
+						services.maliyetGüncelle(productList.getUrunId(),
+								Double.parseDouble(upgradeCostTextbox.getText()));
 					}
-					services.ürünGüncelle(productList.getId(), upgradeBarkodTextBox.getText().trim().toLowerCase(),
+					services.ürünGüncelle(productList.getUrunId(), upgradeBarkodTextBox.getText().trim().toLowerCase(),
 							upgradeProductNameTextbox.getText().trim().toLowerCase(),
 							upgradeproductquantityspinner.getValue(), upgradeUnitChoiceBox.getValue(),
-							upgradeChoiceBox.getValue().getAd(), Double.parseDouble(upgradeCostTextbox.getText()));
+							upgradeChoiceBox.getValue().getKategori(),
+							Double.parseDouble(upgradeCostTextbox.getText()));
 				} else {
-					services.ürünGüncelle(productList.getId(), upgradeBarkodTextBox.getText().trim().toLowerCase(),
+					services.ürünGüncelle(productList.getUrunId(), upgradeBarkodTextBox.getText().trim().toLowerCase(),
 							upgradeProductNameTextbox.getText().trim().toLowerCase(),
 							upgradeproductquantityspinner.getValue(), upgradeUnitChoiceBox.getValue(),
-							upgradeChoiceBox.getValue().getAd(), Double.parseDouble(upgradeCostTextbox.getText()));
+							upgradeChoiceBox.getValue().getKategori(),
+							Double.parseDouble(upgradeCostTextbox.getText()));
 				}
 
 			}
@@ -583,7 +586,7 @@ public class Form1Controller {
 
 	private void setupSearchListener(ChoiceBox<VeriModel> choiceBox, TableView<VeriModel> tableView) {
 		choiceBox.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
-			searchCategory(tableView, newValue.getAd());
+			searchCategory(tableView, newValue.getKategori());
 		});
 	}
 
@@ -618,7 +621,7 @@ public class Form1Controller {
 			row.setOnMouseEntered(_ -> {
 				if (!row.isEmpty()) {
 					VeriModel urun = row.getItem();
-					String hamMaddelerString = DataBaseHelper.getHamMaddeler(urun.getId());
+					String hamMaddelerString = DataBaseHelper.getHamMaddeler(urun.getUrunId());
 					if (!hamMaddelerString.isEmpty()) {
 						Tooltip tooltip = new Tooltip(hamMaddelerString);
 						Tooltip.install(row, tooltip);
