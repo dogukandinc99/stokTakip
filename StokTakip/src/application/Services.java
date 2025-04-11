@@ -102,4 +102,50 @@ public class Services {
 		int lastId = DataBaseHelper.getLastInsertedProductId(tabloAdi);
 		return lastId;
 	}
+
+	public void maliyetGüncelle(int güncellenenBilesenId, Double yeniBilesenMaliyet) {
+		Map<String, Pair<String, Object>> sorgu = new HashMap<String, Pair<String, Object>>();
+		sorgu.put("hammadde_id", new Pair<String, Object>("=", güncellenenBilesenId));
+		ObservableList<VeriModel> kullanılanÜrünlerliste = DataBaseHelper.listele("*", "product_ingredients", null,
+				sorgu, null);
+
+		for (VeriModel ürün : kullanılanÜrünlerliste) {
+			int ürünId = ürün.getUrunId();
+			Map<String, Pair<String, Object>> sorgu2 = new HashMap<String, Pair<String, Object>>();
+			sorgu2.put("urun_id", new Pair<String, Object>("=", ürünId));
+			ObservableList<VeriModel> kullanılanBilesenListe = DataBaseHelper.listele("*", "product_ingredients", null,
+					sorgu2, null);
+
+			Double toplamMaliyet = 0.0;
+
+			for (VeriModel bilesen : kullanılanBilesenListe) {
+				int bilesenId = bilesen.getHamMaddeId();
+				double bilesenmiktar = bilesen.getMiktar();
+
+				Map<String, Pair<String, Object>> sorgu3 = new HashMap<String, Pair<String, Object>>();
+				sorgu3.put("id", new Pair<String, Object>("=", bilesenId));
+				ObservableList<VeriModel> bilesenMaliyetListe = DataBaseHelper.listele("*", "ürünler", null, sorgu3,
+						null);
+				System.out.println(bilesen.getHamMaddeId() + " hammaddeid");
+				System.out.println(bilesen.getMiktar() + " miktar");
+				System.out.println(bilesen.getUrunId() + " ürün id");
+
+				if (!bilesenMaliyetListe.isEmpty()) {
+					if (bilesenId == güncellenenBilesenId) {
+						toplamMaliyet += (bilesenmiktar * yeniBilesenMaliyet);
+					} else {
+						toplamMaliyet += (bilesenmiktar * bilesenMaliyetListe.get(0).getMaliyet());
+					}
+				}
+			}
+
+			Map<String, Object> yeniDeger = new HashMap<String, Object>();
+			yeniDeger.put("maliyet", toplamMaliyet);
+
+			Map<String, Object> kosul = new HashMap<String, Object>();
+			kosul.put("id", ürünId);
+
+			DataBaseHelper.updateTable("ürünler", yeniDeger, kosul);
+		}
+	}
 }

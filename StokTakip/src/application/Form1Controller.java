@@ -555,8 +555,7 @@ public class Form1Controller {
 				} else if (productList.getKategori().toLowerCase().equals("ham maddeler")
 						|| productList.getKategori().toLowerCase().equals("ambalajlar")) {
 					if (productList.getMaliyet() != Double.parseDouble(upgradeCostTextbox.getText())) {
-						DataBaseHelper.ingredientsList(productList.getId(),
-								Double.parseDouble(upgradeCostTextbox.getText()));
+						services.maliyetGüncelle(productList.getId(), Double.parseDouble(upgradeCostTextbox.getText()));
 					}
 					services.ürünGüncelle(productList.getId(), upgradeBarkodTextBox.getText().trim().toLowerCase(),
 							upgradeProductNameTextbox.getText().trim().toLowerCase(),
