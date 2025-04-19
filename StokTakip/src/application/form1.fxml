@@ -35,7 +35,7 @@
 							<children>
 								<AnchorPane fx:id="mainForm" prefHeight="600.0" prefWidth="777.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 									<children>
-										<TableView fx:id="mainTableView" layoutX="43.0" layoutY="82.0" prefHeight="479.0" prefWidth="702.0">
+										<TableView fx:id="mainTableView" layoutX="43.0" layoutY="231.0" prefHeight="337.0" prefWidth="702.0">
 											<columns>
 												<TableColumn fx:id="mainTableViewColumn1" prefWidth="42.0" text="ID" />
 												<TableColumn fx:id="mainTableViewColumn2" prefWidth="110.0" text="BARKOD" />
@@ -46,8 +46,14 @@
 												<TableColumn fx:id="mainTableViewColumn6" prefWidth="110.0" text="MALİYET" />
 											</columns>
 										</TableView>
-										<TextField fx:id="mainSearchTextbox" layoutX="43.0" layoutY="57.0" prefHeight="25.0" prefWidth="526.0" />
-										<ChoiceBox fx:id="mainChoiceBox" layoutX="574.0" layoutY="57.0" prefHeight="25.0" prefWidth="171.0" />
+										<TextField fx:id="mainSearchTextbox" layoutX="43.0" layoutY="206.0" prefHeight="25.0" prefWidth="526.0" />
+										<ChoiceBox fx:id="mainChoiceBox" layoutX="574.0" layoutY="206.0" prefHeight="25.0" prefWidth="171.0" />
+                              <Label layoutX="79.0" layoutY="93.0" text="ÜRÜN ADI" />
+                              <TextField fx:id="mainTextbox" layoutX="79.0" layoutY="110.0" prefWidth="120.0" />
+                              <Label layoutX="219.0" layoutY="93.0" text="MİKTAR" />
+                              <Spinner fx:id="mainQuantityspinner" layoutX="219.0" layoutY="110.0" />
+                              <Button fx:id="mainStokEkleBtn" layoutX="401.0" layoutY="95.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="149.0" text="STOK EKLE" />
+                              <Button fx:id="mainStokCikarBtn" layoutX="561.0" layoutY="95.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="149.0" text="STOK ÇIKAR" />
 									</children>
 								</AnchorPane>
 								<AnchorPane fx:id="addStockForm" prefHeight="600.0" prefWidth="777.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -78,7 +84,7 @@
 										</TableView>
 									</children>
 								</AnchorPane>
-								<AnchorPane fx:id="updateStockForm" prefHeight="600.0" prefWidth="777.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+								<AnchorPane fx:id="updateStockForm" prefHeight="600.0" prefWidth="777.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 									<children>
 										<Label layoutX="41.0" layoutY="56.0" text="BARKOD" />
 										<TextField fx:id="upgradeBarkodTextBox" layoutX="41.0" layoutY="73.0" prefWidth="120.0" />
@@ -109,7 +115,7 @@
 										<ChoiceBox fx:id="upgradeSearchChoiceBox" layoutX="574.0" layoutY="176.0" prefHeight="25.0" prefWidth="171.0" />
 									</children>
 								</AnchorPane>
-								<AnchorPane fx:id="settingsForm" layoutX="10.0" layoutY="10.0" prefHeight="610.0" prefWidth="787.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+								<AnchorPane fx:id="settingsForm" layoutX="10.0" layoutY="10.0" prefHeight="610.0" prefWidth="787.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 									<children>
 										<Label layoutX="131.0" layoutY="58.0" text="KATEGORİ ADI" />
 										<TextField fx:id="categoriTextBox" layoutX="131.0" layoutY="75.0" />
@@ -122,9 +128,8 @@
 											</columns>
 										</TableView>
 										<Label layoutX="92.0" layoutY="497.0" text="EXCEL'İN OLUŞTURULACAĞI DOSYA YOLU" />
-										<TextField editable="false" layoutX="92.0" layoutY="514.0" prefHeight="25.0" prefWidth="336.0" />
-										<Button layoutX="428.0" layoutY="514.0" mnemonicParsing="false" text="GÖZAT" />
-										<Button layoutX="498.0" layoutY="497.0" mnemonicParsing="false" prefHeight="42.0" prefWidth="163.0" text="EXCEL'E AKTAR" textAlignment="CENTER" />
+										<TextField fx:id="adressTextfield" editable="false" layoutX="92.0" layoutY="514.0" prefHeight="25.0" prefWidth="336.0" />
+										<Button fx:id="exportToExcelButton" layoutX="498.0" layoutY="497.0" mnemonicParsing="false" prefHeight="42.0" prefWidth="163.0" text="EXCEL'E AKTAR" textAlignment="CENTER" />
 									</children>
 								</AnchorPane>
 							</children>

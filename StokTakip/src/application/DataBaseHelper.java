@@ -31,13 +31,35 @@ public class DataBaseHelper {
 		return conn;
 	}
 
-	public static void createTable(String sql, String tabloName) {
+	public static void createTable(String tablo, Map<String, String> sütunlar, List<String> kısıtlamalar) {
+		StringBuilder sql = new StringBuilder("CREATE TABLE IF NOT EXISTS " + tablo + " (");
+		int i = 0;
+		for (Map.Entry<String, String> kolon : sütunlar.entrySet()) {
+			sql.append(kolon.getKey()).append(" ").append(kolon.getValue());
+
+			if (i < sütunlar.size() - 1) {
+				sql.append(",");
+			}
+			i++;
+		}
+
+		if (kısıtlamalar != null && !kısıtlamalar.isEmpty()) {
+			sql.append(", ");
+			for (int j = 0; j < kısıtlamalar.size(); j++) {
+				sql.append(kısıtlamalar.get(j));
+				if (j < kısıtlamalar.size() - 1) {
+					sql.append(", ");
+				}
+			}
+		}
+		sql.append(");");
+
 		try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
 			stmt.execute("PRAGMA foreign_keys = ON;");
-			stmt.execute(sql);
-			System.out.println(tabloName + " oluşturuldu");
+			stmt.execute(sql.toString());
+			System.out.println(tablo + " oluşturuldu");
 		} catch (SQLException e) {
-			System.out.println(tabloName + " Tablo oluşturma hatası: " + e.getMessage());
+			System.out.println(tablo + " Tablo oluşturma hatası: " + e.getMessage());
 		}
 	}
 
@@ -74,7 +96,6 @@ public class DataBaseHelper {
 	}
 
 	public static void deleteValueTable(String tablo, String kosul, Object... kosuldegerleri) {
-		String placeHolders = String.join(",", Collections.nCopies(kosuldegerleri.length, "?"));
 		String sql = "DELETE FROM " + tablo + " WHERE " + kosul;
 
 		sqlSorguCalistir(sql, kosuldegerleri);
@@ -144,7 +165,7 @@ public class DataBaseHelper {
 				} catch (Exception e) {
 				}
 				try {
-					v.setKategori(rs.getString("ad"));
+					v.setKategori(rs.getString("kategori_ad"));
 				} catch (Exception e) {
 				}
 				try {

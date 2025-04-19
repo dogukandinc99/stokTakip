@@ -1,15 +1,54 @@
 package application;
 
+import java.io.*;
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Alert;
 import javafx.util.Pair;
 
 public class Services {
+	public void tablolariOlustur() {
+
+		// kategori tablosu
+		Map<String, String> kategoriTablosu = new HashMap<String, String>();
+		kategoriTablosu.put("id", "INTEGER PRIMARY KEY");
+		kategoriTablosu.put("kategori_ad", "TEXT NOT NULL");
+		DataBaseHelper.createTable("kategoriler", kategoriTablosu, null);
+
+		// ürünler tablosu
+		Map<String, String> ürünlerTablosu = new HashMap<String, String>();
+		ürünlerTablosu.put("id", "INTEGER PRIMARY KEY");
+		ürünlerTablosu.put("barkod", "TEXT UNIQUE NOT NULL");
+		ürünlerTablosu.put("urun_adi", "TEXT NOT NULL");
+		ürünlerTablosu.put("urun_adet", "REAL NOT NULL DEFAULT 0");
+		ürünlerTablosu.put("birim", "TEXT NOT NULL");
+		ürünlerTablosu.put("kategori_ad", "TEXT NOT NULL");
+		ürünlerTablosu.put("maliyet", "REAL NOT NULL");
+		DataBaseHelper.createTable("ürünler", ürünlerTablosu, null);
+
+		// product Ingredients tablosu
+		Map<String, String> productIngredientsTablosu = new HashMap<String, String>();
+		productIngredientsTablosu.put("urun_id", "INTEGER NOT NULL");
+		productIngredientsTablosu.put("hammadde_id", "INTEGER NOT NULL");
+		productIngredientsTablosu.put("miktar", "REAL NOT NULL");
+		productIngredientsTablosu.put("birim", "TEXT NOT NULL");
+		List<String> productIngredientsTablosuKısıtlamalar = new ArrayList<String>();
+		productIngredientsTablosuKısıtlamalar.add("PRIMARY KEY (urun_id, hammadde_id)");
+		productIngredientsTablosuKısıtlamalar.add("FOREIGN KEY (urun_id) REFERENCES ürünler(id) ON DELETE CASCADE");
+		productIngredientsTablosuKısıtlamalar.add("FOREIGN KEY (hammadde_id) REFERENCES ürünler(id) ON DELETE CASCADE");
+		DataBaseHelper.createTable("product_ingredients", productIngredientsTablosu,
+				productIngredientsTablosuKısıtlamalar);
+
+	}
+
 	public void kategoriEkle(String kategoriAdı) {
-		if (!degerVarMi("kategoriler", "ad", kategoriAdı)) {
-			DataBaseHelper.insertTable("kategoriler", "id,ad", sonId("kategoriler"), kategoriAdı);
+		if (!degerVarMi("kategoriler", "kategori_ad", kategoriAdı)) {
+			DataBaseHelper.insertTable("kategoriler", "id,kategori_ad", sonId("kategoriler"), kategoriAdı);
 			System.out.println("Bu kategori başarıyla eklendi.");
 		} else {
 			System.out.println("Bu kategori zaten var!");
@@ -172,5 +211,47 @@ public class Services {
 					.append(liste.get(i).getMaliyet()).append("\n");
 		}
 		return bilesenListesi.toString();
+	}
+
+	public boolean exceleAktar(File directory, String dosyaAdi) {
+		boolean kontrol = false;
+		ObservableList<VeriModel> ürünlerListesi = ürünListele("ürünler");
+
+		int i = 1;
+		File dizin = new File(directory, dosyaAdi);
+		while (dizin.exists()) {
+			dosyaAdi = "stok_raporu(" + i + ").xls";
+			dizin = new File(directory, dosyaAdi);
+			i++;
+
+		}
+
+		StringBuilder tablo = new StringBuilder();
+
+		tablo.append("<html><head><meta charset='UTF-8'></head><body>");
+		tablo.append("<table border='1' >");
+		tablo.append("<tr>").append("<th>ID</th>").append("<th>Barkod</th>").append("<th>Ürün Adı</th>")
+				.append("<th>Stok</th>").append("<th>Birim</th>").append("<th>Kategori</th>").append("<th>Maliyet</th>")
+				.append("</tr>");
+
+		for (VeriModel urun : ürünlerListesi) {
+			tablo.append("<tr>").append("<td align=center>").append(urun.getUrunId()).append("</td>")
+					.append("<td align=center>").append(urun.getBarkod()).append("</td>").append("<td align=center>")
+					.append(urun.getUrunAdi()).append("</td>").append("<td align=center>").append(urun.getUrunAdet())
+					.append("</td>").append("<td align=center>").append(urun.getBirim()).append("</td>")
+					.append("<td align=center>").append(urun.getKategori()).append("</td>").append("<td align=center>")
+					.append(urun.getMaliyet()).append("</td>").append("</tr>");
+		}
+
+		tablo.append("</table></body></html>");
+
+		try (BufferedWriter writer = new BufferedWriter(
+				new OutputStreamWriter(new FileOutputStream(dizin), StandardCharsets.UTF_8))) {
+			writer.write(tablo.toString());
+			kontrol = true;
+		} catch (Exception e) {
+			System.out.println("sorun var " + e.getMessage());
+		}
+		return kontrol;
 	}
 }

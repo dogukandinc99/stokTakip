@@ -1,5 +1,6 @@
 package application;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.collections.FXCollections;
@@ -7,6 +8,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
@@ -18,10 +20,12 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
@@ -53,6 +57,12 @@ public class Form1Controller {
 	private Button upgradeProductBtn;
 	@FXML
 	private Button deleteProductBtn;
+	@FXML
+	private Button mainStokEkleBtn;
+	@FXML
+	private Button mainStokCikarBtn;
+	@FXML
+	private Button exportToExcelButton;
 
 	@FXML
 	private TextField categoriTextBox;
@@ -72,6 +82,10 @@ public class Form1Controller {
 	private TextField upgradeProductNameTextbox;
 	@FXML
 	private TextField upgradeCostTextbox;
+	@FXML
+	private TextField mainTextbox;
+	@FXML
+	private TextField adressTextfield;
 
 	@FXML
 	private ChoiceBox<VeriModel> categorychoicebox;
@@ -99,6 +113,8 @@ public class Form1Controller {
 	private Spinner<Double> upgradeproductquantityspinner;
 	@FXML
 	private Spinner<Double> materialsQuantitySpinner;
+	@FXML
+	private Spinner<Double> mainQuantityspinner;
 
 	@FXML
 	private TableView<VeriModel> settingstableview;
@@ -163,6 +179,7 @@ public class Form1Controller {
 		SpinnerValueFactory<Double> valueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(-10000, 10000, 1);
 		productquantityspinner.setValueFactory(valueFactory);
 		upgradeproductquantityspinner.setValueFactory(valueFactory);
+		mainQuantityspinner.setValueFactory(valueFactory);
 
 		unitList.add("ADET");
 		unitList.add("LİTRE");
@@ -184,7 +201,7 @@ public class Form1Controller {
 
 		ChoiceBoxs();
 
-		tablokontrol();
+		services.tablolariOlustur();
 
 		settingstableviewcolumn1.setCellValueFactory(new PropertyValueFactory<>("kategoriId"));
 		settingstableviewcolumn2.setCellValueFactory(new PropertyValueFactory<>("kategori"));
@@ -233,50 +250,11 @@ public class Form1Controller {
 		valueProductUpgradeDataBase();
 		valueProductInsertDataBase();
 		valueProductDeleteDataBase();
+		valueProductAddDataBase();
+		valueProductTakeOutDataBase();
+		exportToExcel();
 
 		setTooltipForTableview(addProductTableView);
-	}
-
-	private void tablokontrol() {
-
-		tabloOlustur("kategoriler", """
-					    CREATE TABLE IF NOT EXISTS kategoriler (
-				        id INTEGER PRIMARY KEY,
-				        ad TEXT NOT NULL
-				    );
-				""");
-		tabloOlustur("ürünler", """
-						CREATE TABLE IF NOT EXISTS ürünler (
-						id INTEGER PRIMARY KEY,
-						barkod TEXT UNIQUE NOT NULL,
-						urun_adi TEXT NOT NULL,
-						urun_adet REAL NOT NULL DEFAULT 0,
-						birim TEXT NOT NULL,
-						kategori_ad TEXT NOT NULL,
-						maliyet REAL NOT NULL
-					);
-				""");
-		tabloOlustur("product_ingredients", """
-						CREATE TABLE IF NOT EXISTS product_ingredients (
-				    	urun_id INTEGER NOT NULL,  -- Nihai ürün ID
-				    	hammadde_id INTEGER NOT NULL, -- Kullanılan ham madde ID
-				   		miktar REAL NOT NULL,       -- Kullanılan miktar
-				   		birim TEXT NOT NULL,
-				    	PRIMARY KEY (urun_id, hammadde_id),  -- Duplicate kayıtları önler
-				    	FOREIGN KEY (urun_id) REFERENCES ürünler(id) ON DELETE CASCADE,
-				    	FOREIGN KEY (hammadde_id) REFERENCES ürünler(id) ON DELETE CASCADE
-				);
-				""");
-
-	}
-
-	private void tabloOlustur(String tabloName, String sql) {
-		if (services.tabloVarMi(tabloName)) {
-			System.out.println(tabloName + " tablosu mevcut...");
-		} else {
-			DataBaseHelper.createTable(sql, tabloName);
-			System.out.println(tabloName + " tablosu eklendi...");
-		}
 	}
 
 	private void switchForm() {
@@ -314,13 +292,11 @@ public class Form1Controller {
 
 	private void fillChoiceBox(ChoiceBox<VeriModel> choiceBox) {
 		ObservableList<VeriModel> kategoriList = services.ürünListele("kategoriler");
-		choiceBox.setItems(kategoriList);
 
-		choiceBox.getSelectionModel().select(0);
 		choiceBox.setConverter(new StringConverter<VeriModel>() {
 			@Override
 			public String toString(VeriModel kategori) {
-				return kategori.getKategori().toUpperCase();
+				return (kategori != null && kategori.getKategori() != null) ? kategori.getKategori() : "";
 			}
 
 			@Override
@@ -328,6 +304,12 @@ public class Form1Controller {
 				return null;
 			}
 		});
+
+		choiceBox.setItems(kategoriList);
+
+		if (!kategoriList.isEmpty()) {
+			choiceBox.getSelectionModel().select(0);
+		}
 	}
 
 	private void tableViewUpgrade(TableView<VeriModel> tableView, String table) {
@@ -349,7 +331,7 @@ public class Form1Controller {
 			}
 			try {
 				tableViewUpgrade(settingstableview, "kategoriler");
-				// ChoiceBoxs();
+				ChoiceBoxs();
 			} catch (Exception e) {
 				System.out.println("valueCategoriInsertDataBase sorun var: " + e.getMessage());
 			}
@@ -373,11 +355,13 @@ public class Form1Controller {
 
 	void categoryChoiceboxVisible() {
 		categorychoicebox.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
-			VeriModel categoryChoiceBoxValue = newValue;
-			if (categoryChoiceBoxValue.getKategori().equals("ürünler")) {
-				costtextbox.setDisable(true);
-			} else {
-				costtextbox.setDisable(false);
+			if (newValue != null) {
+				VeriModel categoryChoiceBoxValue = newValue;
+				if (categoryChoiceBoxValue.getKategori().equals("ürünler")) {
+					costtextbox.setDisable(true);
+				} else {
+					costtextbox.setDisable(false);
+				}
 			}
 		});
 	}
@@ -397,12 +381,6 @@ public class Form1Controller {
 				System.out.println("Geçerli bir maliyet değeri girin.");
 				return;
 			}
-
-			/*
-			 * if (!gecerliMi(barkod, ürünAdi, ürünAdet, birim, category, maliyet)) {
-			 * return; }
-			 */
-
 			if (category.getKategori().equals("hepsi")) {
 				System.out.println("Kategori Seçimi yapmanız gerekmektedir.");
 			} else if (!category.getKategori().equals("ürünler")) {
@@ -434,21 +412,42 @@ public class Form1Controller {
 		});
 	}
 
-	/*
-	 * private boolean gecerliMi(String barkod, String ürünAdi, Double ürünAdet,
-	 * String birim, VeriModel category, Double maliyet) { if (category == null ||
-	 * category.getAd().equals("hepsi")) {
-	 * System.out.println("Kategori seçimi yapmanız gerekmektedir."); return false;
-	 * }
-	 * 
-	 * if (barkod.isEmpty() || ürünAdi.isEmpty() || ürünAdet == null || ürünAdet <=
-	 * 0 || maliyet == null || maliyet <= 0) {
-	 * System.out.println("Lütfen tüm alanları eksiksiz ve doğru doldurun. /n" +
-	 * barkod + " " + ürünAdi + " " + ürünAdet.toString() + " " +
-	 * maliyet.toString()); return false; }
-	 * 
-	 * return true; }
-	 */
+	private void valueProductAddDataBase() {
+		mainStokEkleBtn.setOnAction(_ -> {
+			ObservableList<VeriModel> ürün = mainTableView.getSelectionModel().getSelectedItems();
+			if (!ürün.isEmpty()) {
+				double toplam = ürün.get(0).getUrunAdet();
+				toplam += mainQuantityspinner.getValue();
+				services.ürünGüncelle(ürün.get(0).getUrunId(), ürün.get(0).getBarkod(), ürün.get(0).getUrunAdi(),
+						toplam, ürün.get(0).getBirim(), ürün.get(0).getKategori(), ürün.get(0).getMaliyet());
+				tableViewUpgrade(mainTableView, "ürünler");
+			} else {
+				information("Bilgi", null, "Stok adeti değiştirebilmek için listeden bir ürün seçmeniz gerekmektedi...",
+						AlertType.INFORMATION);
+				return;
+			}
+		});
+
+	}
+
+	private void valueProductTakeOutDataBase() {
+		mainStokCikarBtn.setOnAction(_ -> {
+			ObservableList<VeriModel> ürün = mainTableView.getSelectionModel().getSelectedItems();
+			if (!ürün.isEmpty()) {
+				double toplam = ürün.get(0).getUrunAdet();
+				toplam -= mainQuantityspinner.getValue();
+				services.ürünGüncelle(ürün.get(0).getUrunId(), ürün.get(0).getBarkod(), ürün.get(0).getUrunAdi(),
+						toplam, ürün.get(0).getBirim(), ürün.get(0).getKategori(), ürün.get(0).getMaliyet());
+				tableViewUpgrade(mainTableView, "ürünler");
+			} else {
+				information("Bilgi", null, "Stok adeti değiştirebilmek için listeden bir ürün seçmeniz gerekmektedi...",
+						AlertType.INFORMATION);
+				return;
+			}
+		});
+
+	}
+
 	void valueProductMaterialsInsertDataBase(String barkod, String urunAdi, Double urunAdet, String birim,
 			String kategori, ObservableList<VeriModel> selectedMaterials) {
 
@@ -544,6 +543,11 @@ public class Form1Controller {
 				upgradeCostTextbox.setText(String.valueOf(yeniSecim.getMaliyet()));
 			}
 		});
+		mainTableView.getSelectionModel().selectedItemProperty().addListener((_, _, yeniSecim) -> {
+			if (yeniSecim != null) {
+				mainTextbox.setText(yeniSecim.getUrunAdi());
+			}
+		});
 	}
 
 	private void valueProductUpgradeDataBase() {
@@ -570,7 +574,9 @@ public class Form1Controller {
 							upgradeChoiceBox.getValue().getKategori(),
 							Double.parseDouble(upgradeCostTextbox.getText()));
 				}
-
+			} else {
+				information("Bilgi", null, "Güncelleme yapabilmek için listeden bir ürün seçmeniz gerekmektedi...",
+						AlertType.INFORMATION);
 			}
 			tableViewUpgrade(upgradeTableView, "ürünler");
 		});
@@ -586,7 +592,9 @@ public class Form1Controller {
 
 	private void setupSearchListener(ChoiceBox<VeriModel> choiceBox, TableView<VeriModel> tableView) {
 		choiceBox.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
-			searchCategory(tableView, newValue.getKategori());
+			if (newValue != null) {
+				searchCategory(tableView, newValue.getKategori());
+			}
 		});
 	}
 
@@ -595,7 +603,6 @@ public class Form1Controller {
 			if (!aramaMetni.equals("hepsi")) {
 				tableView.setItems(services.kategoriFiltrele("ürünler", aramaMetni));
 			} else if (aramaMetni.equals("hepsi")) {
-				System.out.println("kaldı");
 				tableViewUpgrade(tableView, "ürünler");
 			}
 		} catch (Exception e) {
@@ -630,5 +637,36 @@ public class Form1Controller {
 			});
 			return row;
 		});
+	}
+
+	private void exportToExcel() {
+		exportToExcelButton.setOnAction(_ -> {
+			Boolean kontrol = false;
+			DirectoryChooser chooser = new DirectoryChooser();
+			chooser.setTitle("Kaydedilecek klasörü seç...");
+
+			File desktopDir = new File(System.getProperty("user.home"), "Desktop");
+			if (desktopDir.exists()) {
+				chooser.setInitialDirectory(desktopDir);
+			}
+
+			File secilen = chooser.showDialog(exportToExcelButton.getScene().getWindow());
+			if (secilen != null) {
+				adressTextfield.setText(secilen.getAbsolutePath());
+				System.out.println("adres: " + secilen.getAbsoluteFile());
+				kontrol = services.exceleAktar(secilen, "stok_raporu.xls");
+				if (kontrol) {
+					information("Bilgi...", null, "Excel dosyası başarıyla kaydedildi", AlertType.INFORMATION);
+				}
+			}
+		});
+	}
+
+	private void information(String title, String header, String mesaj, AlertType alertType) {
+		Alert alert = new Alert(alertType);
+		alert.setTitle(title);
+		alert.setHeaderText(header);
+		alert.setContentText(mesaj);
+		alert.showAndWait();
 	}
 }
