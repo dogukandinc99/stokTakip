@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javafx.collections.ObservableList;
-import javafx.scene.control.Alert;
 import javafx.util.Pair;
 
 public class Services {

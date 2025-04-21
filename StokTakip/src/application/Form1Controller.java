@@ -40,6 +40,9 @@ public class Form1Controller {
 	private AnchorPane updateStockForm;
 
 	@FXML
+	private VBox solMenu;
+
+	@FXML
 	private Button updateStockBtn;
 	@FXML
 	private Button addStockBtn;
@@ -176,6 +179,9 @@ public class Form1Controller {
 	Services services = new Services();
 
 	public void initialize() {
+		StyleHelper.applyNavButtonStyle(homeBtn, addStockBtn, updateStockBtn, settingsBtn);
+		StyleHelper.applySideBarStyle(solMenu);
+
 		SpinnerValueFactory<Double> valueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(-10000, 10000, 1);
 		productquantityspinner.setValueFactory(valueFactory);
 		upgradeproductquantityspinner.setValueFactory(valueFactory);
@@ -439,6 +445,7 @@ public class Form1Controller {
 				services.ürünGüncelle(ürün.get(0).getUrunId(), ürün.get(0).getBarkod(), ürün.get(0).getUrunAdi(),
 						toplam, ürün.get(0).getBirim(), ürün.get(0).getKategori(), ürün.get(0).getMaliyet());
 				tableViewUpgrade(mainTableView, "ürünler");
+				System.out.println("başarılı");
 			} else {
 				information("Bilgi", null, "Stok adeti değiştirebilmek için listeden bir ürün seçmeniz gerekmektedi...",
 						AlertType.INFORMATION);
