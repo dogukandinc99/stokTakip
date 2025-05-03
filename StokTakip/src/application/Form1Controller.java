@@ -1,6 +1,7 @@
 package application;
 
 import java.io.File;
+import java.nio.channels.Pipe.SourceChannel;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.collections.FXCollections;
@@ -179,8 +180,6 @@ public class Form1Controller {
 	Services services = new Services();
 
 	public void initialize() {
-		StyleHelper.applyNavButtonStyle(homeBtn, addStockBtn, updateStockBtn, settingsBtn);
-		StyleHelper.applySideBarStyle(solMenu);
 
 		SpinnerValueFactory<Double> valueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(-10000, 10000, 1);
 		productquantityspinner.setValueFactory(valueFactory);
@@ -321,6 +320,7 @@ public class Form1Controller {
 	private void tableViewUpgrade(TableView<VeriModel> tableView, String table) {
 		try {
 			tableView.setItems(services.ürünListele(table));
+			tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 		} catch (Exception e) {
 			System.out.println("tableViewUpgrade sorun var: " + e.getMessage());
 		}

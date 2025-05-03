@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.VBox?>
 
 <StackPane prefHeight="600.0" prefWidth="1000.0"
-	xmlns="http://javafx.com/javafx/23.0.1"
+	stylesheets="@style.css" xmlns="http://javafx.com/javafx/23.0.1"
 	xmlns:fx="http://javafx.com/fxml/1"
 	fx:controller="application.Form1Controller">
 	<children>
@@ -32,24 +32,26 @@
 							BorderPane.alignment="CENTER">
 							<children>
 								<VBox fx:id="solMenu" alignment="CENTER" prefHeight="600.0"
-									prefWidth="180.0" AnchorPane.bottomAnchor="0.0"
-									AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-									AnchorPane.topAnchor="0.0">
+									prefWidth="180.0" styleClass="side-bar"
+									AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+									AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 									<children>
 										<Region prefHeight="238.0" prefWidth="180.0"
 											VBox.vgrow="ALWAYS" />
 										<Button fx:id="homeBtn" mnemonicParsing="false"
-											prefHeight="25.0" prefWidth="223.0" text="ANA SAYFA"
-											textAlignment="CENTER" />
+											prefHeight="25.0" prefWidth="223.0" styleClass="nav-button"
+											text="ANA SAYFA" textAlignment="CENTER" />
 										<Button fx:id="addStockBtn" mnemonicParsing="false"
-											prefWidth="223.0" text="STOK EKLE" textAlignment="CENTER" />
+											prefWidth="223.0" styleClass="nav-button" text="STOK EKLE"
+											textAlignment="CENTER" />
 										<Button fx:id="updateStockBtn" mnemonicParsing="false"
-											prefWidth="223.0" text="STOK GÜNCELLE" textAlignment="CENTER" />
+											prefWidth="223.0" styleClass="nav-button"
+											text="STOK GÜNCELLE" textAlignment="CENTER" />
 										<Region prefHeight="229.0" prefWidth="200.0"
 											VBox.vgrow="ALWAYS" />
 										<Button fx:id="settingsBtn" mnemonicParsing="false"
-											prefHeight="25.0" prefWidth="201.0" text="AYARLAR"
-											textAlignment="CENTER" VBox.vgrow="ALWAYS" />
+											prefHeight="25.0" prefWidth="201.0" styleClass="nav-button"
+											text="AYARLAR" textAlignment="CENTER" VBox.vgrow="ALWAYS" />
 									</children>
 								</VBox>
 							</children>
@@ -68,20 +70,20 @@
 									<children>
 
 										<VBox layoutX="20" layoutY="80" spacing="10"
-											AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
-											AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0">
+											AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="10.0"
+											AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="0.0">
 											<Region prefHeight="1" prefWidth="3"
 												VBox.vgrow="ALWAYS" />
 											<!-- Ürün stoğu ekleme çıkarma alanı -->
-											<VBox styleClass="vBoxStyle">
-												<HBox> <!-- stoğun adı ve eklenecek veya çıkarılacak stok adeti alanı -->
+											<VBox spacing="5" styleClass="vBoxStyle">
+												<HBox spacing="5"> <!-- stoğun adı ve eklenecek veya çıkarılacak stok adeti alanı -->
 													<Region prefHeight="1" HBox.hgrow="ALWAYS" />
 													<VBox>
 														<Label layoutX="79.0" layoutY="93.0" text="ÜRÜN ADI" />
-														<TextField fx:id="mainTextbox" layoutX="79.0"
-															layoutY="110.0" prefWidth="120.0" />
+														<TextField fx:id="mainTextbox" editable="false"
+															layoutX="79.0" layoutY="110.0" prefWidth="120.0" />
 													</VBox>
-													<Region prefHeight="1" prefWidth="5" />
+
 													<VBox>
 														<Label layoutX="219.0" layoutY="93.0" text="MİKTAR" />
 														<Spinner fx:id="mainQuantityspinner"
@@ -89,62 +91,66 @@
 													</VBox>
 													<Region prefHeight="1" HBox.hgrow="ALWAYS" />
 												</HBox>
-												<Region prefHeight="7" />
-												<HBox> <!-- Stok ekleme ve çıkarma butonları -->
+												<Region prefHeight="1" prefWidth="5" />
+												<HBox spacing="5"> <!-- Stok ekleme ve çıkarma butonları -->
 													<Region prefHeight="1" prefWidth="3"
 														HBox.hgrow="ALWAYS" />
-													<Button fx:id="mainStokEkleBtn"
-														styleClass="button-primary" layoutX="401.0" layoutY="95.0"
-														mnemonicParsing="false" prefHeight="39.0"
-														prefWidth="149.0" text="STOK EKLE" />
-													<Region prefHeight="1" prefWidth="3" />
-													<Button fx:id="mainStokCikarBtn"
-														styleClass="button-primary" layoutX="561.0" layoutY="95.0"
-														mnemonicParsing="false" prefHeight="39.0"
-														prefWidth="149.0" text="STOK ÇIKAR" />
+													<Button fx:id="mainStokEkleBtn" layoutX="401.0"
+														layoutY="95.0" mnemonicParsing="false" prefHeight="39.0"
+														prefWidth="149.0" styleClass="button-primary"
+														text="STOK EKLE" />
+
+													<Button fx:id="mainStokCikarBtn" layoutX="561.0"
+														layoutY="95.0" mnemonicParsing="false" prefHeight="39.0"
+														prefWidth="149.0" styleClass="button-primary"
+														text="STOK ÇIKAR" />
 													<Region prefHeight="1" prefWidth="3"
 														HBox.hgrow="ALWAYS" />
 												</HBox>
 											</VBox>
 											<Region prefHeight="1" prefWidth="3"
 												VBox.vgrow="ALWAYS" />
-											<HBox AnchorPane.topAnchor="10.0"
-												AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0"
-												styleClass="hBoxStyle"> <!-- Arama kısmı -->
+											<HBox styleClass="hBoxStyle"
+												AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0"
+												AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="10.0"> <!-- Arama kısmı -->
 												<Region prefHeight="1" prefWidth="3"
 													HBox.hgrow="ALWAYS" />
 												<TextField fx:id="mainSearchTextbox"
 													layoutX="43.0" layoutY="206.0" prefHeight="25.0"
 													prefWidth="526.0" />
+												<Region prefHeight="1" prefWidth="5.0" />
 												<ChoiceBox fx:id="mainChoiceBox" layoutX="574.0"
 													layoutY="206.0" prefHeight="25.0" prefWidth="171.0" />
 												<Region prefHeight="1" prefWidth="3"
 													HBox.hgrow="ALWAYS" />
 											</HBox>
-											<TableView fx:id="mainTableView" layoutX="43.0"
-												layoutY="231.0" prefHeight="337.0" prefWidth="702.0">
-												<columns>
-													<TableColumn fx:id="mainTableViewColumn1"
-														prefWidth="42.0" text="ID" />
-													<TableColumn fx:id="mainTableViewColumn2"
-														prefWidth="110.0" text="BARKOD" />
-													<TableColumn fx:id="mainTableViewColumn3"
-														prefWidth="110.0" text="ÜRÜN ADI" />
-													<TableColumn fx:id="mainTableViewColumn4"
-														prefWidth="110.0" text="MİKTAR" />
-													<TableColumn fx:id="mainTableViewColumn7"
-														prefWidth="110.0" text="BİRİM" />
-													<TableColumn fx:id="mainTableViewColumn5"
-														prefWidth="110.0" text="KATEGORİ" />
-													<TableColumn fx:id="mainTableViewColumn6"
-														prefWidth="110.0" text="MALİYET" />
-												</columns>
-											</TableView>
+											<HBox styleClass="hBoxStyle"
+												AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0"
+												AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="10.0">
+												<TableView fx:id="mainTableView"
+													HBox.hgrow="ALWAYS">
+													<columns>
+														<TableColumn fx:id="mainTableViewColumn1"
+															text="ID" />
+														<TableColumn fx:id="mainTableViewColumn2"
+															text="BARKOD" />
+														<TableColumn fx:id="mainTableViewColumn3"
+															text="ÜRÜN ADI" />
+														<TableColumn fx:id="mainTableViewColumn4"
+															text="MİKTAR" />
+														<TableColumn fx:id="mainTableViewColumn7"
+															text="BİRİM" />
+														<TableColumn fx:id="mainTableViewColumn5"
+															text="KATEGORİ" />
+														<TableColumn fx:id="mainTableViewColumn6"
+															text="MALİYET" />
+													</columns>
+												</TableView>
+											</HBox>
+
 											<Region prefHeight="1" prefWidth="3"
 												VBox.vgrow="ALWAYS" />
 										</VBox>
-
-
 									</children>
 								</AnchorPane>
 								<AnchorPane fx:id="addStockForm" prefHeight="600.0"

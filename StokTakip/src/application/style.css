@@ -11,6 +11,7 @@
     -fx-padding: 10.0 15.0;
     -fx-alignment: center;
     -fx-cursor: hand;
+        -fx-font-weight: bold;    
 }
 
 .nav-button:hover {
@@ -25,20 +26,26 @@
 }
 
 .vBoxStyle, .hBoxStyle{
-	-fx-effect: dropshadow(gaussian, rgba(0.0, 0.0, 0.0, 0.25), 6.0, 0.3, 0.0, 2.0);
+	-fx-effect: dropshadow(gaussian, rgba(0.0,0.0,0.0,0.05), 10.0, 0.0, 0.0, 4.0);
 	-fx-background-color: #ffffff; 
 	-fx-background-radius: 10.0; 
 	-fx-border-color: #E0E0E0; 
 	-fx-border-radius: 10.0; 
-	-fx-padding:20.0 0.0 20.0 0.0; 
+	-fx-padding:10.0 0.0 10.0 0.0; 
 }
 
 .text-field {
-    -fx-background-radius: 10.0;
-    -fx-border-radius: 10.0;
+    -fx-background-radius: 8.0;
     -fx-padding: 8.0 12.0;
-    -fx-font-size: 14.0px;
+    -fx-font-size: 12.0px;
 }
+.spinner{
+	 -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-border-width: 0.0;
+    -fx-background-insets: 0.0;
+}
+
 .choice-box {
     -fx-border-color: #E0E0E0;
     -fx-border-width: 1.0;
@@ -63,23 +70,27 @@
 
 /* Tablo */
 .table-view {
-    -fx-background-color: white;
-    -fx-border-color: #E0E0E0;
-    -fx-border-radius: 10.0;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 10.0;
+    -fx-effect: dropshadow(gaussian, rgba(0.0,0.0,0.0,0.05), 10.0, 0.0, 0.0, 4.0);
+    
 }
 
 .table-column {
-    -fx-alignment: CENTER;
+    -fx-alignment: CENTER_LEFT;
+     -fx-border-color: transparent;
+    -fx-border-width: 0.0;
+    -fx-alignment: center;
+}
+.table-view .column-header, 
+.table-view .filler {
+    -fx-border-color: transparent; /* Başlık kolonlarındaki çizgileri kaldırır */
+    -fx-background-color: #f9f9f9; /* İstersen başlık arka planı da değiştirebilirsin */
+    -fx-border-width: 0.0;
 }
 
-TextField, TableView {
-    -fx-effect: dropshadow(gaussian, rgba(0.0, 0.0, 0.0, 0.25), 6.0, 0.3, 0.0, 2.0);
-    -fx-background-radius: 6.0;
-    -fx-border-radius: 6.0;
-    -fx-padding: 6.0;
-    -fx-background-color: white;
+.table-row-cell:filled:selected, .table-cell:selected {
+    -fx-background-color: #CAF0F8;
 }
 
-.text-box-shadow:hover {
-    -fx-effect: dropshadow(gaussian, rgba(0.0, 0.0, 0.0, 0.4), 8.0, 0.3, 0.0, 3.0);
-}
