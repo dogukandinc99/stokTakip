@@ -63,15 +63,16 @@
 						<AnchorPane prefHeight="200.0" prefWidth="200.0"
 							BorderPane.alignment="CENTER">
 							<children>
+								<!-- Ana Sayfa -->
 								<AnchorPane fx:id="mainForm" prefHeight="600.0"
-									prefWidth="777.0" AnchorPane.bottomAnchor="0.0"
+									prefWidth="777.0" visible="false" AnchorPane.bottomAnchor="0.0"
 									AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
 									AnchorPane.topAnchor="0.0">
 									<children>
 
-										<VBox layoutX="20" layoutY="80" spacing="10"
-											AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="10.0"
-											AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="0.0">
+										<VBox spacing="10" AnchorPane.bottomAnchor="0.0"
+											AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0"
+											AnchorPane.topAnchor="0.0">
 											<Region prefHeight="1" prefWidth="3"
 												VBox.vgrow="ALWAYS" />
 											<!-- Ürün stoğu ekleme çıkarma alanı -->
@@ -79,15 +80,13 @@
 												<HBox spacing="5"> <!-- stoğun adı ve eklenecek veya çıkarılacak stok adeti alanı -->
 													<Region prefHeight="1" HBox.hgrow="ALWAYS" />
 													<VBox>
-														<Label layoutX="79.0" layoutY="93.0" text="ÜRÜN ADI" />
+														<Label text="ÜRÜN ADI" />
 														<TextField fx:id="mainTextbox" editable="false"
-															layoutX="79.0" layoutY="110.0" prefWidth="120.0" />
+															prefWidth="120.0" />
 													</VBox>
-
 													<VBox>
-														<Label layoutX="219.0" layoutY="93.0" text="MİKTAR" />
-														<Spinner fx:id="mainQuantityspinner"
-															layoutX="219.0" layoutY="110.0" />
+														<Label text="MİKTAR" />
+														<Spinner fx:id="mainQuantityspinner" />
 													</VBox>
 													<Region prefHeight="1" HBox.hgrow="ALWAYS" />
 												</HBox>
@@ -95,13 +94,10 @@
 												<HBox spacing="5"> <!-- Stok ekleme ve çıkarma butonları -->
 													<Region prefHeight="1" prefWidth="3"
 														HBox.hgrow="ALWAYS" />
-													<Button fx:id="mainStokEkleBtn" layoutX="401.0"
-														layoutY="95.0" mnemonicParsing="false" prefHeight="39.0"
+													<Button fx:id="mainStokEkleBtn" prefHeight="39.0"
 														prefWidth="149.0" styleClass="button-primary"
 														text="STOK EKLE" />
-
-													<Button fx:id="mainStokCikarBtn" layoutX="561.0"
-														layoutY="95.0" mnemonicParsing="false" prefHeight="39.0"
+													<Button fx:id="mainStokCikarBtn" prefHeight="39.0"
 														prefWidth="149.0" styleClass="button-primary"
 														text="STOK ÇIKAR" />
 													<Region prefHeight="1" prefWidth="3"
@@ -110,17 +106,15 @@
 											</VBox>
 											<Region prefHeight="1" prefWidth="3"
 												VBox.vgrow="ALWAYS" />
-											<HBox styleClass="hBoxStyle"
+											<HBox styleClass="hBoxStyle" spacing="5"
 												AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0"
 												AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="10.0"> <!-- Arama kısmı -->
 												<Region prefHeight="1" prefWidth="3"
 													HBox.hgrow="ALWAYS" />
 												<TextField fx:id="mainSearchTextbox"
-													layoutX="43.0" layoutY="206.0" prefHeight="25.0"
-													prefWidth="526.0" />
-												<Region prefHeight="1" prefWidth="5.0" />
+													prefHeight="25.0" prefWidth="526.0" />
 												<ChoiceBox fx:id="mainChoiceBox" layoutX="574.0"
-													layoutY="206.0" prefHeight="25.0" prefWidth="171.0" />
+													prefWidth="171.0" />
 												<Region prefHeight="1" prefWidth="3"
 													HBox.hgrow="ALWAYS" />
 											</HBox>
@@ -153,113 +147,205 @@
 										</VBox>
 									</children>
 								</AnchorPane>
+								<!-- Ürün Ekleme -->
 								<AnchorPane fx:id="addStockForm" prefHeight="600.0"
-									prefWidth="777.0" visible="false" AnchorPane.bottomAnchor="0.0"
+									prefWidth="777.0" AnchorPane.bottomAnchor="0.0"
 									AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
 									AnchorPane.topAnchor="0.0">
 									<children>
-										<Label layoutX="41.0" layoutY="56.0" text="BARKOD" />
-										<TextField fx:id="barkodtextbox" layoutX="41.0"
-											layoutY="73.0" prefWidth="120.0" />
-										<Label layoutX="165.0" layoutY="55.0" text="ÜRÜN ADI" />
-										<TextField fx:id="producttextbox" layoutX="165.0"
-											layoutY="72.0" />
-										<Label layoutX="318.0" layoutY="55.0" text="ÜRÜN ADETİ" />
-										<Spinner fx:id="productquantityspinner"
-											editable="true" layoutX="318.0" layoutY="72.0"
-											prefWidth="75.0" />
-										<Label layoutX="398.0" layoutY="55.0" text="BİRİM" />
-										<ChoiceBox fx:id="unitChoiceBox" layoutX="397.0"
-											layoutY="72.0" prefWidth="75.0" />
-										<Label layoutX="477.0" layoutY="54.0" text="KATEGORİ" />
-										<ChoiceBox fx:id="categorychoicebox" layoutX="476.0"
-											layoutY="71.0" prefWidth="150.0" />
-										<Label layoutX="630.0" layoutY="54.0" text="MALİYET" />
-										<TextField fx:id="costtextbox" layoutX="629.0"
-											layoutY="71.0" prefWidth="120.0" />
-										<Button fx:id="addProductBtn" layoutX="324.0"
-											layoutY="171.0" mnemonicParsing="false" prefHeight="39.0"
-											prefWidth="149.0" text="ÜRÜNÜ EKLE" textAlignment="CENTER" />
-										<TableView fx:id="addProductTableView"
-											layoutX="43.0" layoutY="231.0" prefHeight="337.0"
-											prefWidth="702.0">
-											<columns>
-												<TableColumn fx:id="addProductTableViewColumn1"
-													prefWidth="42.0" text="ID" />
-												<TableColumn fx:id="addProductTableViewColumn2"
-													prefWidth="110.0" text="BARKOD" />
-												<TableColumn fx:id="addProductTableViewColumn3"
-													prefWidth="110.0" text="ÜRÜN ADI" />
-												<TableColumn fx:id="addProductTableViewColumn4"
-													prefWidth="110.0" text="MİKTAR" />
-												<TableColumn fx:id="addProductTableViewColumn7"
-													prefWidth="110.0" text="BİRİM" />
-												<TableColumn fx:id="addProductTableViewColumn5"
-													prefWidth="110.0" text="KATEGORİ" />
-												<TableColumn fx:id="addProductTableViewColumn6"
-													prefWidth="110.0" text="MALİYET" />
-											</columns>
-										</TableView>
+										<!-- Genel sayfa düzeni -->
+										<VBox layoutX="20" layoutY="80" spacing="10"
+											AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="10.0"
+											AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="0.0">
+											<Region prefHeight="1" prefWidth="3"
+												VBox.vgrow="ALWAYS" />
+											<!-- Ürün ekleme alanı -->
+											<VBox spacing="5" styleClass="vBoxStyle">
+												<!-- Ürün ekleme kısmı -->
+												<HBox spacing="5">
+													<Region prefHeight="1" prefWidth="3"
+														HBox.hgrow="ALWAYS" />
+													<VBox>
+														<Label text="BARKOD" />
+														<TextField fx:id="barkodtextbox"
+															prefWidth="120.0" />
+													</VBox>
+													<VBox>
+														<Label text="ÜRÜN ADI" />
+														<TextField fx:id="producttextbox" />
+													</VBox>
+													<VBox>
+														<Label text="ÜRÜN ADETİ" />
+														<Spinner fx:id="productquantityspinner"
+															editable="true" prefWidth="75.0" />
+													</VBox>
+													<VBox>
+														<Label text="BİRİM" />
+														<ChoiceBox fx:id="unitChoiceBox" layoutX="397.0"
+															layoutY="72.0" prefWidth="75.0" />
+													</VBox>
+													<VBox>
+														<Label text="KATEGORİ" />
+														<ChoiceBox fx:id="categorychoicebox"
+															prefWidth="150.0" />
+													</VBox>
+													<VBox>
+														<Label text="MALİYET" />
+														<TextField fx:id="costtextbox" prefWidth="120.0" />
+													</VBox>
+													<Region prefHeight="1" prefWidth="3"
+														HBox.hgrow="ALWAYS" />
+												</HBox>
+												<!-- Ürün ekleme butonu -->
+												<HBox>
+													<Region prefHeight="1" prefWidth="3"
+														HBox.hgrow="ALWAYS" />
+													<Button fx:id="addProductBtn"
+														styleClass="button-primary" prefHeight="39.0"
+														prefWidth="149.0" text="ÜRÜNÜ EKLE" textAlignment="CENTER" />
+													<Region prefHeight="1" prefWidth="3"
+														HBox.hgrow="ALWAYS" />
+												</HBox>
+											</VBox>
+											<!-- Tablo alanı -->
+											<HBox styleClass="hBoxStyle"
+												AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0"
+												AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="10.0">
+												<TableView fx:id="addProductTableView"
+													HBox.hgrow="ALWAYS">
+													<columns>
+														<TableColumn
+															fx:id="addProductTableViewColumn1" prefWidth="42.0"
+															text="ID" />
+														<TableColumn
+															fx:id="addProductTableViewColumn2" prefWidth="110.0"
+															text="BARKOD" />
+														<TableColumn
+															fx:id="addProductTableViewColumn3" prefWidth="110.0"
+															text="ÜRÜN ADI" />
+														<TableColumn
+															fx:id="addProductTableViewColumn4" prefWidth="110.0"
+															text="MİKTAR" />
+														<TableColumn
+															fx:id="addProductTableViewColumn7" prefWidth="110.0"
+															text="BİRİM" />
+														<TableColumn
+															fx:id="addProductTableViewColumn5" prefWidth="110.0"
+															text="KATEGORİ" />
+														<TableColumn
+															fx:id="addProductTableViewColumn6" prefWidth="110.0"
+															text="MALİYET" />
+													</columns>
+												</TableView>
+											</HBox>
+											<Region prefHeight="1" prefWidth="3"
+												VBox.vgrow="ALWAYS" />
+										</VBox>
+
 									</children>
 								</AnchorPane>
+								<!-- Ürün Güncelleme -->
 								<AnchorPane fx:id="updateStockForm"
 									prefHeight="600.0" prefWidth="777.0" visible="false"
 									AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
 									AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 									<children>
-										<Label layoutX="41.0" layoutY="56.0" text="BARKOD" />
-										<TextField fx:id="upgradeBarkodTextBox"
-											layoutX="41.0" layoutY="73.0" prefWidth="120.0" />
-										<Label layoutX="165.0" layoutY="55.0" text="ÜRÜN ADI" />
-										<TextField fx:id="upgradeProductNameTextbox"
-											layoutX="165.0" layoutY="72.0" />
-										<Label layoutX="318.0" layoutY="55.0" text="ÜRÜN ADETİ" />
-										<Spinner fx:id="upgradeproductquantityspinner"
-											editable="true" layoutX="318.0" layoutY="72.0"
-											prefWidth="75.0" />
-										<Label layoutX="398.0" layoutY="55.0" text="BİRİM" />
-										<ChoiceBox fx:id="upgradeUnitChoiceBox"
-											layoutX="397.0" layoutY="72.0" prefWidth="75.0" />
-										<Label layoutX="477.0" layoutY="54.0" text="KATEGORİ" />
-										<ChoiceBox fx:id="upgradeChoiceBox" layoutX="476.0"
-											layoutY="71.0" prefWidth="150.0" />
-										<Label layoutX="630.0" layoutY="54.0" text="MALİYET" />
-										<TextField fx:id="upgradeCostTextbox"
-											layoutX="629.0" layoutY="71.0" prefWidth="120.0" />
-										<Button fx:id="upgradeProductBtn" layoutX="238.0"
-											layoutY="107.0" mnemonicParsing="false" prefHeight="39.0"
-											prefWidth="149.0" text="ÜRÜNÜ GÜNCELLE"
-											textAlignment="CENTER" />
-										<Button fx:id="deleteProductBtn" layoutX="397.0"
-											layoutY="107.0" mnemonicParsing="false" prefHeight="39.0"
-											prefWidth="149.0" text="ÜRÜNÜ SİL" textAlignment="CENTER" />
-										<TableView fx:id="upgradeTableView" layoutX="43.0"
-											layoutY="201.0" prefHeight="361.0" prefWidth="702.0">
-											<columns>
-												<TableColumn fx:id="upgradeTableViewColumn1"
-													prefWidth="42.0" text="ID" />
-												<TableColumn fx:id="upgradeTableViewColumn2"
-													prefWidth="110.0" text="BARKOD" />
-												<TableColumn fx:id="upgradeTableViewColumn3"
-													prefWidth="110.0" text="ÜRÜN ADI" />
-												<TableColumn fx:id="upgradeTableViewColumn4"
-													prefWidth="110.0" text="MİKTAR" />
-												<TableColumn fx:id="upgradeTableViewColumn7"
-													prefWidth="110.0" text="BİRİM" />
-												<TableColumn fx:id="upgradeTableViewColumn5"
-													prefWidth="110.0" text="KATEGORİ" />
-												<TableColumn fx:id="upgradeTableViewColumn6"
-													prefWidth="110.0" text="MALİYET" />
-											</columns>
-										</TableView>
-										<TextField fx:id="upgradeSearchTextbox"
-											layoutX="43.0" layoutY="176.0" prefHeight="25.0"
-											prefWidth="526.0" />
-										<ChoiceBox fx:id="upgradeSearchChoiceBox"
-											layoutX="574.0" layoutY="176.0" prefHeight="25.0"
-											prefWidth="171.0" />
+										<VBox spacing="10" AnchorPane.bottomAnchor="0.0"
+											AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0"
+											AnchorPane.topAnchor="0.0">
+											<Region prefHeight="1" prefWidth="3"
+												VBox.vgrow="ALWAYS" />
+											<VBox spacing="5" styleClass="vBoxStyle">
+												<HBox spacing="5">
+													<Region prefHeight="1" prefWidth="3"
+														HBox.hgrow="ALWAYS" />
+													<VBox>
+														<Label text="BARKOD" />
+														<TextField fx:id="upgradeBarkodTextBox"
+															prefWidth="120.0" />
+													</VBox>
+													<VBox>
+														<Label text="ÜRÜN ADI" />
+														<TextField fx:id="upgradeProductNameTextbox" />
+													</VBox>
+													<VBox>
+														<Label text="ÜRÜN ADETİ" />
+														<Spinner fx:id="upgradeproductquantityspinner"
+															editable="true" prefWidth="75.0" />
+													</VBox>
+													<VBox>
+														<Label text="BİRİM" />
+														<ChoiceBox fx:id="upgradeUnitChoiceBox"
+															prefWidth="75.0" />
+													</VBox>
+													<VBox>
+														<Label text="KATEGORİ" />
+														<ChoiceBox fx:id="upgradeChoiceBox"
+															prefWidth="150.0" />
+													</VBox>
+													<VBox>
+														<Label text="MALİYET" />
+														<TextField fx:id="upgradeCostTextbox"
+															prefWidth="120.0" />
+													</VBox>
+													<Region prefHeight="1" prefWidth="3"
+														HBox.hgrow="ALWAYS" />
+												</HBox>
+												<HBox spacing="5">
+													<Region prefHeight="1" prefWidth="3"
+														HBox.hgrow="ALWAYS" />
+													<Button fx:id="upgradeProductBtn"
+														styleClass="button-primary" prefHeight="39.0"
+														prefWidth="149.0" text="ÜRÜNÜ GÜNCELLE"
+														textAlignment="CENTER" />
+													<Button fx:id="deleteProductBtn"
+														styleClass="button-primary" prefHeight="39.0"
+														prefWidth="149.0" text="ÜRÜNÜ SİL" textAlignment="CENTER" />
+													<Region prefHeight="1" prefWidth="3"
+														HBox.hgrow="ALWAYS" />
+												</HBox>
+
+											</VBox>
+											<HBox spacing="5" styleClass="hBoxStyle">
+												<Region prefHeight="1" prefWidth="3"
+													HBox.hgrow="ALWAYS" />
+												<TextField fx:id="upgradeSearchTextbox"
+													prefHeight="25.0" prefWidth="526.0" />
+												<ChoiceBox fx:id="upgradeSearchChoiceBox"
+													prefHeight="25.0" prefWidth="171.0" />
+												<Region prefHeight="1" prefWidth="3"
+													HBox.hgrow="ALWAYS" />
+											</HBox>
+											<HBox styleClass="hBoxStyle"
+												AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0"
+												AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="10.0">
+												<TableView fx:id="upgradeTableView"
+													HBox.hgrow="ALWAYS">
+													<columns>
+														<TableColumn fx:id="upgradeTableViewColumn1"
+															prefWidth="42.0" text="ID" />
+														<TableColumn fx:id="upgradeTableViewColumn2"
+															prefWidth="110.0" text="BARKOD" />
+														<TableColumn fx:id="upgradeTableViewColumn3"
+															prefWidth="110.0" text="ÜRÜN ADI" />
+														<TableColumn fx:id="upgradeTableViewColumn4"
+															prefWidth="110.0" text="MİKTAR" />
+														<TableColumn fx:id="upgradeTableViewColumn7"
+															prefWidth="110.0" text="BİRİM" />
+														<TableColumn fx:id="upgradeTableViewColumn5"
+															prefWidth="110.0" text="KATEGORİ" />
+														<TableColumn fx:id="upgradeTableViewColumn6"
+															prefWidth="110.0" text="MALİYET" />
+													</columns>
+												</TableView>
+											</HBox>
+											<Region prefHeight="1" prefWidth="3"
+												VBox.vgrow="ALWAYS" />
+										</VBox>
+
 									</children>
 								</AnchorPane>
+								<!-- Ayarlar -->
 								<AnchorPane fx:id="settingsForm" layoutX="10.0"
 									layoutY="10.0" prefHeight="610.0" prefWidth="787.0"
 									visible="false" AnchorPane.bottomAnchor="0.0"
