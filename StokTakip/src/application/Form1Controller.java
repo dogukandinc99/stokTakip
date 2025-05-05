@@ -4,6 +4,8 @@ import java.io.File;
 import java.nio.channels.Pipe.SourceChannel;
 import java.util.ArrayList;
 import java.util.List;
+
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -144,7 +146,7 @@ public class Form1Controller {
 	@FXML
 	private TableColumn<VeriModel, String> addProductTableViewColumn5;
 	@FXML
-	private TableColumn<VeriModel, Double> addProductTableViewColumn6;
+	private TableColumn<VeriModel, String> addProductTableViewColumn6;
 	@FXML
 	private TableColumn<VeriModel, String> addProductTableViewColumn7;
 	@FXML
@@ -158,7 +160,7 @@ public class Form1Controller {
 	@FXML
 	private TableColumn<VeriModel, String> mainTableViewColumn5;
 	@FXML
-	private TableColumn<VeriModel, Double> mainTableViewColumn6;
+	private TableColumn<VeriModel, String> mainTableViewColumn6;
 	@FXML
 	private TableColumn<VeriModel, String> mainTableViewColumn7;
 	@FXML
@@ -181,7 +183,8 @@ public class Form1Controller {
 
 	public void initialize() {
 
-		SpinnerValueFactory<Double> valueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(-10000, 10000, 1);
+		SpinnerValueFactory<Double> valueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(-999999999,
+				999999999, 1);
 		productquantityspinner.setValueFactory(valueFactory);
 		upgradeproductquantityspinner.setValueFactory(valueFactory);
 		mainQuantityspinner.setValueFactory(valueFactory);
@@ -218,6 +221,8 @@ public class Form1Controller {
 		addProductTableViewColumn4.setCellValueFactory(new PropertyValueFactory<>("urunAdet"));
 		addProductTableViewColumn5.setCellValueFactory(new PropertyValueFactory<>("kategori"));
 		addProductTableViewColumn6.setCellValueFactory(new PropertyValueFactory<>("maliyet"));
+		addProductTableViewColumn6.setCellValueFactory(
+				cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getMaliyet())));
 		addProductTableViewColumn7.setCellValueFactory(new PropertyValueFactory<>("birim"));
 		addProductTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		tableViewUpgrade(addProductTableView, "ürünler");
@@ -228,6 +233,8 @@ public class Form1Controller {
 		mainTableViewColumn4.setCellValueFactory(new PropertyValueFactory<>("urunAdet"));
 		mainTableViewColumn5.setCellValueFactory(new PropertyValueFactory<>("kategori"));
 		mainTableViewColumn6.setCellValueFactory(new PropertyValueFactory<>("maliyet"));
+		mainTableViewColumn6.setCellValueFactory(
+				cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getMaliyet())));
 		mainTableViewColumn7.setCellValueFactory(new PropertyValueFactory<>("birim"));
 		tableViewUpgrade(mainTableView, "ürünler");
 
@@ -259,7 +266,9 @@ public class Form1Controller {
 		valueProductTakeOutDataBase();
 		exportToExcel();
 
+		setTooltipForTableview(mainTableView);
 		setTooltipForTableview(addProductTableView);
+		setTooltipForTableview(upgradeTableView);
 	}
 
 	private void switchForm() {
@@ -381,12 +390,11 @@ public class Form1Controller {
 			VeriModel category = categorychoicebox.getValue();
 			Double maliyet = 0.0;
 
-			try {
+			System.out.println(costtextbox.getText());
+			if (!costtextbox.getText().isEmpty()) {
 				maliyet = Double.parseDouble(costtextbox.getText());
-			} catch (NumberFormatException e) {
-				System.out.println("Geçerli bir maliyet değeri girin.");
-				return;
 			}
+
 			if (category.getKategori().equals("hepsi")) {
 				System.out.println("Kategori Seçimi yapmanız gerekmektedir.");
 			} else if (!category.getKategori().equals("ürünler")) {
@@ -486,8 +494,8 @@ public class Form1Controller {
 
 			for (VeriModel material : selectedItems) {
 				System.out.println(material.getKategori().toString());
-				if (!(material.getKategori().toString().equals("HAM MADDELER")
-						|| material.getKategori().toString().equals("AMBALAJLAR"))) {
+				if (!(material.getKategori().toString().equals("ham maddeler")
+						|| material.getKategori().toString().equals("ambalajlar"))) {
 					kontrol = false;
 					break;
 				}
