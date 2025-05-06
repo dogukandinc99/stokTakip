@@ -24,6 +24,24 @@
     -fx-font-weight: bold;
     -fx-padding: 0.0 0.0 20.0 0.0;
 }
+.choice-box {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d1d1d1;
+    -fx-border-width: 1.0;
+    -fx-border-radius: 8.0;
+    -fx-background-radius: 8.0;
+    -fx-padding: 5.0 5.0;
+    -fx-font-size: 11.0px;
+    -fx-text-fill: #222;
+}
+
+.choice-box:hover {
+    -fx-background-color: #f0f0f0;
+}
+
+.choice-box:focused {
+    -fx-border-color: #00b894;
+}
 
 .vBoxStyle, .hBoxStyle{
 	-fx-effect: dropshadow(gaussian, rgba(0.0,0.0,0.0,0.05), 10.0, 0.0, 0.0, 4.0);

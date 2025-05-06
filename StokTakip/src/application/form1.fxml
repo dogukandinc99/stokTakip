@@ -69,12 +69,10 @@
 									AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
 									AnchorPane.topAnchor="0.0">
 									<children>
-
 										<VBox spacing="10" AnchorPane.bottomAnchor="0.0"
 											AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0"
 											AnchorPane.topAnchor="0.0">
-											<Region prefHeight="1" prefWidth="3"
-												VBox.vgrow="ALWAYS" />
+											<Region prefHeight="3" prefWidth="3" />
 											<!-- Ürün stoğu ekleme çıkarma alanı -->
 											<VBox spacing="5" styleClass="vBoxStyle">
 												<HBox spacing="5"> <!-- stoğun adı ve eklenecek veya çıkarılacak stok adeti alanı -->
@@ -104,8 +102,6 @@
 														HBox.hgrow="ALWAYS" />
 												</HBox>
 											</VBox>
-											<Region prefHeight="1" prefWidth="3"
-												VBox.vgrow="ALWAYS" />
 											<HBox styleClass="hBoxStyle" spacing="5"
 												AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0"
 												AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="10.0"> <!-- Arama kısmı -->
@@ -118,32 +114,33 @@
 												<Region prefHeight="1" prefWidth="3"
 													HBox.hgrow="ALWAYS" />
 											</HBox>
-											<HBox styleClass="hBoxStyle"
-												AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0"
-												AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="10.0">
-												<TableView fx:id="mainTableView"
-													HBox.hgrow="ALWAYS">
-													<columns>
-														<TableColumn fx:id="mainTableViewColumn1"
-															text="ID" />
-														<TableColumn fx:id="mainTableViewColumn2"
-															text="BARKOD" />
-														<TableColumn fx:id="mainTableViewColumn3"
-															text="ÜRÜN ADI" />
-														<TableColumn fx:id="mainTableViewColumn4"
-															text="MİKTAR" />
-														<TableColumn fx:id="mainTableViewColumn5"
-															text="BİRİM" />
-														<TableColumn fx:id="mainTableViewColumn6"
-															text="KATEGORİ" />
-														<TableColumn fx:id="mainTableViewColumn7"
-															text="MALİYET" />
-													</columns>
-												</TableView>
-											</HBox>
-
-											<Region prefHeight="1" prefWidth="3"
-												VBox.vgrow="ALWAYS" />
+											<VBox VBox.vgrow="ALWAYS">
+												<HBox styleClass="hBoxStyle"
+													AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0"
+													AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="10.0"
+													VBox.vgrow="ALWAYS">
+													<TableView fx:id="mainTableView"
+														HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
+														<columns>
+															<TableColumn fx:id="mainTableViewColumn1"
+																text="ID" />
+															<TableColumn fx:id="mainTableViewColumn2"
+																text="BARKOD" />
+															<TableColumn fx:id="mainTableViewColumn3"
+																text="ÜRÜN ADI" />
+															<TableColumn fx:id="mainTableViewColumn4"
+																text="MİKTAR" />
+															<TableColumn fx:id="mainTableViewColumn5"
+																text="BİRİM" />
+															<TableColumn fx:id="mainTableViewColumn6"
+																text="KATEGORİ" />
+															<TableColumn fx:id="mainTableViewColumn7"
+																text="MALİYET" />
+														</columns>
+													</TableView>
+												</HBox>
+											</VBox>
+											<Region prefHeight="3" prefWidth="3" />
 										</VBox>
 									</children>
 								</AnchorPane>
@@ -157,8 +154,7 @@
 										<VBox layoutX="20" layoutY="80" spacing="10"
 											AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="10.0"
 											AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="0.0">
-											<Region prefHeight="1" prefWidth="3"
-												VBox.vgrow="ALWAYS" />
+											<Region prefHeight="3" prefWidth="3" />
 											<!-- Ürün ekleme alanı -->
 											<VBox spacing="5" styleClass="vBoxStyle">
 												<!-- Ürün ekleme kısmı -->
@@ -181,17 +177,22 @@
 													</VBox>
 													<VBox>
 														<Label text="BİRİM" />
-														<ChoiceBox fx:id="unitChoiceBox" layoutX="397.0"
-															layoutY="72.0" prefWidth="75.0" />
+														<ChoiceBox fx:id="unitChoiceBox"
+															prefWidth="85.0" />
 													</VBox>
 													<VBox>
 														<Label text="KATEGORİ" />
 														<ChoiceBox fx:id="categorychoicebox"
-															prefWidth="150.0" />
+															prefWidth="110.0" />
 													</VBox>
 													<VBox>
 														<Label text="MALİYET" />
 														<TextField fx:id="costtextbox" prefWidth="120.0" />
+													</VBox>
+													<VBox>
+														<Label text="PARA BİRİMİ" />
+														<ChoiceBox fx:id="currencychoicebox"
+															prefWidth="85.0" />
 													</VBox>
 													<Region prefHeight="1" prefWidth="3"
 														HBox.hgrow="ALWAYS" />
@@ -208,38 +209,41 @@
 												</HBox>
 											</VBox>
 											<!-- Tablo alanı -->
-											<HBox styleClass="hBoxStyle"
-												AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0"
-												AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="10.0">
-												<TableView fx:id="addProductTableView"
-													HBox.hgrow="ALWAYS">
-													<columns>
-														<TableColumn
-															fx:id="addProductTableViewColumn1" prefWidth="42.0"
-															text="ID" />
-														<TableColumn
-															fx:id="addProductTableViewColumn2" prefWidth="110.0"
-															text="BARKOD" />
-														<TableColumn
-															fx:id="addProductTableViewColumn3" prefWidth="110.0"
-															text="ÜRÜN ADI" />
-														<TableColumn
-															fx:id="addProductTableViewColumn4" prefWidth="110.0"
-															text="MİKTAR" />
-														<TableColumn
-															fx:id="addProductTableViewColumn5" prefWidth="110.0"
-															text="BİRİM" />
-														<TableColumn
-															fx:id="addProductTableViewColumn6" prefWidth="110.0"
-															text="KATEGORİ" />
-														<TableColumn
-															fx:id="addProductTableViewColumn7" prefWidth="110.0"
-															text="MALİYET" />
-													</columns>
-												</TableView>
-											</HBox>
-											<Region prefHeight="1" prefWidth="3"
-												VBox.vgrow="ALWAYS" />
+											<VBox VBox.vgrow="ALWAYS">
+												<HBox styleClass="hBoxStyle"
+													AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0"
+													AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="10.0"
+													VBox.vgrow="ALWAYS">
+													<TableView fx:id="addProductTableView"
+														HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
+														<columns>
+															<TableColumn
+																fx:id="addProductTableViewColumn1" prefWidth="42.0"
+																text="ID" />
+															<TableColumn
+																fx:id="addProductTableViewColumn2" prefWidth="110.0"
+																text="BARKOD" />
+															<TableColumn
+																fx:id="addProductTableViewColumn3" prefWidth="110.0"
+																text="ÜRÜN ADI" />
+															<TableColumn
+																fx:id="addProductTableViewColumn4" prefWidth="110.0"
+																text="MİKTAR" />
+															<TableColumn
+																fx:id="addProductTableViewColumn5" prefWidth="110.0"
+																text="BİRİM" />
+															<TableColumn
+																fx:id="addProductTableViewColumn6" prefWidth="110.0"
+																text="KATEGORİ" />
+															<TableColumn
+																fx:id="addProductTableViewColumn7" prefWidth="110.0"
+																text="MALİYET" />
+														</columns>
+													</TableView>
+												</HBox>
+											</VBox>
+
+											<Region prefHeight="3" prefWidth="3" />
 										</VBox>
 
 									</children>

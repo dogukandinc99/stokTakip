@@ -28,6 +28,7 @@ public class Services {
 		ürünlerTablosu.put("birim", "TEXT NOT NULL");
 		ürünlerTablosu.put("kategori_ad", "TEXT NOT NULL");
 		ürünlerTablosu.put("maliyet", "REAL NOT NULL");
+		ürünlerTablosu.put("para_birimi", "TEXT NOT NULL");
 		DataBaseHelper.createTable("ürünler", ürünlerTablosu, null);
 
 		// product Ingredients tablosu

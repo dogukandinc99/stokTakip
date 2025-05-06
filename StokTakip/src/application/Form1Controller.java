@@ -109,6 +109,8 @@ public class Form1Controller {
 	private ChoiceBox<String> unitChoiceBox;
 	@FXML
 	private ChoiceBox<String> upgradeUnitChoiceBox;
+	@FXML
+	private ChoiceBox<String> currencychoicebox;
 
 	@FXML
 	private Label materialsLabel;
@@ -181,6 +183,7 @@ public class Form1Controller {
 	private TableColumn<VeriModel, String> upgradeTableViewColumn7;
 
 	ObservableList<String> unitList = FXCollections.observableArrayList();
+	ObservableList<String> currencyList = FXCollections.observableArrayList();
 	Services services = new Services();
 
 	public void initialize() {
@@ -209,6 +212,13 @@ public class Form1Controller {
 		upgradeUnitChoiceBox.setItems(unitList);
 		upgradeUnitChoiceBox.getSelectionModel().select(0);
 
+		currencyList.add("TL");
+		currencyList.add("DOLAR");
+		currencyList.add("EURO");
+
+		currencychoicebox.setItems(currencyList);
+		currencychoicebox.getSelectionModel().select(0);
+
 		ChoiceBoxs();
 
 		services.tablolariOlustur();
@@ -217,82 +227,6 @@ public class Form1Controller {
 		settingstableviewcolumn2.setCellValueFactory(new PropertyValueFactory<>("kategori"));
 		tableViewUpgrade(settingstableview, "kategoriler");
 
-		/*
-		 * addProductTableViewColumn1.setCellValueFactory(new
-		 * PropertyValueFactory<>("urunId"));
-		 * addProductTableViewColumn2.setCellValueFactory(new
-		 * PropertyValueFactory<>("barkod"));
-		 * addProductTableViewColumn3.setCellValueFactory(new
-		 * PropertyValueFactory<>("urunAdi"));
-		 * addProductTableViewColumn4.setCellValueFactory(new
-		 * PropertyValueFactory<>("urunAdet"));
-		 * addProductTableViewColumn5.setCellValueFactory(new
-		 * PropertyValueFactory<>("kategori"));
-		 * addProductTableViewColumn6.setCellValueFactory(new
-		 * PropertyValueFactory<>("maliyet"));
-		 * addProductTableViewColumn6.setCellFactory(col -> new TableCell<VeriModel,
-		 * Double>() {
-		 * 
-		 * @Override protected void updateItem(Double item, boolean empty) {
-		 * super.updateItem(item, empty); if (empty || item == null) { setText(null); }
-		 * else { // Burada maliyeti iki ondalıklı olarak gösterebilirsiniz
-		 * DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
-		 * DecimalFormat decimalFormat = new DecimalFormat("#.##############", symbols);
-		 * setText(decimalFormat.format(item)); } } });
-		 * addProductTableViewColumn7.setCellValueFactory(new
-		 * PropertyValueFactory<>("birim"));
-		 * addProductTableView.getSelectionModel().setSelectionMode(SelectionMode.
-		 * MULTIPLE); tableViewUpgrade(addProductTableView, "ürünler");
-		 * 
-		 * mainTableViewColumn1.setCellValueFactory(new
-		 * PropertyValueFactory<>("urunId"));
-		 * mainTableViewColumn2.setCellValueFactory(new
-		 * PropertyValueFactory<>("barkod"));
-		 * mainTableViewColumn3.setCellValueFactory(new
-		 * PropertyValueFactory<>("urunAdi"));
-		 * mainTableViewColumn4.setCellValueFactory(new
-		 * PropertyValueFactory<>("urunAdet"));
-		 * mainTableViewColumn5.setCellValueFactory(new
-		 * PropertyValueFactory<>("kategori"));
-		 * mainTableViewColumn6.setCellValueFactory(new
-		 * PropertyValueFactory<>("maliyet")); mainTableViewColumn6.setCellFactory(col
-		 * -> new TableCell<VeriModel, Double>() {
-		 * 
-		 * @Override protected void updateItem(Double item, boolean empty) {
-		 * super.updateItem(item, empty); if (empty || item == null) { setText(null); }
-		 * else { // Burada maliyeti iki ondalıklı olarak gösterebilirsiniz
-		 * DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
-		 * DecimalFormat decimalFormat = new DecimalFormat("#.##############", symbols);
-		 * // Ondalık kısmı // dinamik // şekilde göster
-		 * setText(decimalFormat.format(item)); } } });
-		 * mainTableViewColumn7.setCellValueFactory(new
-		 * PropertyValueFactory<>("birim")); tableViewUpgrade(mainTableView, "ürünler");
-		 * 
-		 * upgradeTableViewColumn1.setCellValueFactory(new
-		 * PropertyValueFactory<>("urunId"));
-		 * upgradeTableViewColumn2.setCellValueFactory(new
-		 * PropertyValueFactory<>("barkod"));
-		 * upgradeTableViewColumn3.setCellValueFactory(new
-		 * PropertyValueFactory<>("urunAdi"));
-		 * upgradeTableViewColumn4.setCellValueFactory(new
-		 * PropertyValueFactory<>("urunAdet"));
-		 * upgradeTableViewColumn5.setCellValueFactory(new
-		 * PropertyValueFactory<>("kategori"));
-		 * upgradeTableViewColumn6.setCellValueFactory(new
-		 * PropertyValueFactory<>("maliyet")); // Maliyet kolonunu formatlamak için bir
-		 * cellFactory ekleyin upgradeTableViewColumn6.setCellFactory(col -> new
-		 * TableCell<VeriModel, Double>() {
-		 * 
-		 * @Override protected void updateItem(Double item, boolean empty) {
-		 * super.updateItem(item, empty); if (empty || item == null) { setText(null); }
-		 * else { // Burada maliyeti iki ondalıklı olarak gösterebilirsiniz
-		 * DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
-		 * DecimalFormat decimalFormat = new DecimalFormat("#.##############", symbols);
-		 * setText(decimalFormat.format(item)); } } });
-		 * upgradeTableViewColumn7.setCellValueFactory(new
-		 * PropertyValueFactory<>("birim")); tableViewUpgrade(upgradeTableView,
-		 * "ürünler");
-		 */
 		tableViewSettings(mainTableView);
 		tableViewSettings(addProductTableView);
 		addProductTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
