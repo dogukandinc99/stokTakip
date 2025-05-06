@@ -132,11 +132,11 @@
 															text="ÜRÜN ADI" />
 														<TableColumn fx:id="mainTableViewColumn4"
 															text="MİKTAR" />
-														<TableColumn fx:id="mainTableViewColumn7"
-															text="BİRİM" />
 														<TableColumn fx:id="mainTableViewColumn5"
-															text="KATEGORİ" />
+															text="BİRİM" />
 														<TableColumn fx:id="mainTableViewColumn6"
+															text="KATEGORİ" />
+														<TableColumn fx:id="mainTableViewColumn7"
 															text="MALİYET" />
 													</columns>
 												</TableView>
@@ -227,13 +227,13 @@
 															fx:id="addProductTableViewColumn4" prefWidth="110.0"
 															text="MİKTAR" />
 														<TableColumn
-															fx:id="addProductTableViewColumn7" prefWidth="110.0"
+															fx:id="addProductTableViewColumn5" prefWidth="110.0"
 															text="BİRİM" />
 														<TableColumn
-															fx:id="addProductTableViewColumn5" prefWidth="110.0"
+															fx:id="addProductTableViewColumn6" prefWidth="110.0"
 															text="KATEGORİ" />
 														<TableColumn
-															fx:id="addProductTableViewColumn6" prefWidth="110.0"
+															fx:id="addProductTableViewColumn7" prefWidth="110.0"
 															text="MALİYET" />
 													</columns>
 												</TableView>
@@ -330,11 +330,11 @@
 															prefWidth="110.0" text="ÜRÜN ADI" />
 														<TableColumn fx:id="upgradeTableViewColumn4"
 															prefWidth="110.0" text="MİKTAR" />
-														<TableColumn fx:id="upgradeTableViewColumn7"
-															prefWidth="110.0" text="BİRİM" />
 														<TableColumn fx:id="upgradeTableViewColumn5"
-															prefWidth="110.0" text="KATEGORİ" />
+															prefWidth="110.0" text="BİRİM" />
 														<TableColumn fx:id="upgradeTableViewColumn6"
+															prefWidth="110.0" text="KATEGORİ" />
+														<TableColumn fx:id="upgradeTableViewColumn7"
 															prefWidth="110.0" text="MALİYET" />
 													</columns>
 												</TableView>
