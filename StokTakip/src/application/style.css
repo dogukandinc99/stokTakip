@@ -57,6 +57,15 @@
     -fx-padding: 8.0 12.0;
     -fx-font-size: 12.0px;
 }
+.text-field:error, .text-area:error {
+    -fx-border-color: #e11d48;
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 6.0px;
+}
+.label.error-text {
+    -fx-text-fill: #e11d48;
+    -fx-font-size: 11.0px;
+}
 .spinner{
 	 -fx-background-color: transparent;
     -fx-border-color: transparent;

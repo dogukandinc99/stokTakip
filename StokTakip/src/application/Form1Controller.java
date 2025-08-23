@@ -181,6 +181,8 @@ public class Form1Controller {
 	private TableColumn<VeriModel, Double> upgradeTableViewColumn6;
 	@FXML
 	private TableColumn<VeriModel, String> upgradeTableViewColumn7;
+	@FXML
+	private Label lbLabel;
 
 	ObservableList<String> unitList = FXCollections.observableArrayList();
 	ObservableList<String> currencyList = FXCollections.observableArrayList();
@@ -188,11 +190,9 @@ public class Form1Controller {
 
 	public void initialize() {
 
-		SpinnerValueFactory<Double> valueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(-999999999,
-				999999999, 1);
-		productquantityspinner.setValueFactory(valueFactory);
-		upgradeproductquantityspinner.setValueFactory(valueFactory);
-		mainQuantityspinner.setValueFactory(valueFactory);
+		ValidationUtil.applyDecimalSpinner(mainQuantityspinner, 6, 12, true);
+		ValidationUtil.applyDecimalSpinner(productquantityspinner, 6, 12, true);
+		ValidationUtil.applyDecimalSpinner(upgradeproductquantityspinner, 6, 12, true);
 
 		unitList.add("ADET");
 		unitList.add("LİTRE");
@@ -254,6 +254,7 @@ public class Form1Controller {
 		setTooltipForTableview(mainTableView);
 		setTooltipForTableview(addProductTableView);
 		setTooltipForTableview(upgradeTableView);
+
 	}
 
 	private void switchForm() {

@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane prefHeight="600.0" prefWidth="1000.0"
+<StackPane prefHeight="600.0" prefWidth="1050.0"
 	stylesheets="@style.css" xmlns="http://javafx.com/javafx/23.0.1"
 	xmlns:fx="http://javafx.com/fxml/1"
 	fx:controller="application.Form1Controller">
@@ -65,7 +65,7 @@
 							<children>
 								<!-- Ana Sayfa -->
 								<AnchorPane fx:id="mainForm" prefHeight="600.0"
-									prefWidth="777.0" visible="false" AnchorPane.bottomAnchor="0.0"
+									prefWidth="777.0" AnchorPane.bottomAnchor="0.0"
 									AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
 									AnchorPane.topAnchor="0.0">
 									<children>
@@ -84,7 +84,8 @@
 													</VBox>
 													<VBox>
 														<Label text="MİKTAR" />
-														<Spinner fx:id="mainQuantityspinner" />
+														<Spinner fx:id="mainQuantityspinner"
+															editable="true" />
 													</VBox>
 													<Region prefHeight="1" HBox.hgrow="ALWAYS" />
 												</HBox>
@@ -102,7 +103,7 @@
 														HBox.hgrow="ALWAYS" />
 												</HBox>
 											</VBox>
-											<HBox styleClass="hBoxStyle" spacing="5"
+											<HBox spacing="5" styleClass="hBoxStyle"
 												AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0"
 												AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="10.0"> <!-- Arama kısmı -->
 												<Region prefHeight="1" prefWidth="3"
@@ -146,7 +147,7 @@
 								</AnchorPane>
 								<!-- Ürün Ekleme -->
 								<AnchorPane fx:id="addStockForm" prefHeight="600.0"
-									prefWidth="777.0" AnchorPane.bottomAnchor="0.0"
+									prefWidth="777.0" visible="false" AnchorPane.bottomAnchor="0.0"
 									AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
 									AnchorPane.topAnchor="0.0">
 									<children>
@@ -201,9 +202,9 @@
 												<HBox>
 													<Region prefHeight="1" prefWidth="3"
 														HBox.hgrow="ALWAYS" />
-													<Button fx:id="addProductBtn"
-														styleClass="button-primary" prefHeight="39.0"
-														prefWidth="149.0" text="ÜRÜNÜ EKLE" textAlignment="CENTER" />
+													<Button fx:id="addProductBtn" prefHeight="39.0"
+														prefWidth="149.0" styleClass="button-primary"
+														text="ÜRÜNÜ EKLE" textAlignment="CENTER" />
 													<Region prefHeight="1" prefWidth="3"
 														HBox.hgrow="ALWAYS" />
 												</HBox>
@@ -257,8 +258,7 @@
 										<VBox spacing="10" AnchorPane.bottomAnchor="0.0"
 											AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0"
 											AnchorPane.topAnchor="0.0">
-											<Region prefHeight="1" prefWidth="3"
-												VBox.vgrow="ALWAYS" />
+											<Region prefHeight="3" prefWidth="3" />
 											<VBox spacing="5" styleClass="vBoxStyle">
 												<HBox spacing="5">
 													<Region prefHeight="1" prefWidth="3"
@@ -298,13 +298,12 @@
 												<HBox spacing="5">
 													<Region prefHeight="1" prefWidth="3"
 														HBox.hgrow="ALWAYS" />
-													<Button fx:id="upgradeProductBtn"
-														styleClass="button-primary" prefHeight="39.0"
-														prefWidth="149.0" text="ÜRÜNÜ GÜNCELLE"
-														textAlignment="CENTER" />
-													<Button fx:id="deleteProductBtn"
-														styleClass="button-primary" prefHeight="39.0"
-														prefWidth="149.0" text="ÜRÜNÜ SİL" textAlignment="CENTER" />
+													<Button fx:id="upgradeProductBtn" prefHeight="39.0"
+														prefWidth="149.0" styleClass="button-primary"
+														text="ÜRÜNÜ GÜNCELLE" textAlignment="CENTER" />
+													<Button fx:id="deleteProductBtn" prefHeight="39.0"
+														prefWidth="149.0" styleClass="button-primary"
+														text="ÜRÜNÜ SİL" textAlignment="CENTER" />
 													<Region prefHeight="1" prefWidth="3"
 														HBox.hgrow="ALWAYS" />
 												</HBox>
@@ -320,33 +319,34 @@
 												<Region prefHeight="1" prefWidth="3"
 													HBox.hgrow="ALWAYS" />
 											</HBox>
-											<HBox styleClass="hBoxStyle"
-												AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0"
-												AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="10.0">
-												<TableView fx:id="upgradeTableView"
-													HBox.hgrow="ALWAYS">
-													<columns>
-														<TableColumn fx:id="upgradeTableViewColumn1"
-															prefWidth="42.0" text="ID" />
-														<TableColumn fx:id="upgradeTableViewColumn2"
-															prefWidth="110.0" text="BARKOD" />
-														<TableColumn fx:id="upgradeTableViewColumn3"
-															prefWidth="110.0" text="ÜRÜN ADI" />
-														<TableColumn fx:id="upgradeTableViewColumn4"
-															prefWidth="110.0" text="MİKTAR" />
-														<TableColumn fx:id="upgradeTableViewColumn5"
-															prefWidth="110.0" text="BİRİM" />
-														<TableColumn fx:id="upgradeTableViewColumn6"
-															prefWidth="110.0" text="KATEGORİ" />
-														<TableColumn fx:id="upgradeTableViewColumn7"
-															prefWidth="110.0" text="MALİYET" />
-													</columns>
-												</TableView>
-											</HBox>
-											<Region prefHeight="1" prefWidth="3"
-												VBox.vgrow="ALWAYS" />
+											<VBox VBox.vgrow="ALWAYS">
+												<HBox styleClass="hBoxStyle"
+													AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0"
+													AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="10.0"
+													VBox.vgrow="ALWAYS">
+													<TableView fx:id="upgradeTableView"
+														HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
+														<columns>
+															<TableColumn fx:id="upgradeTableViewColumn1"
+																prefWidth="42.0" text="ID" />
+															<TableColumn fx:id="upgradeTableViewColumn2"
+																prefWidth="110.0" text="BARKOD" />
+															<TableColumn fx:id="upgradeTableViewColumn3"
+																prefWidth="110.0" text="ÜRÜN ADI" />
+															<TableColumn fx:id="upgradeTableViewColumn4"
+																prefWidth="110.0" text="MİKTAR" />
+															<TableColumn fx:id="upgradeTableViewColumn5"
+																prefWidth="110.0" text="BİRİM" />
+															<TableColumn fx:id="upgradeTableViewColumn6"
+																prefWidth="110.0" text="KATEGORİ" />
+															<TableColumn fx:id="upgradeTableViewColumn7"
+																prefWidth="110.0" text="MALİYET" />
+														</columns>
+													</TableView>
+												</HBox>
+											</VBox>
+											<Region prefHeight="3" prefWidth="3" />
 										</VBox>
-
 									</children>
 								</AnchorPane>
 								<!-- Ayarlar -->
@@ -359,8 +359,7 @@
 										<VBox spacing="10" AnchorPane.bottomAnchor="0.0"
 											AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0"
 											AnchorPane.topAnchor="0.0">
-											<Region prefHeight="1" prefWidth="3"
-												VBox.vgrow="ALWAYS" />
+											<Region prefHeight="3" prefWidth="3" />
 											<HBox spacing="5" styleClass="hBoxStyle">
 												<Region prefHeight="1" prefWidth="3"
 													HBox.hgrow="ALWAYS" />
@@ -374,8 +373,8 @@
 													<Region prefHeight="1" prefWidth="3"
 														VBox.vgrow="ALWAYS" />
 													<Button fx:id="newcategoribtn"
-														styleClass="button-primary" mnemonicParsing="false"
-														prefHeight="42.0" prefWidth="185.0"
+														mnemonicParsing="false" prefHeight="42.0"
+														prefWidth="185.0" styleClass="button-primary"
 														text="YENİ KATEGORİ OLUŞTUR" textAlignment="CENTER" />
 													<Region prefHeight="1" prefWidth="3"
 														VBox.vgrow="ALWAYS" />
@@ -384,9 +383,9 @@
 													<Region prefHeight="1" prefWidth="3"
 														VBox.vgrow="ALWAYS" />
 													<Button fx:id="deletecategoribtn"
-														styleClass="button-primary" mnemonicParsing="false"
-														prefHeight="42.0" prefWidth="185.0" text="KATEGORİYİ SİL"
-														textAlignment="CENTER" />
+														mnemonicParsing="false" prefHeight="42.0"
+														prefWidth="185.0" styleClass="button-primary"
+														text="KATEGORİYİ SİL" textAlignment="CENTER" />
 													<Region prefHeight="1" prefWidth="3"
 														VBox.vgrow="ALWAYS" />
 												</VBox>
@@ -394,21 +393,24 @@
 												<Region prefHeight="1" prefWidth="3"
 													HBox.hgrow="ALWAYS" />
 											</HBox>
-											<HBox spacing="5" styleClass="hBoxStyle">
-												<Region prefHeight="1" prefWidth="3"
-													VBox.vgrow="ALWAYS" />
-												<TableView fx:id="settingstableview"
-													HBox.hgrow="ALWAYS">
-													<columns>
-														<TableColumn fx:id="settingstableviewcolumn1"
-															prefWidth="117.0" text="ID" />
-														<TableColumn fx:id="settingstableviewcolumn2"
-															prefWidth="255.0" text="KATEGORİ ADI" />
-													</columns>
-												</TableView>
-												<Region prefHeight="1" prefWidth="3"
-													VBox.vgrow="ALWAYS" />
-											</HBox>
+
+											<VBox VBox.vgrow="ALWAYS">
+												<HBox styleClass="hBoxStyle"
+													AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0"
+													AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="10.0"
+													VBox.vgrow="ALWAYS">
+													<TableView fx:id="settingstableview"
+														HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
+														<columns>
+															<TableColumn fx:id="settingstableviewcolumn1"
+																prefWidth="117.0" text="ID" />
+															<TableColumn fx:id="settingstableviewcolumn2"
+																prefWidth="255.0" text="KATEGORİ ADI" />
+														</columns>
+													</TableView>
+												</HBox>
+											</VBox>
+
 											<HBox spacing="5" styleClass="hBoxStyle">
 												<Region prefHeight="1" prefWidth="3"
 													HBox.hgrow="ALWAYS" />
@@ -422,11 +424,10 @@
 												<VBox>
 													<Region prefHeight="1" prefWidth="3"
 														VBox.vgrow="ALWAYS" />
-													<Button fx:id="exportToExcelButton"
-														styleClass="button-primary" layoutX="498.0"
+													<Button fx:id="exportToExcelButton" layoutX="498.0"
 														layoutY="497.0" mnemonicParsing="false" prefHeight="42.0"
-														prefWidth="163.0" text="EXCEL'E AKTAR"
-														textAlignment="CENTER" />
+														prefWidth="163.0" styleClass="button-primary"
+														text="EXCEL'E AKTAR" textAlignment="CENTER" />
 													<Region prefHeight="1" prefWidth="3"
 														VBox.vgrow="ALWAYS" />
 												</VBox>
@@ -434,8 +435,7 @@
 												<Region prefHeight="1" prefWidth="3"
 													HBox.hgrow="ALWAYS" />
 											</HBox>
-											<Region prefHeight="1" prefWidth="3"
-												VBox.vgrow="ALWAYS" />
+											<Region prefHeight="3" prefWidth="3" />
 										</VBox>
 									</children>
 								</AnchorPane>
