@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Locale;
 
 import javafx.scene.control.TableCell;
+import javafx.beans.binding.Binding;
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -181,8 +183,6 @@ public class Form1Controller {
 	private TableColumn<VeriModel, Double> upgradeTableViewColumn6;
 	@FXML
 	private TableColumn<VeriModel, String> upgradeTableViewColumn7;
-	@FXML
-	private Label lbLabel;
 
 	ObservableList<String> unitList = FXCollections.observableArrayList();
 	ObservableList<String> currencyList = FXCollections.observableArrayList();
@@ -190,9 +190,10 @@ public class Form1Controller {
 
 	public void initialize() {
 
-		ValidationUtil.applyDecimalSpinner(mainQuantityspinner, 6, 12, true);
-		ValidationUtil.applyDecimalSpinner(productquantityspinner, 6, 12, true);
-		ValidationUtil.applyDecimalSpinner(upgradeproductquantityspinner, 6, 12, true);
+		spinnerSettings();
+		textFieldSettings();
+
+		bindSaveButton();
 
 		unitList.add("ADET");
 		unitList.add("LİTRE");
@@ -248,7 +249,6 @@ public class Form1Controller {
 		valueProductInsertDataBase();
 		valueProductDeleteDataBase();
 		valueProductAddDataBase();
-		valueProductTakeOutDataBase();
 		exportToExcel();
 
 		setTooltipForTableview(mainTableView);
@@ -272,6 +272,32 @@ public class Form1Controller {
 		});
 	}
 
+	// spinner ayarları için oluşturuldu.
+	private void spinnerSettings() {
+		ValidationUtil.applyDecimalSpinner(mainQuantityspinner, 6, 12, true);
+		ValidationUtil.applyDecimalSpinner(productquantityspinner, 6, 12, true);
+		ValidationUtil.applyDecimalSpinner(upgradeproductquantityspinner, 6, 12, true);
+	}
+
+	private void textFieldSettings() {
+		ValidationUtil.bindRequired(barkodtextbox, null, "a");
+		ValidationUtil.bindRequired(producttextbox, null, "a");
+		ValidationUtil.bindRequired(upgradeBarkodTextBox, null, "a");
+		ValidationUtil.bindRequired(upgradeProductNameTextbox, null, "a");
+	}
+
+	private void bindSaveButton() {
+		var invalidForm = Bindings.createBooleanBinding(() -> {
+			boolean barkod = barkodtextbox.getText() == null || barkodtextbox.getText().trim().isEmpty();
+			boolean product = producttextbox.getText() == null || producttextbox.getText().trim().isEmpty();
+
+			return barkod || product;
+		}, barkodtextbox.textProperty(), producttextbox.textProperty());
+
+		addProductBtn.disableProperty().bind(invalidForm);
+	}
+
+	// tablo ayarları için oluşturuldu.
 	private void tableViewSettings(TableView<VeriModel> tableView) {
 		ObservableList<TableColumn<VeriModel, ?>> kolonlar = tableView.getColumns();
 		kolonlar.get(0).setCellValueFactory(new PropertyValueFactory<>("urunId"));
@@ -282,7 +308,7 @@ public class Form1Controller {
 		kolonlar.get(5).setCellValueFactory(new PropertyValueFactory<>("kategori"));
 		TableColumn<VeriModel, Double> maliyetKolon = (TableColumn<VeriModel, Double>) kolonlar.get(6);
 		maliyetKolon.setCellValueFactory(new PropertyValueFactory<>("maliyet"));
-		maliyetKolon.setCellFactory(col -> new TableCell<VeriModel, Double>() {
+		maliyetKolon.setCellFactory(_ -> new TableCell<VeriModel, Double>() {
 
 			@Override
 			protected void updateItem(Double item, boolean empty) {
@@ -291,7 +317,7 @@ public class Form1Controller {
 					setText(null);
 				} else { // Burada maliyeti iki ondalıklı olarak gösterebilirsiniz
 					DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
-					DecimalFormat decimalFormat = new DecimalFormat("#.##############", symbols);
+					DecimalFormat decimalFormat = new DecimalFormat("#.#######", symbols);
 					setText(decimalFormat.format(item));
 				}
 			}
@@ -300,6 +326,7 @@ public class Form1Controller {
 		tableViewUpgrade(tableView, "ürünler");
 	}
 
+	// sayfalar arası geçiş için oluşturuldu.
 	private void showForm(AnchorPane visibleForm, TableView<VeriModel> tableView, String tabloAdi) {
 		mainForm.setVisible(false);
 		addStockForm.setVisible(false);
@@ -311,6 +338,7 @@ public class Form1Controller {
 		tableViewUpgrade(tableView, tabloAdi);
 	}
 
+	// kategorileri choicebxlara koymak için oluşturuldu.
 	private void ChoiceBoxs() {
 		fillChoiceBox(mainChoiceBox);
 		fillChoiceBox(categorychoicebox);
@@ -318,6 +346,7 @@ public class Form1Controller {
 		fillChoiceBox(upgradeChoiceBox);
 	}
 
+	// kategorileri veritabanından çekmek için oluşturuldu.
 	private void fillChoiceBox(ChoiceBox<VeriModel> choiceBox) {
 		ObservableList<VeriModel> kategoriList = services.ürünListele("kategoriler");
 
@@ -340,6 +369,7 @@ public class Form1Controller {
 		}
 	}
 
+	// tabloları güncellemek için oluşturuldu
 	private void tableViewUpgrade(TableView<VeriModel> tableView, String table) {
 		try {
 			tableView.setItems(services.ürünListele(table));
@@ -349,6 +379,7 @@ public class Form1Controller {
 		}
 	}
 
+	// kategori eklemek için oluşturuldu.
 	@FXML
 	private void valueCategoriInsertDataBase() {
 		newcategoribtn.setOnAction(_ -> {
@@ -367,6 +398,7 @@ public class Form1Controller {
 		});
 	}
 
+	// kategori silmek için oluşturuldu.
 	@FXML
 	private void valueCategoryDeleteDataBase() {
 		deletecategoribtn.setOnAction(_ -> {
@@ -382,6 +414,8 @@ public class Form1Controller {
 		});
 	}
 
+	// ürünler kategorisi seçildiğinde maliyet girilip girilememesini engellemek
+	// için oluşturuldu.
 	void categoryChoiceboxVisible() {
 		categorychoicebox.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
 			if (newValue != null) {
@@ -395,6 +429,7 @@ public class Form1Controller {
 		});
 	}
 
+	// ürünleri veritabanına eklemek için oluşturuldu.
 	private void valueProductInsertDataBase() {
 		addProductBtn.setOnAction(_ -> {
 			String barkod = barkodtextbox.getText().trim().toLowerCase();
@@ -403,6 +438,7 @@ public class Form1Controller {
 			String birim = unitChoiceBox.getValue();
 			VeriModel category = categorychoicebox.getValue();
 			Double maliyet = 0.0;
+			String paraBirimi = currencychoicebox.getValue();
 
 			System.out.println(costtextbox.getText());
 			if (!costtextbox.getText().isEmpty()) {
@@ -415,7 +451,7 @@ public class Form1Controller {
 				if (barkod.isEmpty() && ürünAdi.isEmpty() && ürünAdet == 0 && maliyet == 0) {
 					System.out.println("Bazı alanlar boş...");
 				} else {
-					services.ürünEkle(barkod, ürünAdi, ürünAdet, birim, category.getKategori(), maliyet);
+					services.ürünEkle(barkod, ürünAdi, ürünAdet, birim, category.getKategori(), maliyet, paraBirimi);
 				}
 			} else if (category.getKategori().equals("ürünler")) {
 				if (barkod.isEmpty() && ürünAdi.isEmpty() && ürünAdet == 0 && maliyet == 0) {
@@ -428,7 +464,7 @@ public class Form1Controller {
 					} else {
 						try {
 							valueProductMaterialsInsertDataBase(barkod, ürünAdi, ürünAdet, birim,
-									category.getKategori(), tableSelectedList);
+									category.getKategori(), paraBirimi, tableSelectedList);
 						} catch (Exception e) {
 							System.out.println(e.getMessage());
 						}
@@ -440,6 +476,7 @@ public class Form1Controller {
 		});
 	}
 
+	// ürünün stoğuna ekleme veya çıkarma yapabilmek için oluşturuldu.
 	private void valueProductAddDataBase() {
 		mainStokEkleBtn.setOnAction(_ -> {
 			ObservableList<VeriModel> ürün = mainTableView.getSelectionModel().getSelectedItems();
@@ -450,35 +487,18 @@ public class Form1Controller {
 						toplam, ürün.get(0).getBirim(), ürün.get(0).getKategori(), ürün.get(0).getMaliyet());
 				tableViewUpgrade(mainTableView, "ürünler");
 			} else {
-				information("Bilgi", null, "Stok adeti değiştirebilmek için listeden bir ürün seçmeniz gerekmektedi...",
+				information("Bilgi", null,
+						"Stok adeti değiştirebilmek için listeden bir ürün seçmeniz gerekmektedir...",
 						AlertType.INFORMATION);
 				return;
 			}
 		});
-
 	}
 
-	private void valueProductTakeOutDataBase() {
-		mainStokCikarBtn.setOnAction(_ -> {
-			ObservableList<VeriModel> ürün = mainTableView.getSelectionModel().getSelectedItems();
-			if (!ürün.isEmpty()) {
-				double toplam = ürün.get(0).getUrunAdet();
-				toplam -= mainQuantityspinner.getValue();
-				services.ürünGüncelle(ürün.get(0).getUrunId(), ürün.get(0).getBarkod(), ürün.get(0).getUrunAdi(),
-						toplam, ürün.get(0).getBirim(), ürün.get(0).getKategori(), ürün.get(0).getMaliyet());
-				tableViewUpgrade(mainTableView, "ürünler");
-				System.out.println("başarılı");
-			} else {
-				information("Bilgi", null, "Stok adeti değiştirebilmek için listeden bir ürün seçmeniz gerekmektedi...",
-						AlertType.INFORMATION);
-				return;
-			}
-		});
-
-	}
-
+	// ürün eklerken ham madde ve ambalaj seçileceğinden dolayı
+	// yeni bir form oluştursun ve veritabanına eklesin diye oluşturuldu.
 	void valueProductMaterialsInsertDataBase(String barkod, String urunAdi, Double urunAdet, String birim,
-			String kategori, ObservableList<VeriModel> selectedMaterials) {
+			String kategori, String paraBirimi, ObservableList<VeriModel> selectedMaterials) {
 
 		Stage stage = new Stage();
 		VBox vBox = new VBox(10);
@@ -523,7 +543,7 @@ public class Form1Controller {
 								(spinners.get(i).getValue()).doubleValue(), selectedItems.get(i).getBirim());
 						maliyetToplam += (selectedItems.get(i).getUrunAdet() * selectedItems.get(i).getMaliyet());
 					}
-					services.ürünEkle(barkod, urunAdi, urunAdet, birim, kategori, maliyetToplam);
+					services.ürünEkle(barkod, urunAdi, urunAdet, birim, kategori, maliyetToplam, paraBirimi);
 					stage.close();
 				} else {
 					System.out.println("Sadece ham madde veya ambalaj ekleyebilirsiniz.");
@@ -542,6 +562,7 @@ public class Form1Controller {
 		stage.showAndWait();
 	}
 
+	// ürün silmek için oluşturuldu.
 	private void valueProductDeleteDataBase() {
 		deleteProductBtn.setOnAction(_ -> {
 			VeriModel selectProduct = upgradeTableView.getSelectionModel().getSelectedItem();
@@ -556,6 +577,8 @@ public class Form1Controller {
 
 	}
 
+	// güncelleme yaparken seçilen ürünün bilgileri textfieldları doldurması için
+	// oluşturuldu.
 	private void loadProductDetailsToFields() {
 		upgradeTableView.getSelectionModel().selectedItemProperty().addListener((_, _, yeniSecim) -> {
 			if (yeniSecim != null) {
@@ -570,7 +593,7 @@ public class Form1Controller {
 					}
 				}
 				DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
-				DecimalFormat decimalFormat = new DecimalFormat("#.##############", symbols); // Ondalık kısmı dinamik
+				DecimalFormat decimalFormat = new DecimalFormat("#.#######", symbols); // Ondalık kısmı dinamik
 				upgradeCostTextbox.setText(decimalFormat.format(yeniSecim.getMaliyet()));
 			}
 		});
@@ -581,6 +604,7 @@ public class Form1Controller {
 		});
 	}
 
+	// ürünleri güncellemek için oluşturuldu
 	private void valueProductUpgradeDataBase() {
 		upgradeProductBtn.setOnAction(_ -> {
 			VeriModel productList = upgradeTableView.getSelectionModel().getSelectedItem();
@@ -617,6 +641,7 @@ public class Form1Controller {
 		});
 	}
 
+	// textfielden ürünleri çekip aramak için oluşturuldu
 	private void setupSearchListener(TextField textField, TableView<VeriModel> tableView) {
 		textField.textProperty().addListener((_, _, newValue) -> {
 			if (!newValue.isEmpty()) {
@@ -625,6 +650,7 @@ public class Form1Controller {
 		});
 	}
 
+	// kategori choiceboxdan ürünleri listelemek için oluşturuldu.
 	private void setupSearchListener(ChoiceBox<VeriModel> choiceBox, TableView<VeriModel> tableView) {
 		choiceBox.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
 			if (newValue != null) {
@@ -633,6 +659,7 @@ public class Form1Controller {
 		});
 	}
 
+	// ürünleri listelemek için oluşturuldu
 	private void searchCategory(TableView<VeriModel> tableView, String aramaMetni) {
 		try {
 			if (!aramaMetni.equals("hepsi")) {
@@ -645,6 +672,7 @@ public class Form1Controller {
 		}
 	}
 
+	// kategori bazlı ürünleri listelemek için oluşturuldu
 	private void searchProduct(TableView<VeriModel> tableView, String aramaMetni) {
 		try {
 			if (aramaMetni != null && !aramaMetni.trim().isEmpty()) {
@@ -657,6 +685,7 @@ public class Form1Controller {
 		}
 	}
 
+	// ürünün üstüne gelince detaylarını görmek için oluşturuldu
 	private void setTooltipForTableview(TableView<VeriModel> tableView) {
 		tableView.setRowFactory(_ -> {
 			TableRow<VeriModel> row = new TableRow<>();
@@ -674,6 +703,7 @@ public class Form1Controller {
 		});
 	}
 
+	// excel çıktısı almak için oluşturuldu
 	private void exportToExcel() {
 		exportToExcelButton.setOnAction(_ -> {
 			Boolean kontrol = false;
@@ -697,6 +727,7 @@ public class Form1Controller {
 		});
 	}
 
+	// hata oluştuğunda mesajları göstermek için oluşturuldu.
 	private void information(String title, String header, String mesaj, AlertType alertType) {
 		Alert alert = new Alert(alertType);
 		alert.setTitle(title);

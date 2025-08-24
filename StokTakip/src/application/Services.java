@@ -60,10 +60,10 @@ public class Services {
 	}
 
 	public void ürünEkle(String barkod, String ürünAdi, Double ürünMiktari, String birim, String kategori,
-			Double maliyet) {
+			Double maliyet, String paraBirimi) {
 		if (!degerVarMi("ürünler", "barkod", barkod) || !degerVarMi("ürünler", "urun_adi", ürünAdi)) {
-			DataBaseHelper.insertTable("ürünler", "id,barkod,urun_adi,urun_adet,birim,kategori_ad,maliyet",
-					sonId("ürünler"), barkod, ürünAdi, ürünMiktari, birim, kategori, maliyet);
+			DataBaseHelper.insertTable("ürünler", "id,barkod,urun_adi,urun_adet,birim,kategori_ad,maliyet,para_birimi",
+					sonId("ürünler"), barkod, ürünAdi, ürünMiktari, birim, kategori, maliyet, paraBirimi);
 		} else {
 			System.out.println("Bu ürün zaten var!");
 		}

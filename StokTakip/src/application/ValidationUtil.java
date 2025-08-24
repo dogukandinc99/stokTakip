@@ -36,23 +36,21 @@ public final class ValidationUtil {
 		// 0) Var olan VF'yi kullan; yoksa makul bir tane kur
 		if (spinner.getValueFactory() == null) {
 			spinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(
-					allowNegative ? -Double.MAX_VALUE : 0.0, Double.MAX_VALUE, 0.0, 0.0 // step
+					allowNegative ? -Double.MAX_VALUE : 0.0, Double.MAX_VALUE, 1.0, 0.0 // step
 			));
 		}
 		SpinnerValueFactory<Double> vf = spinner.getValueFactory();
 		spinner.setEditable(true);
 		TextField editor = spinner.getEditor();
 
-		// 1) Converter: String<->Double (görüntüde NOKTA, parse'ta hem ',' hem '.')
-		DecimalFormatSymbols sym = new DecimalFormatSymbols(java.util.Locale.US); // nokta decimal
-		sym.setGroupingSeparator('\0'); // binlik ayırıcı istemiyorsan kalsın
 		StringBuilder pat = new StringBuilder("0");
 		if (scale > 0) {
 			pat.append('.');
 			for (int i = 0; i < scale; i++)
 				pat.append('#'); // en fazla 'scale' basamak
 		}
-		DecimalFormat fmt = new DecimalFormat(pat.toString(), sym);
+
+		DecimalFormat fmt = new DecimalFormat(pat.toString(), new DecimalFormatSymbols(java.util.Locale.US));
 		fmt.setMaximumFractionDigits(scale);
 		fmt.setMinimumFractionDigits(0);
 		fmt.setGroupingUsed(false);
@@ -91,11 +89,17 @@ public final class ValidationUtil {
 			// Başta sadece "." girilirse "0." yap
 			if (oldText.isEmpty() && ".".equals(inserted)) {
 				ch.setText("0.");
+				int s = ch.getRangeStart();
+				ch.setCaretPosition(s + 2);
+				ch.setAnchor(s + 2);
 			}
 
 			// Negatifte "-." -> "-0."
 			if (allowNegative && "-".equals(oldText) && ".".equals(inserted)) {
-				ch.setText("-0.");
+				ch.setText("0.");
+				int s = ch.getRangeStart();
+				ch.setCaretPosition(s + 2);
+				ch.setAnchor(s + 2);
 			}
 
 			String next = ch.getControlNewText();
@@ -139,7 +143,7 @@ public final class ValidationUtil {
 			if (!isNow)
 				commitEditorText(spinner, scale);
 		});
-		editor.setOnAction(e -> commitEditorText(spinner, scale));
+		editor.setOnAction(_ -> commitEditorText(spinner, scale));
 	}
 
 	// Editor metnini değere çevir, aralığa çek, scale'e yuvarla ve normalize et
@@ -204,14 +208,6 @@ public final class ValidationUtil {
 		}
 	}
 
-	public static void attachAutoTrim(TextInputControl ctrl) {
-		ctrl.focusedProperty().addListener((obs, oldF, newF) -> {
-			if (!newF && ctrl.getText() != null) {
-				ctrl.setText(ctrl.getText().trim());
-			}
-		});
-	}
-
 	/** Boş bırakılamaz kontrolü (trim'li). */
 	public static boolean requireNonEmpty(TextInputControl ctrl, Label errLabel, String message) {
 		boolean ok = ctrl.getText() != null && !ctrl.getText().trim().isEmpty();
@@ -235,29 +231,5 @@ public final class ValidationUtil {
 				requireNonEmpty(ctrl, errLabel, message);
 			}
 		});
-	}
-
-	/*
-	 * -----------------------------------------------------------------------------
-	 * ------------------------------------ (Opsiyonel) Spinner için hazır kurallar
-	 * -----------------------------------------------------------------------------
-	 * ------------------------------------
-	 */
-
-	/** Spinner editörü boş bırakılamaz ("" veya tek "-"). */
-	public static boolean requireNonEmpty(Spinner<?> spinner, Label err, String message) {
-		TextField ed = spinner.getEditor();
-		String t = ed.getText();
-		boolean ok = t != null && !t.trim().isEmpty() && !t.trim().equals("-");
-		setError(ed, err, ok ? null : message);
-		return ok;
-	}
-
-	/** Spinner<Double> min değer kısıtı (örn. 0'dan büyük olmalı). */
-	public static boolean requireMin(Spinner<Double> spinner, Label err, double minValue, String message) {
-		Double v = spinner.getValue();
-		boolean ok = (v != null) && (v >= minValue);
-		setError(spinner.getEditor(), err, ok ? null : message);
-		return ok;
 	}
 }
