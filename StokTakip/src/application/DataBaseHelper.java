@@ -176,7 +176,10 @@ public class DataBaseHelper {
 					v.setMaliyet(rs.getDouble("maliyet"));
 				} catch (Exception e) {
 				}
-
+				try {
+					v.setParaBirimi(rs.getString("para_birimi"));
+				} catch (Exception e) {
+				}
 				liste.add(v);
 			}
 		} catch (SQLException e) {

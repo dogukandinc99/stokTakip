@@ -232,4 +232,115 @@ public final class ValidationUtil {
 			}
 		});
 	}
+
+	public static void applyDecimalTextField(TextField tf, int scale, Integer maxLen, boolean allowNegative) {
+		// Virgül yazılırsa kullanıcıyı üzmeyelim: otomatik '.' yap
+		UnaryOperator<TextFormatter.Change> filter = ch -> {
+			String old = ch.getControlText();
+			String ins = ch.getText();
+
+			// ',' -> '.'
+			if (ins != null && ins.indexOf(',') >= 0) {
+				ins = ins.replace(',', '.');
+				ch.setText(ins);
+			}
+
+			// Başta sadece "." girilirse "0." yap + caret düzelt
+			if (old.isEmpty() && ".".equals(ins)) {
+				ch.setText("0.");
+				int s = ch.getRangeStart();
+				ch.setCaretPosition(s + 2);
+				ch.setAnchor(s + 2);
+			}
+
+			String next = ch.getControlNewText();
+
+			// Toplam uzunluk (nokta ve '-' dahil)
+			if (maxLen != null && next.length() > maxLen)
+				return null;
+
+			// Geçici haller: boş veya tek '-' (negatif serbestse)
+			if (next.isEmpty())
+				return ch;
+			if (allowNegative && next.equals("-"))
+				return ch;
+
+			// Biçim: [-]?\d*(\.\d*)?
+			String sign = allowNegative ? "-?" : "";
+			if (!next.matches(sign + "\\d*(\\.\\d*)?"))
+				return null;
+
+			// Ölçek: noktadan sonra en fazla 'scale'
+			if (scale >= 0) {
+				int i = next.indexOf('.');
+				if (i >= 0) {
+					int frac = next.length() - i - 1;
+					if (frac > scale)
+						return null;
+				}
+			}
+			return ch;
+		};
+
+		// İstersen değeri Double olarak da tut (normalize/gösterim için)
+		var conv = new javafx.util.StringConverter<Double>() {
+			private final java.text.DecimalFormat fmt = new java.text.DecimalFormat(buildPattern(scale),
+					new java.text.DecimalFormatSymbols(java.util.Locale.US));
+			{
+				fmt.setMaximumFractionDigits(scale);
+				fmt.setMinimumFractionDigits(0);
+				fmt.setGroupingUsed(false);
+			}
+
+			@Override
+			public String toString(Double v) {
+				return v == null ? "" : fmt.format(v);
+			}
+
+			@Override
+			public Double fromString(String s) {
+				if (s == null || s.isBlank() || "-".equals(s))
+					return 0.0;
+				s = s.trim().replace(',', '.');
+				if (s.equals("."))
+					s = "0.";
+				if (allowNegative && s.startsWith("-."))
+					s = s.replaceFirst("^\\-\\.", "-0.");
+				return Double.parseDouble(s);
+			}
+
+			private String buildPattern(int sc) {
+				StringBuilder p = new StringBuilder("0");
+				if (sc > 0) {
+					p.append('.');
+					for (int i = 0; i < sc; i++)
+						p.append('#');
+				}
+				return p.toString();
+			}
+		};
+
+		// TextFormatter: hem filtre hem converter
+		TextFormatter<Double> tfm = new TextFormatter<>(conv, 0.0, filter);
+		tf.setTextFormatter(tfm);
+
+		// Odak kaybı/Enter’da normalize + (opsiyonel) scale’e yuvarla
+		tf.focusedProperty().addListener((o, was, now) -> {
+			if (!now)
+				commitDecimalField(tfm, scale);
+		});
+		tf.setOnAction(e -> commitDecimalField(tfm, scale));
+	}
+
+	private static void commitDecimalField(TextFormatter<Double> tfm, int scale) {
+		Double v = tfm.getValue();
+		if (v == null || v.isNaN() || v.isInfinite())
+			v = 0.0;
+		if (scale >= 0) {
+			double p = Math.pow(10, scale);
+			v = Math.round(v * p) / p;
+		}
+		tfm.setValue(v); // editörde normalize metin görünür
+	}
+
 }

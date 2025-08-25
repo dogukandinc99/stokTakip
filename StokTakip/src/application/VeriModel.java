@@ -10,6 +10,7 @@ public class VeriModel {
 	private int kategori_id;
 	private String kategori;
 	private double maliyet;
+	private String para_birimi;
 
 	public VeriModel() {
 	}
@@ -92,5 +93,13 @@ public class VeriModel {
 
 	public void setMaliyet(Double maliyet) {
 		this.maliyet = maliyet;
+	}
+
+	public String getParaBirimi() {
+		return para_birimi;
+	}
+
+	public void setParaBirimi(String para_birimi) {
+		this.para_birimi = para_birimi;
 	}
 }

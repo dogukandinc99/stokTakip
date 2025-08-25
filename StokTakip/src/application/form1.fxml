@@ -96,12 +96,10 @@
 												<HBox spacing="5">
 													<Region prefHeight="1" prefWidth="3"
 														HBox.hgrow="ALWAYS" />
-													<Button fx:id="mainStokEkleBtn" prefHeight="39.0"
-														prefWidth="149.0" styleClass="button-primary"
-														text="STOK EKLE" />
-													<Button fx:id="mainStokCikarBtn" prefHeight="39.0"
-														prefWidth="149.0" styleClass="button-primary"
-														text="STOK ÇIKAR" />
+													<Button fx:id="mainStokEkleBtn" prefWidth="149.0"
+														styleClass="button-primary" text="STOK EKLE" />
+													<Button fx:id="mainStokCikarBtn" prefWidth="149.0"
+														styleClass="button-primary" text="STOK ÇIKAR" />
 													<Region prefHeight="1" prefWidth="3"
 														HBox.hgrow="ALWAYS" />
 												</HBox>
@@ -141,6 +139,8 @@
 																text="KATEGORİ" />
 															<TableColumn fx:id="mainTableViewColumn7"
 																text="MALİYET" />
+															<TableColumn
+																fx:id="addProductTableViewColumn8" text="Para Birimi" />
 														</columns>
 													</TableView>
 												</HBox>
@@ -156,9 +156,9 @@
 									AnchorPane.topAnchor="0.0">
 									<children>
 										<!-- Genel sayfa düzeni -->
-										<VBox layoutX="20" layoutY="80" spacing="10"
-											AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="10.0"
-											AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="0.0">
+										<VBox spacing="10" AnchorPane.bottomAnchor="0.0"
+											AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0"
+											AnchorPane.topAnchor="0.0">
 											<Region prefHeight="3" prefWidth="3" />
 											<!-- Ürün ekleme alanı -->
 											<VBox spacing="5" styleClass="vBoxStyle">
@@ -206,9 +206,9 @@
 												<HBox>
 													<Region prefHeight="1" prefWidth="3"
 														HBox.hgrow="ALWAYS" />
-													<Button fx:id="addProductBtn" prefHeight="39.0"
-														prefWidth="149.0" styleClass="button-primary"
-														text="ÜRÜNÜ EKLE" textAlignment="CENTER" />
+													<Button fx:id="addProductBtn" prefWidth="149.0"
+														styleClass="button-primary" text="ÜRÜNÜ EKLE"
+														textAlignment="CENTER" />
 													<Region prefHeight="1" prefWidth="3"
 														HBox.hgrow="ALWAYS" />
 												</HBox>
@@ -243,6 +243,9 @@
 															<TableColumn
 																fx:id="addProductTableViewColumn7" prefWidth="110.0"
 																text="MALİYET" />
+															<TableColumn
+																fx:id="addProductTableViewColumn8" prefWidth="110.0"
+																text="Para Birimi" />
 														</columns>
 													</TableView>
 												</HBox>
@@ -306,12 +309,12 @@
 												<HBox spacing="5">
 													<Region prefHeight="1" prefWidth="3"
 														HBox.hgrow="ALWAYS" />
-													<Button fx:id="upgradeProductBtn" prefHeight="39.0"
-														prefWidth="149.0" styleClass="button-primary"
-														text="ÜRÜNÜ GÜNCELLE" textAlignment="CENTER" />
-													<Button fx:id="deleteProductBtn" prefHeight="39.0"
-														prefWidth="149.0" styleClass="button-primary"
-														text="ÜRÜNÜ SİL" textAlignment="CENTER" />
+													<Button fx:id="upgradeProductBtn" prefWidth="149.0"
+														styleClass="button-primary" text="ÜRÜNÜ GÜNCELLE"
+														textAlignment="CENTER" />
+													<Button fx:id="deleteProductBtn" prefWidth="149.0"
+														styleClass="button-primary" text="ÜRÜNÜ SİL"
+														textAlignment="CENTER" />
 													<Region prefHeight="1" prefWidth="3"
 														HBox.hgrow="ALWAYS" />
 												</HBox>
@@ -350,6 +353,9 @@
 																prefWidth="110.0" text="KATEGORİ" />
 															<TableColumn fx:id="upgradeTableViewColumn7"
 																prefWidth="110.0" text="MALİYET" />
+															<TableColumn
+																fx:id="addProductTableViewColumn8" prefWidth="110.0"
+																text="Para Birimi" />
 														</columns>
 													</TableView>
 												</HBox>

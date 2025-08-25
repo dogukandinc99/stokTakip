@@ -1,14 +1,15 @@
 package application;
 
 import java.io.File;
+import java.nio.channels.Pipe.SourceChannel;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Locale.Category;
 
 import javafx.scene.control.TableCell;
-import javafx.beans.binding.Binding;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -156,6 +157,8 @@ public class Form1Controller {
 	@FXML
 	private TableColumn<VeriModel, String> addProductTableViewColumn7;
 	@FXML
+	private TableColumn<VeriModel, String> addProductTableViewColumn8;
+	@FXML
 	private TableColumn<VeriModel, Integer> mainTableViewColumn1;
 	@FXML
 	private TableColumn<VeriModel, String> mainTableViewColumn2;
@@ -170,6 +173,8 @@ public class Form1Controller {
 	@FXML
 	private TableColumn<VeriModel, String> mainTableViewColumn7;
 	@FXML
+	private TableColumn<VeriModel, String> mainTableViewColumn8;
+	@FXML
 	private TableColumn<VeriModel, Integer> upgradeTableViewColumn1;
 	@FXML
 	private TableColumn<VeriModel, String> upgradeTableViewColumn2;
@@ -183,6 +188,8 @@ public class Form1Controller {
 	private TableColumn<VeriModel, Double> upgradeTableViewColumn6;
 	@FXML
 	private TableColumn<VeriModel, String> upgradeTableViewColumn7;
+	@FXML
+	private TableColumn<VeriModel, String> upgradeTableViewColumn8;
 
 	ObservableList<String> unitList = FXCollections.observableArrayList();
 	ObservableList<String> currencyList = FXCollections.observableArrayList();
@@ -192,8 +199,6 @@ public class Form1Controller {
 
 		spinnerSettings();
 		textFieldSettings();
-
-		bindSaveButton();
 
 		unitList.add("ADET");
 		unitList.add("LİTRE");
@@ -254,7 +259,7 @@ public class Form1Controller {
 		setTooltipForTableview(mainTableView);
 		setTooltipForTableview(addProductTableView);
 		setTooltipForTableview(upgradeTableView);
-
+		bindSaveButton();
 	}
 
 	private void switchForm() {
@@ -282,18 +287,30 @@ public class Form1Controller {
 	private void textFieldSettings() {
 		ValidationUtil.bindRequired(barkodtextbox, null, "a");
 		ValidationUtil.bindRequired(producttextbox, null, "a");
+		ValidationUtil.bindRequired(costtextbox, null, "a");
 		ValidationUtil.bindRequired(upgradeBarkodTextBox, null, "a");
 		ValidationUtil.bindRequired(upgradeProductNameTextbox, null, "a");
+		ValidationUtil.applyDecimalTextField(costtextbox, 6, 12, false);
 	}
 
 	private void bindSaveButton() {
 		var invalidForm = Bindings.createBooleanBinding(() -> {
 			boolean barkod = barkodtextbox.getText() == null || barkodtextbox.getText().trim().isEmpty();
 			boolean product = producttextbox.getText() == null || producttextbox.getText().trim().isEmpty();
+			boolean cost = costtextbox.getText() == null || costtextbox.getText().trim().isEmpty();
+			Boolean categoriAll = categorychoicebox.getValue().getKategori().toLowerCase().equals("hepsi");
+			var TR = new java.util.Locale("tr", "TR");
+			Object v = categorychoicebox.getValue().getKategori();
+			String s = (v == null) ? "" : v.toString().toLowerCase(TR);
+			boolean isUrunler = s.equals("ürünler");
+			boolean hasSel = addProductTableView.getSelectionModel().getSelectedItem() != null;
+			Boolean sonuc = isUrunler && !hasSel;
 
-			return barkod || product;
-		}, barkodtextbox.textProperty(), producttextbox.textProperty());
+			return barkod || product || cost || sonuc || categoriAll;
+		}, barkodtextbox.textProperty(), producttextbox.textProperty(), costtextbox.textProperty(),
+				categorychoicebox.valueProperty(), addProductTableView.getSelectionModel().selectedItemProperty());
 
+		// Yeniden bağlamadan önce unbind et (aynı metoda tekrar girilirse hata olmasın)
 		addProductBtn.disableProperty().bind(invalidForm);
 	}
 
@@ -305,7 +322,20 @@ public class Form1Controller {
 		kolonlar.get(2).setCellValueFactory(new PropertyValueFactory<>("urunAdi"));
 		kolonlar.get(3).setCellValueFactory(new PropertyValueFactory<>("urunAdet"));
 		kolonlar.get(4).setCellValueFactory(new PropertyValueFactory<>("birim"));
-		kolonlar.get(5).setCellValueFactory(new PropertyValueFactory<>("kategori"));
+		TableColumn<VeriModel, String> kategoriCol = (TableColumn<VeriModel, String>) kolonlar.get(5);
+		kategoriCol.setCellValueFactory(new PropertyValueFactory<>("kategori"));
+		kategoriCol.setCellFactory(col -> new TableCell<VeriModel, String>() {
+			@Override
+			protected void updateItem(String item, boolean empty) {
+				super.updateItem(item, empty);
+				if (empty || item == null) {
+					setText(null);
+				} else {
+					// Türkçe büyük harf dönüşümü için TR locale kullan
+					setText(item.toUpperCase(new java.util.Locale("tr", "TR")));
+				}
+			}
+		});
 		TableColumn<VeriModel, Double> maliyetKolon = (TableColumn<VeriModel, Double>) kolonlar.get(6);
 		maliyetKolon.setCellValueFactory(new PropertyValueFactory<>("maliyet"));
 		maliyetKolon.setCellFactory(_ -> new TableCell<VeriModel, Double>() {
@@ -319,6 +349,20 @@ public class Form1Controller {
 					DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
 					DecimalFormat decimalFormat = new DecimalFormat("#.#######", symbols);
 					setText(decimalFormat.format(item));
+				}
+			}
+		});
+		TableColumn<VeriModel, String> paraBirimiCol = (TableColumn<VeriModel, String>) kolonlar.get(7);
+		paraBirimiCol.setCellValueFactory(new PropertyValueFactory<>("paraBirimi"));
+		paraBirimiCol.setCellFactory(col -> new TableCell<VeriModel, String>() {
+			@Override
+			protected void updateItem(String item, boolean empty) {
+				super.updateItem(item, empty);
+				if (empty || item == null) {
+					setText(null);
+				} else {
+					// Türkçe büyük harf dönüşümü için TR locale kullan
+					setText(item.toUpperCase(new java.util.Locale("tr", "TR")));
 				}
 			}
 		});
@@ -353,7 +397,7 @@ public class Form1Controller {
 		choiceBox.setConverter(new StringConverter<VeriModel>() {
 			@Override
 			public String toString(VeriModel kategori) {
-				return (kategori != null && kategori.getKategori() != null) ? kategori.getKategori() : "";
+				return (kategori != null && kategori.getKategori() != null) ? kategori.getKategori().toUpperCase() : "";
 			}
 
 			@Override
