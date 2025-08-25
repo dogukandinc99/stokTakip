@@ -380,12 +380,11 @@ public class Form1Controller {
 	}
 
 	// kategori eklemek için oluşturuldu.
-	@FXML
 	private void valueCategoriInsertDataBase() {
 		newcategoribtn.setOnAction(_ -> {
 			String categoriString = categoriTextBox.getText().trim().toLowerCase();
 			if (categoriString.isEmpty()) {
-				System.out.println("Kategori kısmı boş girilemez.");
+				information("Bilgi", null, "Kategori ismi boş girilemez.", AlertType.INFORMATION);
 			} else {
 				services.kategoriEkle(categoriString);
 			}

@@ -36,7 +36,7 @@ public final class ValidationUtil {
 		// 0) Var olan VF'yi kullan; yoksa makul bir tane kur
 		if (spinner.getValueFactory() == null) {
 			spinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(
-					allowNegative ? -Double.MAX_VALUE : 0.0, Double.MAX_VALUE, 1.0, 0.0 // step
+					allowNegative ? -Double.MAX_VALUE : 0.0, Double.MAX_VALUE, 1.0, 1.0 // step
 			));
 		}
 		SpinnerValueFactory<Double> vf = spinner.getValueFactory();

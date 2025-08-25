@@ -62,6 +62,11 @@
     -fx-border-width: 1.5px;
     -fx-border-radius: 6.0px;
 }
+#urunAdiField {
+  -fx-background-color: derive(-fx-control-inner-background, -8.0%);
+  /* metin okunaklı kalsın */
+  -fx-text-fill: -fx-text-inner-color;
+}
 .label.error-text {
     -fx-text-fill: #e11d48;
     -fx-font-size: 11.0px;
@@ -73,6 +78,37 @@
     -fx-background-insets: 0.0;
 }
 
+/* Editör: sağ border kapalı, sağ padding artır (yazı okların altına girmesin) */
+.spinner .text-field {
+  -fx-border-width: 1.0 0.0 1.0 1.0;       /* top right bottom left → right=0 */
+  -fx-padding: 6.0 14.0 6.0 8.0;           /* right padding ↑ */
+  -fx-background-radius: 6.0 0.0 0.0 6.0;
+  -fx-border-radius: 6.0 0.0 0.0 6.0;
+}
+
+/* Ok butonları: sol border açık, biraz sola çek (bindir) */
+.spinner .increment-arrow-button,
+.spinner .decrement-arrow-button {
+  -fx-border-width: 1.0 1.0 1.0 0.0;       /* left border çizilsin */
+  -fx-translate-x: -1.0;             /* 1–2 px sola çek; ihtiyaç olursa -2 yap */
+  -fx-padding: 0.0 6.0 0.0 6.0;            /* dar kolon için */
+  -fx-background-color:#2979FF;
+}
+
+/* Sağ köşeleri yuvarla ki birleşik görünsün */
+.spinner .increment-arrow-button { 
+	-fx-background-radius: 0.0 6.0 0.0 0.0; 
+	-fx-border-radius: 0.0 6.0 0.0 0.0;
+	-fx-background-color:#2979FF;
+}
+.spinner .decrement-arrow-button { 
+	-fx-background-radius: 0.0 0.0 6.0 0.0; 
+	-fx-border-radius: 0.0 0.0 6.0 0.0;
+	-fx-background-color:#e85011;
+}
+.spinner .increment-arrow,.spinner .decrement-arrow { 
+	-fx-background-color:white;
+}
 .choice-box {
     -fx-border-color: #E0E0E0;
     -fx-border-width: 1.0;

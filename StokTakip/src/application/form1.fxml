@@ -69,28 +69,31 @@
 									AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
 									AnchorPane.topAnchor="0.0">
 									<children>
+										<!-- Genel sayfa düzeni -->
 										<VBox spacing="10" AnchorPane.bottomAnchor="0.0"
 											AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0"
 											AnchorPane.topAnchor="0.0">
 											<Region prefHeight="3" prefWidth="3" />
 											<!-- Ürün stoğu ekleme çıkarma alanı -->
 											<VBox spacing="5" styleClass="vBoxStyle">
-												<HBox spacing="5"> <!-- stoğun adı ve eklenecek veya çıkarılacak stok adeti alanı -->
+												<!-- stoğun adı ve eklenecek veya çıkarılacak stok adeti alanı -->
+												<HBox spacing="5">
 													<Region prefHeight="1" HBox.hgrow="ALWAYS" />
 													<VBox>
 														<Label text="ÜRÜN ADI" />
-														<TextField fx:id="mainTextbox" editable="false"
-															prefWidth="120.0" />
+														<TextField fx:id="mainTextbox" id="urunAdiField"
+															editable="false" prefWidth="180.0" />
 													</VBox>
 													<VBox>
 														<Label text="MİKTAR" />
 														<Spinner fx:id="mainQuantityspinner"
-															editable="true" />
+															prefWidth="180.0" editable="true" />
 													</VBox>
 													<Region prefHeight="1" HBox.hgrow="ALWAYS" />
 												</HBox>
 												<Region prefHeight="1" prefWidth="5" />
-												<HBox spacing="5"> <!-- Stok ekleme ve çıkarma butonları -->
+												<!-- Stok ekleme ve çıkarma butonları -->
+												<HBox spacing="5">
 													<Region prefHeight="1" prefWidth="3"
 														HBox.hgrow="ALWAYS" />
 													<Button fx:id="mainStokEkleBtn" prefHeight="39.0"
@@ -103,18 +106,19 @@
 														HBox.hgrow="ALWAYS" />
 												</HBox>
 											</VBox>
+											<!-- Stok arama alanı -->
 											<HBox spacing="5" styleClass="hBoxStyle"
 												AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0"
 												AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="10.0"> <!-- Arama kısmı -->
 												<Region prefHeight="1" prefWidth="3"
 													HBox.hgrow="ALWAYS" />
 												<TextField fx:id="mainSearchTextbox"
-													prefHeight="25.0" prefWidth="526.0" />
-												<ChoiceBox fx:id="mainChoiceBox" layoutX="574.0"
-													prefWidth="171.0" />
+													prefWidth="526.0" />
+												<ChoiceBox fx:id="mainChoiceBox" prefWidth="171.0" />
 												<Region prefHeight="1" prefWidth="3"
 													HBox.hgrow="ALWAYS" />
 											</HBox>
+											<!-- Tablo alanı -->
 											<VBox VBox.vgrow="ALWAYS">
 												<HBox styleClass="hBoxStyle"
 													AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0"
@@ -255,11 +259,14 @@
 									AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
 									AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 									<children>
+										<!-- Genel sayfa düzeni -->
 										<VBox spacing="10" AnchorPane.bottomAnchor="0.0"
 											AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0"
 											AnchorPane.topAnchor="0.0">
 											<Region prefHeight="3" prefWidth="3" />
+											<!-- Ürün güncelleme alanı -->
 											<VBox spacing="5" styleClass="vBoxStyle">
+												<!-- Ürün güncelleme kısmı -->
 												<HBox spacing="5">
 													<Region prefHeight="1" prefWidth="3"
 														HBox.hgrow="ALWAYS" />
@@ -295,6 +302,7 @@
 													<Region prefHeight="1" prefWidth="3"
 														HBox.hgrow="ALWAYS" />
 												</HBox>
+												<!-- Ürün güncelleme butonları -->
 												<HBox spacing="5">
 													<Region prefHeight="1" prefWidth="3"
 														HBox.hgrow="ALWAYS" />
@@ -307,8 +315,8 @@
 													<Region prefHeight="1" prefWidth="3"
 														HBox.hgrow="ALWAYS" />
 												</HBox>
-
 											</VBox>
+											<!-- Stok arama alanı -->
 											<HBox spacing="5" styleClass="hBoxStyle">
 												<Region prefHeight="1" prefWidth="3"
 													HBox.hgrow="ALWAYS" />
@@ -319,6 +327,7 @@
 												<Region prefHeight="1" prefWidth="3"
 													HBox.hgrow="ALWAYS" />
 											</HBox>
+											<!-- Tablo alanı -->
 											<VBox VBox.vgrow="ALWAYS">
 												<HBox styleClass="hBoxStyle"
 													AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0"
@@ -356,19 +365,23 @@
 									AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
 									AnchorPane.topAnchor="0.0">
 									<children>
+										<!-- Genel sayfa düzeni -->
 										<VBox spacing="10" AnchorPane.bottomAnchor="0.0"
 											AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0"
 											AnchorPane.topAnchor="0.0">
 											<Region prefHeight="3" prefWidth="3" />
+											<!-- kategori ekleme-silme alanı -->
 											<HBox spacing="5" styleClass="hBoxStyle">
 												<Region prefHeight="1" prefWidth="3"
 													HBox.hgrow="ALWAYS" />
+												<!-- kategori ismi kısmı -->
 												<VBox>
 													<Label layoutX="131.0" layoutY="58.0"
 														text="KATEGORİ ADI" />
 													<TextField fx:id="categoriTextBox"
 														layoutX="131.0" layoutY="75.0" />
 												</VBox>
+												<!-- kategori ekleme-silme butonları -->
 												<VBox>
 													<Region prefHeight="1" prefWidth="3"
 														VBox.vgrow="ALWAYS" />
@@ -393,7 +406,7 @@
 												<Region prefHeight="1" prefWidth="3"
 													HBox.hgrow="ALWAYS" />
 											</HBox>
-
+											<!-- Tablo alanı -->
 											<VBox VBox.vgrow="ALWAYS">
 												<HBox styleClass="hBoxStyle"
 													AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0"
@@ -410,7 +423,7 @@
 													</TableView>
 												</HBox>
 											</VBox>
-
+											<!-- Excel'e dışarı aktarma alanı -->
 											<HBox spacing="5" styleClass="hBoxStyle">
 												<Region prefHeight="1" prefWidth="3"
 													HBox.hgrow="ALWAYS" />
