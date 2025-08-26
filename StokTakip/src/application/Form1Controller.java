@@ -192,6 +192,9 @@ public class Form1Controller {
 	@FXML
 	private TableColumn<VeriModel, String> upgradeTableViewColumn8;
 
+	@FXML
+	private Label errorMessage;
+
 	ObservableList<String> unitList = FXCollections.observableArrayList();
 	ObservableList<String> currencyList = FXCollections.observableArrayList();
 	Services services = new Services();
@@ -261,6 +264,7 @@ public class Form1Controller {
 		setTooltipForTableview(addProductTableView);
 		setTooltipForTableview(upgradeTableView);
 		bindSaveButton();
+		bindUpdateAndDeleteButton();
 	}
 
 	private void switchForm() {
@@ -299,20 +303,48 @@ public class Form1Controller {
 			boolean barkod = barkodtextbox.getText() == null || barkodtextbox.getText().trim().isEmpty();
 			boolean product = producttextbox.getText() == null || producttextbox.getText().trim().isEmpty();
 			boolean cost = costtextbox.getText() == null || costtextbox.getText().trim().isEmpty();
-			Boolean categoriAll = categorychoicebox.getValue().getKategori().toLowerCase().equals("hepsi");
+			errorMessage.setText("Ürün ekleyebilmeniz için boş alanları doldurmanız gerekmektedi...");
+			boolean categoriAll = categorychoicebox.getValue().getKategori().toLowerCase().equals("hepsi");
 			var TR = new java.util.Locale("tr", "TR");
 			Object v = categorychoicebox.getValue().getKategori();
 			String s = (v == null) ? "" : v.toString().toLowerCase(TR);
 			boolean isUrunler = s.equals("ürünler");
 			boolean hasSel = addProductTableView.getSelectionModel().getSelectedItem() != null;
-			Boolean sonuc = isUrunler && !hasSel;
-
+			boolean sonuc = isUrunler && !hasSel;
+			if (sonuc == true) {
+				errorMessage.setText(
+						"Ürün ekleyebilmeniz için tablodan HAM MADDE ve/veya AMBALAJ seçmeniz gerekmektedir...");
+			} else if (!barkod && !product && !cost && !sonuc && !categoriAll) {
+				errorMessage.setText("Herhangi Bir Problem Göremedim...");
+			} else if (categoriAll) {
+				errorMessage.setText("Ürün ekleyebilmeniz için kategori belirlemeniz gerekmektedir...");
+			}
 			return barkod || product || cost || sonuc || categoriAll;
 		}, barkodtextbox.textProperty(), producttextbox.textProperty(), costtextbox.textProperty(),
 				categorychoicebox.valueProperty(), addProductTableView.getSelectionModel().selectedItemProperty());
 
+		addProductBtn.disableProperty().unbind();
 		// Yeniden bağlamadan önce unbind et (aynı metoda tekrar girilirse hata olmasın)
 		addProductBtn.disableProperty().bind(invalidForm);
+	}
+
+	private void bindUpdateAndDeleteButton() {
+		var invalidForm = Bindings.createBooleanBinding(() -> {
+			boolean hasSel = upgradeTableView.getSelectionModel().getSelectedItem() == null;
+			boolean barkod = upgradeBarkodTextBox.getText() == null || upgradeBarkodTextBox.getText().trim().isEmpty();
+			boolean product = upgradeProductNameTextbox.getText() == null
+					|| upgradeProductNameTextbox.getText().trim().isEmpty();
+
+			boolean categoriAll = upgradeChoiceBox.getValue().getKategori().toLowerCase().equals("hepsi");
+			return barkod || product || hasSel || categoriAll;
+		}, upgradeTableView.getSelectionModel().selectedItemProperty(), upgradeBarkodTextBox.textProperty(),
+				upgradeProductNameTextbox.textProperty(), upgradeChoiceBox.valueProperty());
+
+		upgradeProductBtn.disableProperty().unbind();
+		deleteProductBtn.disableProperty().unbind();
+		// Yeniden bağlamadan önce unbind et (aynı metoda tekrar girilirse hata olmasın)
+		upgradeProductBtn.disableProperty().bind(invalidForm);
+		deleteProductBtn.disableProperty().bind(invalidForm);
 	}
 
 	// tablo ayarları için oluşturuldu.

@@ -212,6 +212,14 @@
 													<Region prefHeight="1" prefWidth="3"
 														HBox.hgrow="ALWAYS" />
 												</HBox>
+												<HBox>
+													<Region prefHeight="1" prefWidth="3"
+														HBox.hgrow="ALWAYS" />
+													<Label fx:id="errorMessage"
+														text="Üeün ekleye bilmek için boş alanları doldurmanız gerekmektedir." />
+													<Region prefHeight="1" prefWidth="3"
+														HBox.hgrow="ALWAYS" />
+												</HBox>
 											</VBox>
 											<!-- Tablo alanı -->
 											<VBox VBox.vgrow="ALWAYS">
