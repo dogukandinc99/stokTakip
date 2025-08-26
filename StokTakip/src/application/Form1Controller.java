@@ -5,6 +5,7 @@ import java.nio.channels.Pipe.SourceChannel;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Locale.Category;
@@ -503,11 +504,26 @@ public class Form1Controller {
 					ObservableList<VeriModel> tableSelectedList = addProductTableView.getSelectionModel()
 							.getSelectedItems();
 					if (tableSelectedList.size() < 1) {
-						System.out.println("Tablodan Ham Madde Seçimi Yapmanız Gerekmektedir...");
+						System.out.println("Tablodan Ham Madde ve/veya Ambalaj Seçimi Yapmanız Gerekmektedir...");
 					} else {
+						boolean kontrol = false;
+						for (int i = 0; i < tableSelectedList.size(); i++) {
+							if (!tableSelectedList.get(i).getKategori().toLowerCase().equals("ambalajlar")
+									&& !tableSelectedList.get(i).getKategori().toLowerCase().equals("ham maddeler")) {
+
+								kontrol = true;
+							}
+						}
 						try {
-							valueProductMaterialsInsertDataBase(barkod, ürünAdi, ürünAdet, birim,
-									category.getKategori(), paraBirimi, tableSelectedList);
+							if (!kontrol) {
+								valueProductMaterialsInsertDataBase(barkod, ürünAdi, ürünAdet, birim,
+										category.getKategori(), paraBirimi, tableSelectedList);
+							} else {
+								information("Bilgi", null,
+										"Ürünü ekleyebilmek için tablodan Ham Madde ve/veya Ambalaj seçimi yapmanız gerekmektedir...",
+										AlertType.INFORMATION);
+							}
+
 						} catch (Exception e) {
 							System.out.println(e.getMessage());
 						}
