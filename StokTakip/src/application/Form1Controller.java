@@ -33,12 +33,17 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
 public class Form1Controller {
+	@FXML
+	private StackPane bomDrawer;
+
 	@FXML
 	private AnchorPane addStockForm;
 	@FXML
@@ -47,9 +52,8 @@ public class Form1Controller {
 	private AnchorPane settingsForm;
 	@FXML
 	private AnchorPane updateStockForm;
-
 	@FXML
-	private VBox solMenu;
+	private AnchorPane drawerPane;
 
 	@FXML
 	private Button updateStockBtn;
@@ -75,6 +79,14 @@ public class Form1Controller {
 	private Button mainStokCikarBtn;
 	@FXML
 	private Button exportToExcelButton;
+	@FXML
+	private Button editMaterialBtn;
+	@FXML
+	private Button drawerAddBtn;
+	@FXML
+	private Button drawerDeleteBtn;
+	@FXML
+	private Button drawerReadyBtn;
 
 	@FXML
 	private TextField categoriTextBox;
@@ -120,6 +132,8 @@ public class Form1Controller {
 	private Label materialsLabel;
 	@FXML
 	private Label materialsQuantityLabel;
+	@FXML
+	private Label errorMessage;
 
 	@FXML
 	private Spinner<Double> productquantityspinner;
@@ -138,6 +152,8 @@ public class Form1Controller {
 	private TableView<VeriModel> mainTableView;
 	@FXML
 	private TableView<VeriModel> upgradeTableView;
+	@FXML
+	private TableView<VeriModel> drawerTableView;
 
 	@FXML
 	private TableColumn<VeriModel, Integer> settingstableviewcolumn1;
@@ -191,9 +207,17 @@ public class Form1Controller {
 	private TableColumn<VeriModel, String> upgradeTableViewColumn7;
 	@FXML
 	private TableColumn<VeriModel, String> upgradeTableViewColumn8;
+	@FXML
+	private TableColumn<VeriModel, Integer> drawerTableViewColumn1;
+	@FXML
+	private TableColumn<VeriModel, String> drawerTableViewColumn2;
+	@FXML
+	private TableColumn<VeriModel, Double> drawerTableViewColumn3;
+	@FXML
+	private TableColumn<VeriModel, String> drawerTableViewColumn4;
 
 	@FXML
-	private Label errorMessage;
+	private Region scrim;
 
 	ObservableList<String> unitList = FXCollections.observableArrayList();
 	ObservableList<String> currencyList = FXCollections.observableArrayList();
@@ -237,6 +261,12 @@ public class Form1Controller {
 		settingstableviewcolumn2.setCellValueFactory(new PropertyValueFactory<>("kategori"));
 		tableViewUpgrade(settingstableview, "kategoriler");
 
+		drawerTableViewColumn1.setCellValueFactory(new PropertyValueFactory<>("urunId"));
+		drawerTableViewColumn2.setCellValueFactory(new PropertyValueFactory<>("urunAdi"));
+		drawerTableViewColumn3.setCellValueFactory(new PropertyValueFactory<>("miktar"));
+		drawerTableViewColumn4.setCellValueFactory(new PropertyValueFactory<>("birim"));
+		tableViewUpgrade(drawerTableView, "ürünler");
+
 		tableViewSettings(mainTableView);
 		tableViewSettings(addProductTableView);
 		addProductTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
@@ -265,6 +295,21 @@ public class Form1Controller {
 		setTooltipForTableview(upgradeTableView);
 		bindSaveButton();
 		bindUpdateAndDeleteButton();
+		bindMaterialButton();
+
+		// Drawer aç: butona tıklayınca
+		editMaterialBtn.setOnAction(e -> openDrawerAndLoad());
+
+		// "Hazır" şimdilik sadece kapanış yapsın (persist'i sonraki adımda ekleyeceğiz)
+		drawerReadyBtn.setOnAction(e -> closeDrawer());
+
+		// (İstersen ESC ile de kapansın)
+		bomDrawer.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, ev -> {
+			if (ev.getCode() == javafx.scene.input.KeyCode.ESCAPE) {
+				closeDrawer();
+				ev.consume();
+			}
+		});
 	}
 
 	private void switchForm() {
@@ -296,6 +341,7 @@ public class Form1Controller {
 		ValidationUtil.bindRequired(upgradeBarkodTextBox, null, "a");
 		ValidationUtil.bindRequired(upgradeProductNameTextbox, null, "a");
 		ValidationUtil.applyDecimalTextField(costtextbox, 6, 12, false);
+		ValidationUtil.applyDecimalTextField(upgradeCostTextbox, 6, 12, false);
 	}
 
 	private void bindSaveButton() {
@@ -345,6 +391,22 @@ public class Form1Controller {
 		// Yeniden bağlamadan önce unbind et (aynı metoda tekrar girilirse hata olmasın)
 		upgradeProductBtn.disableProperty().bind(invalidForm);
 		deleteProductBtn.disableProperty().bind(invalidForm);
+	}
+
+	private void bindMaterialButton() {
+		final java.util.Locale TR = new java.util.Locale("tr", "TR");
+
+		var showEditBtn = Bindings.createBooleanBinding(() -> {
+			VeriModel sel = upgradeTableView.getSelectionModel().getSelectedItem();
+			if (sel == null)
+				return false;
+			String kat = sel.getKategori();
+			return kat != null && kat.trim().toLowerCase(TR).equals("ürünler");
+		}, upgradeTableView.getSelectionModel().selectedItemProperty());
+
+		// gizliyken yer kaplamasın
+		editMaterialBtn.managedProperty().bind(editMaterialBtn.visibleProperty());
+		editMaterialBtn.visibleProperty().bind(showEditBtn);
 	}
 
 	// tablo ayarları için oluşturuldu.
@@ -732,6 +794,39 @@ public class Form1Controller {
 		});
 	}
 
+	private void openDrawerAndLoad() {
+		VeriModel sel = upgradeTableView.getSelectionModel().getSelectedItem();
+		if (sel == null)
+			return;
+
+		bomDrawer.setVisible(true);
+		bomDrawer.setManaged(true);
+		drawerPane.setTranslateX(drawerPane.getWidth()); // sağda başlasın
+		var t = new javafx.animation.TranslateTransition(javafx.util.Duration.millis(220), drawerPane);
+		t.setToX(0);
+		t.play();
+		System.out.println(sel.getUrunAdet());
+		drawerTableView.setItems(services.getMalzemeler(sel.getUrunId()));
+		drawerTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+		// klavye odak
+		bomDrawer.requestFocus();
+	}
+
+	@FXML
+	private void onDrawerScrimClick() {
+		closeDrawer();
+	}
+
+	private void closeDrawer() {
+		var t = new javafx.animation.TranslateTransition(javafx.util.Duration.millis(200), drawerPane);
+		t.setToX(drawerPane.getWidth());
+		t.setOnFinished(_ -> {
+			bomDrawer.setVisible(false);
+			bomDrawer.setManaged(false);
+		});
+		t.play();
+	}
+
 	// textfielden ürünleri çekip aramak için oluşturuldu
 	private void setupSearchListener(TextField textField, TableView<VeriModel> tableView) {
 		textField.textProperty().addListener((_, _, newValue) -> {
@@ -783,7 +878,7 @@ public class Form1Controller {
 			row.setOnMouseEntered(_ -> {
 				if (!row.isEmpty()) {
 					VeriModel urun = row.getItem();
-					String hamMaddelerString = DataBaseHelper.getHamMaddeler(urun.getUrunId());
+					String hamMaddelerString = services.getBilesenler(urun.getUrunId());
 					if (!hamMaddelerString.isEmpty()) {
 						Tooltip tooltip = new Tooltip(hamMaddelerString);
 						Tooltip.install(row, tooltip);

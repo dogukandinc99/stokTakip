@@ -139,8 +139,8 @@
 																text="KATEGORİ" />
 															<TableColumn fx:id="mainTableViewColumn7"
 																text="MALİYET" />
-															<TableColumn
-																fx:id="addProductTableViewColumn8" text="Para Birimi" />
+															<TableColumn fx:id="mainTableViewColumn8"
+																text="PARA BİRİMİ" />
 														</columns>
 													</TableView>
 												</HBox>
@@ -231,29 +231,21 @@
 														HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
 														<columns>
 															<TableColumn
-																fx:id="addProductTableViewColumn1" prefWidth="42.0"
-																text="ID" />
+																fx:id="addProductTableViewColumn1" text="ID" />
 															<TableColumn
-																fx:id="addProductTableViewColumn2" prefWidth="110.0"
-																text="BARKOD" />
+																fx:id="addProductTableViewColumn2" text="BARKOD" />
 															<TableColumn
-																fx:id="addProductTableViewColumn3" prefWidth="110.0"
-																text="ÜRÜN ADI" />
+																fx:id="addProductTableViewColumn3" text="ÜRÜN ADI" />
 															<TableColumn
-																fx:id="addProductTableViewColumn4" prefWidth="110.0"
-																text="MİKTAR" />
+																fx:id="addProductTableViewColumn4" text="MİKTAR" />
 															<TableColumn
-																fx:id="addProductTableViewColumn5" prefWidth="110.0"
-																text="BİRİM" />
+																fx:id="addProductTableViewColumn5" text="BİRİM" />
 															<TableColumn
-																fx:id="addProductTableViewColumn6" prefWidth="110.0"
-																text="KATEGORİ" />
+																fx:id="addProductTableViewColumn6" text="KATEGORİ" />
 															<TableColumn
-																fx:id="addProductTableViewColumn7" prefWidth="110.0"
-																text="MALİYET" />
+																fx:id="addProductTableViewColumn7" text="MALİYET" />
 															<TableColumn
-																fx:id="addProductTableViewColumn8" prefWidth="110.0"
-																text="Para Birimi" />
+																fx:id="addProductTableViewColumn8" text="PARA BİRİMİ" />
 														</columns>
 													</TableView>
 												</HBox>
@@ -323,6 +315,9 @@
 													<Button fx:id="deleteProductBtn" prefWidth="149.0"
 														styleClass="button-primary" text="ÜRÜNÜ SİL"
 														textAlignment="CENTER" />
+													<Button fx:id="editMaterialBtn" prefWidth="149.0"
+														styleClass="button-primary" text="MALZEMELER"
+														textAlignment="CENTER" visible="false" managed="false" />
 													<Region prefHeight="1" prefWidth="3"
 														HBox.hgrow="ALWAYS" />
 												</HBox>
@@ -348,28 +343,75 @@
 														HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
 														<columns>
 															<TableColumn fx:id="upgradeTableViewColumn1"
-																prefWidth="42.0" text="ID" />
+																text="ID" />
 															<TableColumn fx:id="upgradeTableViewColumn2"
-																prefWidth="110.0" text="BARKOD" />
+																text="BARKOD" />
 															<TableColumn fx:id="upgradeTableViewColumn3"
-																prefWidth="110.0" text="ÜRÜN ADI" />
+																text="ÜRÜN ADI" />
 															<TableColumn fx:id="upgradeTableViewColumn4"
-																prefWidth="110.0" text="MİKTAR" />
+																text="MİKTAR" />
 															<TableColumn fx:id="upgradeTableViewColumn5"
-																prefWidth="110.0" text="BİRİM" />
+																text="BİRİM" />
 															<TableColumn fx:id="upgradeTableViewColumn6"
-																prefWidth="110.0" text="KATEGORİ" />
+																text="KATEGORİ" />
 															<TableColumn fx:id="upgradeTableViewColumn7"
-																prefWidth="110.0" text="MALİYET" />
-															<TableColumn
-																fx:id="addProductTableViewColumn8" prefWidth="110.0"
-																text="Para Birimi" />
+																text="MALİYET" />
+															<TableColumn fx:id="upgradeTableViewColumn8"
+																text="PARA BİRİMİ" />
 														</columns>
 													</TableView>
 												</HBox>
 											</VBox>
 											<Region prefHeight="3" prefWidth="3" />
 										</VBox>
+										<StackPane fx:id="bomDrawer" visible="false"
+											managed="false" AnchorPane.topAnchor="0.0"
+											AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+											AnchorPane.rightAnchor="0.0">
+
+											<!-- Arka plan karartma (scrim) -->
+											<Region fx:id="scrim" styleClass="scrim"
+												onMouseClicked="#onDrawerScrimClick" />
+
+											<!-- Sağ panel -->
+											<AnchorPane fx:id="drawerPane" styleClass="drawer"
+												prefWidth="360.0" AnchorPane.topAnchor="0.0"
+												AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0"
+												translateX="360.0"> <!-- başta ekran dışında -->
+
+												<VBox spacing="5" styleClass="drawer-content"
+													AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
+													AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+
+													<Label text="Malzeme İçeriği (BOM)"
+														styleClass="drawer-title" />
+
+													<TableView fx:id="drawerTableView"
+														HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
+														<columns>
+															<TableColumn fx:id="drawerTableViewColumn1"
+																text="ID" />
+															<TableColumn fx:id="drawerTableViewColumn2"
+																text="MALZEME" />
+															<TableColumn fx:id="drawerTableViewColumn3"
+																text="MİKTAR" />
+															<TableColumn fx:id="drawerTableViewColumn4"
+																text="BİRİM" />
+														</columns>
+													</TableView>
+
+													<HBox spacing="8">
+														<Button fx:id="drawerAddBtn" text="Ekle"
+															styleClass="button-primary" />
+														<Button fx:id="drawerDeleteBtn" text="Çıkar"
+															styleClass="button-primary" />
+														<Region HBox.hgrow="ALWAYS" />
+														<Button fx:id="drawerReadyBtn" text="Hazır"
+															styleClass="button-primary" />
+													</HBox>
+												</VBox>
+											</AnchorPane>
+										</StackPane>
 									</children>
 								</AnchorPane>
 								<!-- Ayarlar -->

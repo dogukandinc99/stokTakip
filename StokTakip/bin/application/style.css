@@ -151,4 +151,14 @@
 .table-row-cell:filled:selected, .table-cell:selected {
     -fx-background-color: #CAF0F8;
 }
+.scrim { -fx-background-color: rgba(0,0,0,0.18); }
+
+.drawer {
+  -fx-background-color: white;
+  -fx-border-color: #DCE1E6;
+  -fx-border-width: 0 0 0 1;
+}
+.drawer-content { -fx-padding: 16; }
+.drawer-title   { -fx-font-size: 16px; -fx-font-weight: bold; }
+
 

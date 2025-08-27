@@ -213,6 +213,21 @@ public class Services {
 		return bilesenListesi.toString();
 	}
 
+	public ObservableList<VeriModel> getMalzemeler(int ürünId) {
+		StringBuilder bilesenListesi = new StringBuilder();
+
+		Map<String, Pair<String, String>> join = new HashMap<String, Pair<String, String>>();
+		join.put("ürünler u", new Pair<String, String>("JOIN", "pi.hammadde_id = u.id"));
+
+		Map<String, Pair<String, Object>> sorgu = new HashMap<String, Pair<String, Object>>();
+		sorgu.put("pi.urun_id", new Pair<String, Object>("=", ürünId));
+
+		ObservableList<VeriModel> liste = DataBaseHelper.listele("u.id, u.urun_adi, pi.miktar, u.birim",
+				"product_ingredients pi", join, sorgu, null);
+
+		return liste;
+	}
+
 	public boolean exceleAktar(File directory, String dosyaAdi) {
 		boolean kontrol = false;
 		ObservableList<VeriModel> ürünlerListesi = ürünListele("ürünler");
