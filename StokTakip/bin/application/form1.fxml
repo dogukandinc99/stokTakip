@@ -385,21 +385,70 @@
 
 													<Label text="Malzeme İçeriği (BOM)"
 														styleClass="drawer-title" />
-
-													<TableView fx:id="drawerTableView"
-														HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
-														<columns>
-															<TableColumn fx:id="drawerTableViewColumn1"
-																text="ID" />
-															<TableColumn fx:id="drawerTableViewColumn2"
-																text="MALZEME" />
-															<TableColumn fx:id="drawerTableViewColumn3"
-																text="MİKTAR" />
-															<TableColumn fx:id="drawerTableViewColumn4"
-																text="BİRİM" />
-														</columns>
-													</TableView>
-
+													<!-- Tablo alanı -->
+													<VBox VBox.vgrow="ALWAYS">
+														<HBox styleClass="hBoxStyle"
+															AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0"
+															AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="10.0"
+															VBox.vgrow="ALWAYS">
+															<TableView fx:id="drawerTableView"
+																HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
+																<columns>
+																	<TableColumn fx:id="drawerTableViewColumn1"
+																		text="SELECT" />
+																	<TableColumn fx:id="drawerTableViewColumn2"
+																		text="ID" />
+																	<TableColumn fx:id="drawerTableViewColumn3"
+																		text="MALZEME" />
+																	<TableColumn fx:id="drawerTableViewColumn4"
+																		text="MİKTAR" />
+																	<TableColumn fx:id="drawerTableViewColumn5"
+																		text="BİRİM" />
+																</columns>
+															</TableView>
+														</HBox>
+													</VBox>
+													<!-- Stok arama alanı -->
+													<HBox spacing="5" styleClass="hBoxStyle">
+														<Region prefHeight="1" prefWidth="3"
+															HBox.hgrow="ALWAYS" />
+														<TextField fx:id="drawerSearchTextbox"
+															prefHeight="25.0" prefWidth="526.0" />
+														<ChoiceBox fx:id="drawerSearchChoiceBox"
+															prefHeight="25.0" prefWidth="171.0" />
+														<Region prefHeight="1" prefWidth="3"
+															HBox.hgrow="ALWAYS" />
+													</HBox>
+													<VBox VBox.vgrow="ALWAYS">
+														<HBox styleClass="hBoxStyle"
+															AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0"
+															AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="10.0"
+															VBox.vgrow="ALWAYS">
+															<TableView fx:id="stokdrawerTableView"
+																HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
+																<columns>
+																	<TableColumn
+																		fx:id="stokDrawerTableViewColumn1" text="SELECT" />
+																	<TableColumn
+																		fx:id="stokDrawerTableViewColumn2" text="ID" />
+																	<TableColumn
+																		fx:id="stokDrawerTableViewColumn3" text="BARKOD" />
+																	<TableColumn
+																		fx:id="stokDrawerTableViewColumn4" text="ÜRÜN ADI" />
+																	<TableColumn
+																		fx:id="stokDrawerTableViewColumn5" text="MİKTAR" />
+																	<TableColumn
+																		fx:id="stokDrawerTableViewColumn6" text="BİRİM" />
+																	<TableColumn
+																		fx:id="stokDrawerTableViewColumn7" text="KATEGORİ" />
+																	<TableColumn
+																		fx:id="stokDrawerTableViewColumn8" text="MALİYET" />
+																	<TableColumn
+																		fx:id="stokDrawerTableViewColumn9" text="PARA BİRİMİ" />
+																</columns>
+															</TableView>
+														</HBox>
+													</VBox>
 													<HBox spacing="8">
 														<Button fx:id="drawerAddBtn" text="Ekle"
 															styleClass="button-primary" />

@@ -1,19 +1,19 @@
 package application;
 
 import java.io.File;
-import java.nio.channels.Pipe.SourceChannel;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Locale.Category;
 
 import javafx.scene.control.TableCell;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -30,6 +30,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
@@ -110,6 +111,8 @@ public class Form1Controller {
 	private TextField mainTextbox;
 	@FXML
 	private TextField adressTextfield;
+	@FXML
+	private TextField drawerSearchTextbox;
 
 	@FXML
 	private ChoiceBox<VeriModel> categorychoicebox;
@@ -127,6 +130,8 @@ public class Form1Controller {
 	private ChoiceBox<String> upgradeUnitChoiceBox;
 	@FXML
 	private ChoiceBox<String> currencychoicebox;
+	@FXML
+	private ChoiceBox<VeriModel> drawerSearchChoiceBox;
 
 	@FXML
 	private Label materialsLabel;
@@ -154,6 +159,8 @@ public class Form1Controller {
 	private TableView<VeriModel> upgradeTableView;
 	@FXML
 	private TableView<VeriModel> drawerTableView;
+	@FXML
+	private TableView<VeriModel> stokdrawerTableView;
 
 	@FXML
 	private TableColumn<VeriModel, Integer> settingstableviewcolumn1;
@@ -208,19 +215,40 @@ public class Form1Controller {
 	@FXML
 	private TableColumn<VeriModel, String> upgradeTableViewColumn8;
 	@FXML
-	private TableColumn<VeriModel, Integer> drawerTableViewColumn1;
+	private TableColumn<VeriModel, Boolean> drawerTableViewColumn1;
 	@FXML
-	private TableColumn<VeriModel, String> drawerTableViewColumn2;
+	private TableColumn<VeriModel, Integer> drawerTableViewColumn2;
 	@FXML
-	private TableColumn<VeriModel, Double> drawerTableViewColumn3;
+	private TableColumn<VeriModel, String> drawerTableViewColumn3;
 	@FXML
-	private TableColumn<VeriModel, String> drawerTableViewColumn4;
+	private TableColumn<VeriModel, Double> drawerTableViewColumn4;
+	@FXML
+	private TableColumn<VeriModel, String> drawerTableViewColumn5;
+	@FXML
+	private TableColumn<VeriModel, Boolean> stokDrawerTableViewColumn1;
+	@FXML
+	private TableColumn<VeriModel, Integer> stokDrawerTableViewColumn2;
+	@FXML
+	private TableColumn<VeriModel, String> stokDrawerTableViewColumn3;
+	@FXML
+	private TableColumn<VeriModel, String> stokDrawerTableViewColumn4;
+	@FXML
+	private TableColumn<VeriModel, Integer> stokDrawerTableViewColumn5;
+	@FXML
+	private TableColumn<VeriModel, String> stokDrawerTableViewColumn6;
+	@FXML
+	private TableColumn<VeriModel, Double> stokDrawerTableViewColumn7;
+	@FXML
+	private TableColumn<VeriModel, String> stokDrawerTableViewColumn8;
+	@FXML
+	private TableColumn<VeriModel, String> stokDrawerTableViewColumn9;
 
 	@FXML
 	private Region scrim;
 
 	ObservableList<String> unitList = FXCollections.observableArrayList();
 	ObservableList<String> currencyList = FXCollections.observableArrayList();
+	private final ObservableMap<Integer, BooleanProperty> selectMap = FXCollections.observableHashMap();
 	Services services = new Services();
 
 	public void initialize() {
@@ -261,12 +289,79 @@ public class Form1Controller {
 		settingstableviewcolumn2.setCellValueFactory(new PropertyValueFactory<>("kategori"));
 		tableViewUpgrade(settingstableview, "kategoriler");
 
-		drawerTableViewColumn1.setCellValueFactory(new PropertyValueFactory<>("urunId"));
-		drawerTableViewColumn2.setCellValueFactory(new PropertyValueFactory<>("urunAdi"));
-		drawerTableViewColumn3.setCellValueFactory(new PropertyValueFactory<>("miktar"));
-		drawerTableViewColumn4.setCellValueFactory(new PropertyValueFactory<>("birim"));
+		drawerTableViewColumn1.setCellValueFactory(cd -> {
+			VeriModel row = cd.getValue();
+			int id = row.getUrunId();
+			return selectMap.computeIfAbsent(id, k -> new SimpleBooleanProperty(false));
+		});
+		drawerTableViewColumn1.setCellFactory(CheckBoxTableCell.forTableColumn(drawerTableViewColumn1));
+		drawerTableView.setEditable(true);
+		drawerTableViewColumn1.setCellFactory(CheckBoxTableCell.forTableColumn(drawerTableViewColumn1));
+		drawerTableViewColumn1.setEditable(true);
+		drawerTableViewColumn2.setCellValueFactory(new PropertyValueFactory<>("urunId"));
+		drawerTableViewColumn3.setCellValueFactory(new PropertyValueFactory<>("urunAdi"));
+		drawerTableViewColumn4.setCellValueFactory(new PropertyValueFactory<>("miktar"));
+		drawerTableViewColumn5.setCellValueFactory(new PropertyValueFactory<>("birim"));
 		tableViewUpgrade(drawerTableView, "ürünler");
 
+		stokDrawerTableViewColumn1.setCellValueFactory(cd -> {
+			VeriModel row = cd.getValue();
+			int id = row.getUrunId();
+			return selectMap.computeIfAbsent(id, k -> new SimpleBooleanProperty(false));
+		});
+		stokDrawerTableViewColumn1.setCellFactory(CheckBoxTableCell.forTableColumn(stokDrawerTableViewColumn1));
+		stokdrawerTableView.setEditable(true);
+		ObservableList<TableColumn<VeriModel, ?>> kolonlar = stokdrawerTableView.getColumns();
+		kolonlar.get(1).setCellValueFactory(new PropertyValueFactory<>("urunId"));
+		kolonlar.get(2).setCellValueFactory(new PropertyValueFactory<>("barkod"));
+		kolonlar.get(3).setCellValueFactory(new PropertyValueFactory<>("urunAdi"));
+		kolonlar.get(4).setCellValueFactory(new PropertyValueFactory<>("urunAdet"));
+		kolonlar.get(5).setCellValueFactory(new PropertyValueFactory<>("birim"));
+		TableColumn<VeriModel, String> kategoriCol = (TableColumn<VeriModel, String>) kolonlar.get(6);
+		kategoriCol.setCellValueFactory(new PropertyValueFactory<>("kategori"));
+		kategoriCol.setCellFactory(_ -> new TableCell<VeriModel, String>() {
+			@Override
+			protected void updateItem(String item, boolean empty) {
+				super.updateItem(item, empty);
+				if (empty || item == null) {
+					setText(null);
+				} else {
+					// Türkçe büyük harf dönüşümü için TR locale kullan
+					setText(item.toUpperCase());
+				}
+			}
+		});
+		TableColumn<VeriModel, Double> maliyetKolon = (TableColumn<VeriModel, Double>) kolonlar.get(7);
+		maliyetKolon.setCellValueFactory(new PropertyValueFactory<>("maliyet"));
+		maliyetKolon.setCellFactory(_ -> new TableCell<VeriModel, Double>() {
+
+			@Override
+			protected void updateItem(Double item, boolean empty) {
+				super.updateItem(item, empty);
+				if (empty || item == null) {
+					setText(null);
+				} else { // Burada maliyeti iki ondalıklı olarak gösterebilirsiniz
+					DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+					DecimalFormat decimalFormat = new DecimalFormat("#.#######", symbols);
+					setText(decimalFormat.format(item));
+				}
+			}
+		});
+		TableColumn<VeriModel, String> paraBirimiCol = (TableColumn<VeriModel, String>) kolonlar.get(8);
+		paraBirimiCol.setCellValueFactory(new PropertyValueFactory<>("paraBirimi"));
+		paraBirimiCol.setCellFactory(_ -> new TableCell<VeriModel, String>() {
+			@Override
+			protected void updateItem(String item, boolean empty) {
+				super.updateItem(item, empty);
+				if (empty || item == null) {
+					setText(null);
+				} else {
+					// Türkçe büyük harf dönüşümü için TR locale kullan
+					setText(item.toUpperCase());
+				}
+			}
+		});
+		tableViewSettings(stokdrawerTableView);
 		tableViewSettings(mainTableView);
 		tableViewSettings(addProductTableView);
 		addProductTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
@@ -274,6 +369,8 @@ public class Form1Controller {
 
 		setupSearchListener(mainSearchTextbox, mainTableView);
 		setupSearchListener(mainChoiceBox, mainTableView);
+		setupSearchListener(drawerSearchChoiceBox, stokdrawerTableView);
+		setupSearchListener(drawerSearchTextbox, stokdrawerTableView);
 		setupSearchListener(upgradeSearchTextbox, upgradeTableView);
 		setupSearchListener(upgradeSearchChoiceBox, upgradeTableView);
 
@@ -298,10 +395,10 @@ public class Form1Controller {
 		bindMaterialButton();
 
 		// Drawer aç: butona tıklayınca
-		editMaterialBtn.setOnAction(e -> openDrawerAndLoad());
+		editMaterialBtn.setOnAction(_ -> openDrawerAndLoad());
 
 		// "Hazır" şimdilik sadece kapanış yapsın (persist'i sonraki adımda ekleyeceğiz)
-		drawerReadyBtn.setOnAction(e -> closeDrawer());
+		drawerReadyBtn.setOnAction(_ -> closeDrawer());
 
 		// (İstersen ESC ile de kapansın)
 		bomDrawer.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, ev -> {
@@ -351,9 +448,8 @@ public class Form1Controller {
 			boolean cost = costtextbox.getText() == null || costtextbox.getText().trim().isEmpty();
 			errorMessage.setText("Ürün ekleyebilmeniz için boş alanları doldurmanız gerekmektedi...");
 			boolean categoriAll = categorychoicebox.getValue().getKategori().toLowerCase().equals("hepsi");
-			var TR = new java.util.Locale("tr", "TR");
 			Object v = categorychoicebox.getValue().getKategori();
-			String s = (v == null) ? "" : v.toString().toLowerCase(TR);
+			String s = (v == null) ? "" : v.toString().toLowerCase();
 			boolean isUrunler = s.equals("ürünler");
 			boolean hasSel = addProductTableView.getSelectionModel().getSelectedItem() != null;
 			boolean sonuc = isUrunler && !hasSel;
@@ -394,14 +490,12 @@ public class Form1Controller {
 	}
 
 	private void bindMaterialButton() {
-		final java.util.Locale TR = new java.util.Locale("tr", "TR");
-
 		var showEditBtn = Bindings.createBooleanBinding(() -> {
 			VeriModel sel = upgradeTableView.getSelectionModel().getSelectedItem();
 			if (sel == null)
 				return false;
 			String kat = sel.getKategori();
-			return kat != null && kat.trim().toLowerCase(TR).equals("ürünler");
+			return kat != null && kat.trim().toLowerCase().equals("ürünler");
 		}, upgradeTableView.getSelectionModel().selectedItemProperty());
 
 		// gizliyken yer kaplamasın
@@ -419,7 +513,7 @@ public class Form1Controller {
 		kolonlar.get(4).setCellValueFactory(new PropertyValueFactory<>("birim"));
 		TableColumn<VeriModel, String> kategoriCol = (TableColumn<VeriModel, String>) kolonlar.get(5);
 		kategoriCol.setCellValueFactory(new PropertyValueFactory<>("kategori"));
-		kategoriCol.setCellFactory(col -> new TableCell<VeriModel, String>() {
+		kategoriCol.setCellFactory(_ -> new TableCell<VeriModel, String>() {
 			@Override
 			protected void updateItem(String item, boolean empty) {
 				super.updateItem(item, empty);
@@ -427,7 +521,7 @@ public class Form1Controller {
 					setText(null);
 				} else {
 					// Türkçe büyük harf dönüşümü için TR locale kullan
-					setText(item.toUpperCase(new java.util.Locale("tr", "TR")));
+					setText(item.toUpperCase());
 				}
 			}
 		});
@@ -449,7 +543,7 @@ public class Form1Controller {
 		});
 		TableColumn<VeriModel, String> paraBirimiCol = (TableColumn<VeriModel, String>) kolonlar.get(7);
 		paraBirimiCol.setCellValueFactory(new PropertyValueFactory<>("paraBirimi"));
-		paraBirimiCol.setCellFactory(col -> new TableCell<VeriModel, String>() {
+		paraBirimiCol.setCellFactory(_ -> new TableCell<VeriModel, String>() {
 			@Override
 			protected void updateItem(String item, boolean empty) {
 				super.updateItem(item, empty);
@@ -457,7 +551,7 @@ public class Form1Controller {
 					setText(null);
 				} else {
 					// Türkçe büyük harf dönüşümü için TR locale kullan
-					setText(item.toUpperCase(new java.util.Locale("tr", "TR")));
+					setText(item.toUpperCase());
 				}
 			}
 		});
@@ -483,6 +577,7 @@ public class Form1Controller {
 		fillChoiceBox(categorychoicebox);
 		fillChoiceBox(upgradeSearchChoiceBox);
 		fillChoiceBox(upgradeChoiceBox);
+		fillChoiceBox(drawerSearchChoiceBox);
 	}
 
 	// kategorileri veritabanından çekmek için oluşturuldu.
