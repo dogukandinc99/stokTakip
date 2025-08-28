@@ -805,8 +805,7 @@ public class Form1Controller {
 		var t = new javafx.animation.TranslateTransition(javafx.util.Duration.millis(220), drawerPane);
 		t.setToX(0);
 		t.play();
-		System.out.println(sel.getUrunAdet());
-		drawerTableView.setItems(services.getMalzemeler(sel.getUrunId()));
+		drawerTableView.setItems(services.getBilesenler(sel.getUrunId()));
 		drawerTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 		// klavye odak
 		bomDrawer.requestFocus();
@@ -878,11 +877,21 @@ public class Form1Controller {
 			row.setOnMouseEntered(_ -> {
 				if (!row.isEmpty()) {
 					VeriModel urun = row.getItem();
-					String hamMaddelerString = services.getBilesenler(urun.getUrunId());
-					if (!hamMaddelerString.isEmpty()) {
-						Tooltip tooltip = new Tooltip(hamMaddelerString);
-						Tooltip.install(row, tooltip);
+					StringBuilder bilesenler = new StringBuilder();
+					ObservableList<VeriModel> bilesenListesi = services.getBilesenler(urun.getUrunId());
+					if (bilesenListesi.isEmpty()) {
+						bilesenler.append("İÇİNDEKİLER\\nBulunamadı...");
+					} else {
+						for (int i = 0; i < bilesenListesi.size(); i++) {
+							bilesenler.append(bilesenListesi.get(i).getUrunAdi().toUpperCase()).append(": ")
+									.append(bilesenListesi.get(i).getMiktar()).append(" ")
+									.append(bilesenListesi.get(i).getBirim().toUpperCase())
+									.append(" Maliyet(1 Birim): ").append(bilesenListesi.get(i).getMaliyet())
+									.append("\n");
+						}
 					}
+					Tooltip tooltip = new Tooltip(bilesenler.toString());
+					Tooltip.install(row, tooltip);
 				}
 			});
 			return row;

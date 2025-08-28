@@ -189,7 +189,7 @@ public class Services {
 		}
 	}
 
-	public String getBilesenler(int ürünId) {
+	public ObservableList<VeriModel> getBilesenler(int ürünId) {
 		StringBuilder bilesenListesi = new StringBuilder();
 
 		Map<String, Pair<String, String>> join = new HashMap<String, Pair<String, String>>();
@@ -198,31 +198,7 @@ public class Services {
 		Map<String, Pair<String, Object>> sorgu = new HashMap<String, Pair<String, Object>>();
 		sorgu.put("pi.urun_id", new Pair<String, Object>("=", ürünId));
 
-		ObservableList<VeriModel> liste = DataBaseHelper.listele("u.urun_adi, pi.miktar, u.birim, u.maliyet",
-				"product_ingredients pi", join, sorgu, null);
-
-		if (liste.isEmpty()) {
-			return "İÇİNDEKİLER\\nBulunamadı...";
-		}
-
-		for (int i = 0; i < liste.size(); i++) {
-			bilesenListesi.append(liste.get(i).getUrunAdi().toUpperCase()).append(": ").append(liste.get(i).getMiktar())
-					.append(" ").append(liste.get(i).getBirim().toUpperCase()).append(" Maliyet(1 Birim): ")
-					.append(liste.get(i).getMaliyet()).append("\n");
-		}
-		return bilesenListesi.toString();
-	}
-
-	public ObservableList<VeriModel> getMalzemeler(int ürünId) {
-		StringBuilder bilesenListesi = new StringBuilder();
-
-		Map<String, Pair<String, String>> join = new HashMap<String, Pair<String, String>>();
-		join.put("ürünler u", new Pair<String, String>("JOIN", "pi.hammadde_id = u.id"));
-
-		Map<String, Pair<String, Object>> sorgu = new HashMap<String, Pair<String, Object>>();
-		sorgu.put("pi.urun_id", new Pair<String, Object>("=", ürünId));
-
-		ObservableList<VeriModel> liste = DataBaseHelper.listele("u.id, u.urun_adi, pi.miktar, u.birim",
+		ObservableList<VeriModel> liste = DataBaseHelper.listele("u.id, u.urun_adi, pi.miktar, u.birim, u.maliyet",
 				"product_ingredients pi", join, sorgu, null);
 
 		return liste;
