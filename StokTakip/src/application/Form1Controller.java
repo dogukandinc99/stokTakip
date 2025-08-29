@@ -295,77 +295,16 @@ public class Form1Controller {
 			return selectMap.computeIfAbsent(id, k -> new SimpleBooleanProperty(false));
 		});
 		drawerTableViewColumn1.setCellFactory(CheckBoxTableCell.forTableColumn(drawerTableViewColumn1));
-		drawerTableView.setEditable(true);
-		drawerTableViewColumn1.setCellFactory(CheckBoxTableCell.forTableColumn(drawerTableViewColumn1));
-		drawerTableViewColumn1.setEditable(true);
 		drawerTableViewColumn2.setCellValueFactory(new PropertyValueFactory<>("urunId"));
 		drawerTableViewColumn3.setCellValueFactory(new PropertyValueFactory<>("urunAdi"));
 		drawerTableViewColumn4.setCellValueFactory(new PropertyValueFactory<>("miktar"));
 		drawerTableViewColumn5.setCellValueFactory(new PropertyValueFactory<>("birim"));
-		tableViewUpgrade(drawerTableView, "ürünler");
 
-		stokDrawerTableViewColumn1.setCellValueFactory(cd -> {
-			VeriModel row = cd.getValue();
-			int id = row.getUrunId();
-			return selectMap.computeIfAbsent(id, k -> new SimpleBooleanProperty(false));
-		});
-		stokDrawerTableViewColumn1.setCellFactory(CheckBoxTableCell.forTableColumn(stokDrawerTableViewColumn1));
-		stokdrawerTableView.setEditable(true);
-		ObservableList<TableColumn<VeriModel, ?>> kolonlar = stokdrawerTableView.getColumns();
-		kolonlar.get(1).setCellValueFactory(new PropertyValueFactory<>("urunId"));
-		kolonlar.get(2).setCellValueFactory(new PropertyValueFactory<>("barkod"));
-		kolonlar.get(3).setCellValueFactory(new PropertyValueFactory<>("urunAdi"));
-		kolonlar.get(4).setCellValueFactory(new PropertyValueFactory<>("urunAdet"));
-		kolonlar.get(5).setCellValueFactory(new PropertyValueFactory<>("birim"));
-		TableColumn<VeriModel, String> kategoriCol = (TableColumn<VeriModel, String>) kolonlar.get(6);
-		kategoriCol.setCellValueFactory(new PropertyValueFactory<>("kategori"));
-		kategoriCol.setCellFactory(_ -> new TableCell<VeriModel, String>() {
-			@Override
-			protected void updateItem(String item, boolean empty) {
-				super.updateItem(item, empty);
-				if (empty || item == null) {
-					setText(null);
-				} else {
-					// Türkçe büyük harf dönüşümü için TR locale kullan
-					setText(item.toUpperCase());
-				}
-			}
-		});
-		TableColumn<VeriModel, Double> maliyetKolon = (TableColumn<VeriModel, Double>) kolonlar.get(7);
-		maliyetKolon.setCellValueFactory(new PropertyValueFactory<>("maliyet"));
-		maliyetKolon.setCellFactory(_ -> new TableCell<VeriModel, Double>() {
-
-			@Override
-			protected void updateItem(Double item, boolean empty) {
-				super.updateItem(item, empty);
-				if (empty || item == null) {
-					setText(null);
-				} else { // Burada maliyeti iki ondalıklı olarak gösterebilirsiniz
-					DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
-					DecimalFormat decimalFormat = new DecimalFormat("#.#######", symbols);
-					setText(decimalFormat.format(item));
-				}
-			}
-		});
-		TableColumn<VeriModel, String> paraBirimiCol = (TableColumn<VeriModel, String>) kolonlar.get(8);
-		paraBirimiCol.setCellValueFactory(new PropertyValueFactory<>("paraBirimi"));
-		paraBirimiCol.setCellFactory(_ -> new TableCell<VeriModel, String>() {
-			@Override
-			protected void updateItem(String item, boolean empty) {
-				super.updateItem(item, empty);
-				if (empty || item == null) {
-					setText(null);
-				} else {
-					// Türkçe büyük harf dönüşümü için TR locale kullan
-					setText(item.toUpperCase());
-				}
-			}
-		});
-		tableViewSettings(stokdrawerTableView);
-		tableViewSettings(mainTableView);
-		tableViewSettings(addProductTableView);
+		tableViewSettings(stokdrawerTableView, true);
+		tableViewSettings(mainTableView, false);
+		tableViewSettings(addProductTableView, false);
 		addProductTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-		tableViewSettings(upgradeTableView);
+		tableViewSettings(upgradeTableView, false);
 
 		setupSearchListener(mainSearchTextbox, mainTableView);
 		setupSearchListener(mainChoiceBox, mainTableView);
@@ -504,14 +443,26 @@ public class Form1Controller {
 	}
 
 	// tablo ayarları için oluşturuldu.
-	private void tableViewSettings(TableView<VeriModel> tableView) {
+	private void tableViewSettings(TableView<VeriModel> tableView, boolean withCheckbox) {
+		int indexshift = 0;
 		ObservableList<TableColumn<VeriModel, ?>> kolonlar = tableView.getColumns();
-		kolonlar.get(0).setCellValueFactory(new PropertyValueFactory<>("urunId"));
-		kolonlar.get(1).setCellValueFactory(new PropertyValueFactory<>("barkod"));
-		kolonlar.get(2).setCellValueFactory(new PropertyValueFactory<>("urunAdi"));
-		kolonlar.get(3).setCellValueFactory(new PropertyValueFactory<>("urunAdet"));
-		kolonlar.get(4).setCellValueFactory(new PropertyValueFactory<>("birim"));
-		TableColumn<VeriModel, String> kategoriCol = (TableColumn<VeriModel, String>) kolonlar.get(5);
+		if (withCheckbox) {
+			TableColumn<VeriModel, Boolean> checkboxCol = (TableColumn<VeriModel, Boolean>) kolonlar.get(indexshift);
+			checkboxCol.setCellValueFactory(cd -> {
+				VeriModel row = cd.getValue();
+				int id = row.getUrunId();
+				return selectMap.computeIfAbsent(id, k -> new SimpleBooleanProperty(false));
+			});
+			checkboxCol.setCellFactory(CheckBoxTableCell.forTableColumn(checkboxCol));
+			indexshift++;
+		}
+
+		kolonlar.get(indexshift).setCellValueFactory(new PropertyValueFactory<>("urunId"));
+		kolonlar.get(indexshift + 1).setCellValueFactory(new PropertyValueFactory<>("barkod"));
+		kolonlar.get(indexshift + 2).setCellValueFactory(new PropertyValueFactory<>("urunAdi"));
+		kolonlar.get(indexshift + 3).setCellValueFactory(new PropertyValueFactory<>("urunAdet"));
+		kolonlar.get(indexshift + 4).setCellValueFactory(new PropertyValueFactory<>("birim"));
+		TableColumn<VeriModel, String> kategoriCol = (TableColumn<VeriModel, String>) kolonlar.get(indexshift + 5);
 		kategoriCol.setCellValueFactory(new PropertyValueFactory<>("kategori"));
 		kategoriCol.setCellFactory(_ -> new TableCell<VeriModel, String>() {
 			@Override
@@ -525,7 +476,7 @@ public class Form1Controller {
 				}
 			}
 		});
-		TableColumn<VeriModel, Double> maliyetKolon = (TableColumn<VeriModel, Double>) kolonlar.get(6);
+		TableColumn<VeriModel, Double> maliyetKolon = (TableColumn<VeriModel, Double>) kolonlar.get(indexshift + 6);
 		maliyetKolon.setCellValueFactory(new PropertyValueFactory<>("maliyet"));
 		maliyetKolon.setCellFactory(_ -> new TableCell<VeriModel, Double>() {
 
@@ -541,7 +492,7 @@ public class Form1Controller {
 				}
 			}
 		});
-		TableColumn<VeriModel, String> paraBirimiCol = (TableColumn<VeriModel, String>) kolonlar.get(7);
+		TableColumn<VeriModel, String> paraBirimiCol = (TableColumn<VeriModel, String>) kolonlar.get(indexshift + 7);
 		paraBirimiCol.setCellValueFactory(new PropertyValueFactory<>("paraBirimi"));
 		paraBirimiCol.setCellFactory(_ -> new TableCell<VeriModel, String>() {
 			@Override

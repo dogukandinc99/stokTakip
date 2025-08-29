@@ -387,12 +387,12 @@
 														styleClass="drawer-title" />
 													<!-- Tablo alanı -->
 													<VBox VBox.vgrow="ALWAYS">
-														<HBox styleClass="hBoxStyle"
+														<VBox styleClass="hBoxStyle"
 															AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0"
 															AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="10.0"
 															VBox.vgrow="ALWAYS">
 															<TableView fx:id="drawerTableView"
-																HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
+																HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" editable="true">
 																<columns>
 																	<TableColumn fx:id="drawerTableViewColumn1"
 																		text="SELECT" />
@@ -406,7 +406,12 @@
 																		text="BİRİM" />
 																</columns>
 															</TableView>
-														</HBox>
+															<HBox spacing="8">
+																<Region prefHeight="1" prefWidth="3" />
+																<Button fx:id="drawerDeleteBtn" text="Çıkar"
+																	styleClass="button-primary" />
+															</HBox>
+														</VBox>
 													</VBox>
 													<!-- Stok arama alanı -->
 													<HBox spacing="5" styleClass="hBoxStyle">
@@ -420,12 +425,12 @@
 															HBox.hgrow="ALWAYS" />
 													</HBox>
 													<VBox VBox.vgrow="ALWAYS">
-														<HBox styleClass="hBoxStyle"
+														<VBox styleClass="hBoxStyle"
 															AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0"
 															AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="10.0"
 															VBox.vgrow="ALWAYS">
 															<TableView fx:id="stokdrawerTableView"
-																HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
+																HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" editable="true">
 																<columns>
 																	<TableColumn
 																		fx:id="stokDrawerTableViewColumn1" text="SELECT" />
@@ -447,13 +452,14 @@
 																		fx:id="stokDrawerTableViewColumn9" text="PARA BİRİMİ" />
 																</columns>
 															</TableView>
-														</HBox>
+															<HBox spacing="8">
+																<Region prefHeight="1" prefWidth="3" />
+																<Button fx:id="drawerAddBtn" text="Ekle"
+																	styleClass="button-primary" />
+															</HBox>
+														</VBox>
 													</VBox>
 													<HBox spacing="8">
-														<Button fx:id="drawerAddBtn" text="Ekle"
-															styleClass="button-primary" />
-														<Button fx:id="drawerDeleteBtn" text="Çıkar"
-															styleClass="button-primary" />
 														<Region HBox.hgrow="ALWAYS" />
 														<Button fx:id="drawerReadyBtn" text="Hazır"
 															styleClass="button-primary" />
