@@ -69,14 +69,18 @@ public class Services {
 		}
 	}
 
-	public void içindekileriEkle(int ürünBilesenleri, Double miktar, String birim) {
-		DataBaseHelper.insertTable("product_ingredients", "urun_id,hammadde_id,miktar,birim", sonId("ürünler"),
-				ürünBilesenleri, miktar, birim);
+	public void içindekileriEkle(int urun_id, int ürünBilesenleri, Double miktar, String birim) {
+		DataBaseHelper.insertTable("product_ingredients", "urun_id,hammadde_id,miktar,birim", urun_id, ürünBilesenleri,
+				miktar, birim);
 		System.out.println("İçindekiler başarıl birşekilde eklendi.");
 	}
 
 	public void ürünSil(int ürünId) {
 		DataBaseHelper.deleteValueTable("ürünler", "id=?", ürünId);
+	}
+
+	public void bilesenSil(int urunId, int bilesenId) {
+		DataBaseHelper.deleteValueTable("product_ingredients", "urun_id=? and hammadde_id=?", urunId, bilesenId);
 	}
 
 	public void ürünGüncelle(int ürünId, String barkod, String ürünAdi, Double ürünMiktari, String birim,

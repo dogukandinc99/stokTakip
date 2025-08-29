@@ -248,7 +248,7 @@ public class Form1Controller {
 
 	ObservableList<String> unitList = FXCollections.observableArrayList();
 	ObservableList<String> currencyList = FXCollections.observableArrayList();
-	private final ObservableMap<Integer, BooleanProperty> selectMap = FXCollections.observableHashMap();
+	private final ObservableMap<Integer, BooleanProperty> drawerSelectMap = FXCollections.observableHashMap();
 	Services services = new Services();
 
 	public void initialize() {
@@ -292,7 +292,7 @@ public class Form1Controller {
 		drawerTableViewColumn1.setCellValueFactory(cd -> {
 			VeriModel row = cd.getValue();
 			int id = row.getUrunId();
-			return selectMap.computeIfAbsent(id, k -> new SimpleBooleanProperty(false));
+			return drawerSelectMap.computeIfAbsent(id, _ -> new SimpleBooleanProperty(false));
 		});
 		drawerTableViewColumn1.setCellFactory(CheckBoxTableCell.forTableColumn(drawerTableViewColumn1));
 		drawerTableViewColumn2.setCellValueFactory(new PropertyValueFactory<>("urunId"));
@@ -346,6 +346,8 @@ public class Form1Controller {
 				ev.consume();
 			}
 		});
+		drawerDeleteBtn.setOnAction(_ -> onDrawerDelete());
+		drawerAddBtn.setOnAction(_ -> onDrawerAdd());
 	}
 
 	private void switchForm() {
@@ -442,6 +444,8 @@ public class Form1Controller {
 		editMaterialBtn.visibleProperty().bind(showEditBtn);
 	}
 
+	private final ObservableMap<Integer, BooleanProperty> materialSelectMap = FXCollections.observableHashMap();
+
 	// tablo ayarları için oluşturuldu.
 	private void tableViewSettings(TableView<VeriModel> tableView, boolean withCheckbox) {
 		int indexshift = 0;
@@ -451,7 +455,7 @@ public class Form1Controller {
 			checkboxCol.setCellValueFactory(cd -> {
 				VeriModel row = cd.getValue();
 				int id = row.getUrunId();
-				return selectMap.computeIfAbsent(id, k -> new SimpleBooleanProperty(false));
+				return materialSelectMap.computeIfAbsent(id, k -> new SimpleBooleanProperty(false));
 			});
 			checkboxCol.setCellFactory(CheckBoxTableCell.forTableColumn(checkboxCol));
 			indexshift++;
@@ -738,7 +742,7 @@ public class Form1Controller {
 					double maliyetToplam = 0;
 
 					for (int i = 0; i < selectedItems.size(); i++) {
-						services.içindekileriEkle(selectedItems.get(i).getUrunId(),
+						services.içindekileriEkle(services.sonId("ürünler"), selectedItems.get(i).getUrunId(),
 								(spinners.get(i).getValue()).doubleValue(), selectedItems.get(i).getBirim());
 						maliyetToplam += (selectedItems.get(i).getUrunAdet() * selectedItems.get(i).getMaliyet());
 					}
@@ -870,6 +874,51 @@ public class Form1Controller {
 			bomDrawer.setManaged(false);
 		});
 		t.play();
+	}
+
+	private void onDrawerDelete() {
+		// Controller alanı
+
+		drawerTableView.setEditable(true); // checkbox için gerekli
+
+		drawerTableViewColumn1.setCellValueFactory(cd -> {
+			VeriModel row = cd.getValue();
+			return drawerSelectMap.computeIfAbsent(row.getUrunId(), k -> new SimpleBooleanProperty(false));
+		});
+		drawerTableViewColumn1.setCellFactory(CheckBoxTableCell.forTableColumn(drawerTableViewColumn1));
+		drawerTableViewColumn1.setEditable(true);
+		List<Integer> checkedIds = drawerTableView.getItems().stream()
+				.filter(vm -> drawerSelectMap.getOrDefault(vm.getUrunId(), new SimpleBooleanProperty(false)).get())
+				.map(VeriModel::getUrunId).toList();
+
+		VeriModel sel = upgradeTableView.getSelectionModel().getSelectedItem();
+		for (int i = 0; i < checkedIds.size(); i++) {
+			services.bilesenSil(sel.getUrunId(), checkedIds.get(i));
+		}
+		drawerTableView.setItems(services.getBilesenler(sel.getUrunId()));
+	}
+
+	private void onDrawerAdd() {
+		// Controller alanı
+
+		stokdrawerTableView.setEditable(true); // checkbox için gerekli
+
+		stokDrawerTableViewColumn1.setCellValueFactory(cd -> {
+			VeriModel row = cd.getValue();
+			return materialSelectMap.computeIfAbsent(row.getUrunId(), k -> new SimpleBooleanProperty(false));
+		});
+		stokDrawerTableViewColumn1.setCellFactory(CheckBoxTableCell.forTableColumn(stokDrawerTableViewColumn1));
+		stokDrawerTableViewColumn1.setEditable(true);
+		List<Integer> checkedIds = stokdrawerTableView.getItems().stream()
+				.filter(vm -> materialSelectMap.getOrDefault(vm.getUrunId(), new SimpleBooleanProperty(false)).get())
+				.map(VeriModel::getUrunId).toList();
+
+		VeriModel sel = upgradeTableView.getSelectionModel().getSelectedItem();
+		for (int i = 0; i < checkedIds.size(); i++) {
+			services.içindekileriEkle(sel.getUrunId(), checkedIds.get(i), 1.0, sel.getBirim());
+		}
+		drawerTableView.setItems(services.getBilesenler(sel.getUrunId()));
+
 	}
 
 	// textfielden ürünleri çekip aramak için oluşturuldu
