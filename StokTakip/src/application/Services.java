@@ -193,6 +193,17 @@ public class Services {
 		}
 	}
 
+	public void ürünMaliyetGüncelle(int güncellenenBilesenId, Double yeniBilesenMaliyet) {	
+
+		Map<String, Object> yeniDeger = new HashMap<String, Object>();
+		yeniDeger.put("maliyet", yeniBilesenMaliyet);
+
+		Map<String, Object> kosul = new HashMap<String, Object>();
+		kosul.put("id", güncellenenBilesenId);
+		
+		DataBaseHelper.updateTable("ürünler", yeniDeger, kosul);
+	}
+
 	public ObservableList<VeriModel> getBilesenler(int ürünId) {
 		StringBuilder bilesenListesi = new StringBuilder();
 

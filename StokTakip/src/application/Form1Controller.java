@@ -4,6 +4,7 @@ import java.io.File;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -16,6 +17,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -34,6 +36,7 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -44,6 +47,8 @@ import javafx.util.StringConverter;
 public class Form1Controller {
 	@FXML
 	private StackPane bomDrawer;
+	@FXML
+	private StackPane bomMaterialDrawer;
 
 	@FXML
 	private AnchorPane addStockForm;
@@ -55,6 +60,8 @@ public class Form1Controller {
 	private AnchorPane updateStockForm;
 	@FXML
 	private AnchorPane drawerPane;
+	@FXML
+	private AnchorPane drawerMaterialPane;
 
 	@FXML
 	private Button updateStockBtn;
@@ -88,6 +95,10 @@ public class Form1Controller {
 	private Button drawerDeleteBtn;
 	@FXML
 	private Button drawerReadyBtn;
+	@FXML
+	private Button drawerMateralSaveBtn;
+	@FXML
+	private Button drawerMateralCancelBtn;
 
 	@FXML
 	private TextField categoriTextBox;
@@ -245,6 +256,11 @@ public class Form1Controller {
 
 	@FXML
 	private Region scrim;
+	@FXML
+	private Region materialScrim;
+
+	@FXML
+	private VBox drawerToolBox;
 
 	ObservableList<String> unitList = FXCollections.observableArrayList();
 	ObservableList<String> currencyList = FXCollections.observableArrayList();
@@ -337,7 +353,10 @@ public class Form1Controller {
 		editMaterialBtn.setOnAction(_ -> openDrawerAndLoad());
 
 		// "Hazır" şimdilik sadece kapanış yapsın (persist'i sonraki adımda ekleyeceğiz)
-		drawerReadyBtn.setOnAction(_ -> closeDrawer());
+		drawerReadyBtn.setOnAction(_ -> {
+			productMaterialsCost();
+			closeDrawer();
+		});
 
 		// (İstersen ESC ile de kapansın)
 		bomDrawer.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, ev -> {
@@ -348,6 +367,11 @@ public class Form1Controller {
 		});
 		drawerDeleteBtn.setOnAction(_ -> onDrawerDelete());
 		drawerAddBtn.setOnAction(_ -> onDrawerAdd());
+
+		bomMaterialDrawer.managedProperty().bind(bomMaterialDrawer.visibleProperty());
+		drawerMaterialPane.managedProperty().bind(drawerMaterialPane.visibleProperty());
+		materialScrim.managedProperty().bind(bomMaterialDrawer.visibleProperty());
+
 	}
 
 	private void switchForm() {
@@ -632,46 +656,30 @@ public class Form1Controller {
 			if (!costtextbox.getText().isEmpty()) {
 				maliyet = Double.parseDouble(costtextbox.getText());
 			}
-
-			if (category.getKategori().equals("hepsi")) {
-				System.out.println("Kategori Seçimi yapmanız gerekmektedir.");
-			} else if (!category.getKategori().equals("ürünler")) {
-				if (barkod.isEmpty() && ürünAdi.isEmpty() && ürünAdet == 0 && maliyet == 0) {
-					System.out.println("Bazı alanlar boş...");
-				} else {
-					services.ürünEkle(barkod, ürünAdi, ürünAdet, birim, category.getKategori(), maliyet, paraBirimi);
-				}
+			if (!category.getKategori().equals("ürünler")) {
+				services.ürünEkle(barkod, ürünAdi, ürünAdet, birim, category.getKategori(), maliyet, paraBirimi);
 			} else if (category.getKategori().equals("ürünler")) {
-				if (barkod.isEmpty() && ürünAdi.isEmpty() && ürünAdet == 0 && maliyet == 0) {
-					System.out.println("Bazı alanlar boş...");
-				} else {
-					ObservableList<VeriModel> tableSelectedList = addProductTableView.getSelectionModel()
-							.getSelectedItems();
-					if (tableSelectedList.size() < 1) {
-						System.out.println("Tablodan Ham Madde ve/veya Ambalaj Seçimi Yapmanız Gerekmektedir...");
-					} else {
-						boolean kontrol = false;
-						for (int i = 0; i < tableSelectedList.size(); i++) {
-							if (!tableSelectedList.get(i).getKategori().toLowerCase().equals("ambalajlar")
-									&& !tableSelectedList.get(i).getKategori().toLowerCase().equals("ham maddeler")) {
+				ObservableList<VeriModel> tableSelectedList = addProductTableView.getSelectionModel()
+						.getSelectedItems();
 
-								kontrol = true;
-							}
-						}
-						try {
-							if (!kontrol) {
-								valueProductMaterialsInsertDataBase(barkod, ürünAdi, ürünAdet, birim,
-										category.getKategori(), paraBirimi, tableSelectedList);
-							} else {
-								information("Bilgi", null,
-										"Ürünü ekleyebilmek için tablodan Ham Madde ve/veya Ambalaj seçimi yapmanız gerekmektedir...",
-										AlertType.INFORMATION);
-							}
-
-						} catch (Exception e) {
-							System.out.println(e.getMessage());
-						}
+				boolean kontrol = false;
+				for (int i = 0; i < tableSelectedList.size(); i++) {
+					if (!tableSelectedList.get(i).getKategori().toLowerCase().equals("ambalajlar")
+							&& !tableSelectedList.get(i).getKategori().toLowerCase().equals("ham maddeler")) {
+						kontrol = true;
 					}
+				}
+				try {
+					if (!kontrol) {
+						valueProductMaterialsInsertDataBase(barkod, ürünAdi, ürünAdet, birim, category.getKategori(),
+								paraBirimi, tableSelectedList);
+					} else {
+						information("Bilgi", null,
+								"Ürünü ekleyebilmek için tablodan Ham Madde ve/veya Ambalaj seçimi yapmanız gerekmektedir...",
+								AlertType.INFORMATION);
+					}
+				} catch (Exception e) {
+					System.out.println("Beklenmedik bir hata ile karşılaştık.\nHata: " + e.getMessage());
 				}
 			}
 			tableViewUpgrade(addProductTableView, "ürünler");
@@ -700,7 +708,7 @@ public class Form1Controller {
 
 	// ürün eklerken ham madde ve ambalaj seçileceğinden dolayı
 	// yeni bir form oluştursun ve veritabanına eklesin diye oluşturuldu.
-	void valueProductMaterialsInsertDataBase(String barkod, String urunAdi, Double urunAdet, String birim,
+	private void valueProductMaterialsInsertDataBase(String barkod, String urunAdi, Double urunAdet, String birim,
 			String kategori, String paraBirimi, ObservableList<VeriModel> selectedMaterials) {
 
 		Stage stage = new Stage();
@@ -727,42 +735,25 @@ public class Form1Controller {
 		Button saveButton = new Button("Kaydet");
 
 		saveButton.setOnAction(_ -> {
-			boolean kontrol = true;
+			double maliyetToplam = 0;
 
-			for (VeriModel material : selectedItems) {
-				System.out.println(material.getKategori().toString());
-				if (!(material.getKategori().toString().equals("ham maddeler")
-						|| material.getKategori().toString().equals("ambalajlar"))) {
-					kontrol = false;
-					break;
-				}
+			for (int i = 0; i < selectedItems.size(); i++) {
+				services.içindekileriEkle(services.sonId("ürünler"), selectedItems.get(i).getUrunId(),
+						(spinners.get(i).getValue()).doubleValue(), selectedItems.get(i).getBirim());
+				maliyetToplam += (spinners.get(i).getValue() * selectedItems.get(i).getMaliyet());
 			}
-			try {
-				if (kontrol) {
-					double maliyetToplam = 0;
+			services.ürünEkle(barkod, urunAdi, urunAdet, birim, kategori, maliyetToplam, paraBirimi);
+			stage.close();
 
-					for (int i = 0; i < selectedItems.size(); i++) {
-						services.içindekileriEkle(services.sonId("ürünler"), selectedItems.get(i).getUrunId(),
-								(spinners.get(i).getValue()).doubleValue(), selectedItems.get(i).getBirim());
-						maliyetToplam += (selectedItems.get(i).getUrunAdet() * selectedItems.get(i).getMaliyet());
-					}
-					services.ürünEkle(barkod, urunAdi, urunAdet, birim, kategori, maliyetToplam, paraBirimi);
-					stage.close();
-				} else {
-					System.out.println("Sadece ham madde veya ambalaj ekleyebilirsiniz.");
-				}
-
-			} catch (Exception ex) {
-				System.out.println("Hata: " + ex.getMessage());
-			}
 		});
 
 		vBox.getChildren().add(saveButton);
 
 		Scene scene = new Scene(vBox);
 		stage.setScene(scene);
-		stage.setTitle("Hammadde Seçimi");
+		stage.setTitle("Bileşen Seçimi");
 		stage.showAndWait();
+
 	}
 
 	// ürün silmek için oluşturuldu.
@@ -811,35 +802,28 @@ public class Form1Controller {
 	private void valueProductUpgradeDataBase() {
 		upgradeProductBtn.setOnAction(_ -> {
 			VeriModel productList = upgradeTableView.getSelectionModel().getSelectedItem();
-			if (productList != null) {
-				if (productList.getKategori().toLowerCase().equals("ürünler")) {
-					services.ürünGüncelle(productList.getUrunId(), upgradeBarkodTextBox.getText().trim().toLowerCase(),
-							upgradeProductNameTextbox.getText().trim().toLowerCase(),
-							upgradeproductquantityspinner.getValue(), upgradeUnitChoiceBox.getValue(),
-							upgradeChoiceBox.getValue().getKategori(),
-							Double.parseDouble(upgradeCostTextbox.getText()));
-				} else if (productList.getKategori().toLowerCase().equals("ham maddeler")
-						|| productList.getKategori().toLowerCase().equals("ambalajlar")) {
-					if (productList.getMaliyet() != Double.parseDouble(upgradeCostTextbox.getText())) {
-						services.maliyetGüncelle(productList.getUrunId(),
-								Double.parseDouble(upgradeCostTextbox.getText()));
-					}
-					services.ürünGüncelle(productList.getUrunId(), upgradeBarkodTextBox.getText().trim().toLowerCase(),
-							upgradeProductNameTextbox.getText().trim().toLowerCase(),
-							upgradeproductquantityspinner.getValue(), upgradeUnitChoiceBox.getValue(),
-							upgradeChoiceBox.getValue().getKategori(),
-							Double.parseDouble(upgradeCostTextbox.getText()));
-				} else {
-					services.ürünGüncelle(productList.getUrunId(), upgradeBarkodTextBox.getText().trim().toLowerCase(),
-							upgradeProductNameTextbox.getText().trim().toLowerCase(),
-							upgradeproductquantityspinner.getValue(), upgradeUnitChoiceBox.getValue(),
-							upgradeChoiceBox.getValue().getKategori(),
-							Double.parseDouble(upgradeCostTextbox.getText()));
+
+			if (productList.getKategori().toLowerCase().equals("ürünler")) {
+				services.ürünGüncelle(productList.getUrunId(), upgradeBarkodTextBox.getText().trim().toLowerCase(),
+						upgradeProductNameTextbox.getText().trim().toLowerCase(),
+						upgradeproductquantityspinner.getValue(), upgradeUnitChoiceBox.getValue(),
+						upgradeChoiceBox.getValue().getKategori(), Double.parseDouble(upgradeCostTextbox.getText()));
+			} else if (productList.getKategori().toLowerCase().equals("ham maddeler")
+					|| productList.getKategori().toLowerCase().equals("ambalajlar")) {
+				if (productList.getMaliyet() != Double.parseDouble(upgradeCostTextbox.getText())) {
+					services.maliyetGüncelle(productList.getUrunId(), Double.parseDouble(upgradeCostTextbox.getText()));
 				}
+				services.ürünGüncelle(productList.getUrunId(), upgradeBarkodTextBox.getText().trim().toLowerCase(),
+						upgradeProductNameTextbox.getText().trim().toLowerCase(),
+						upgradeproductquantityspinner.getValue(), upgradeUnitChoiceBox.getValue(),
+						upgradeChoiceBox.getValue().getKategori(), Double.parseDouble(upgradeCostTextbox.getText()));
 			} else {
-				information("Bilgi", null, "Güncelleme yapabilmek için listeden bir ürün seçmeniz gerekmektedi...",
-						AlertType.INFORMATION);
+				services.ürünGüncelle(productList.getUrunId(), upgradeBarkodTextBox.getText().trim().toLowerCase(),
+						upgradeProductNameTextbox.getText().trim().toLowerCase(),
+						upgradeproductquantityspinner.getValue(), upgradeUnitChoiceBox.getValue(),
+						upgradeChoiceBox.getValue().getKategori(), Double.parseDouble(upgradeCostTextbox.getText()));
 			}
+
 			tableViewUpgrade(upgradeTableView, "ürünler");
 		});
 	}
@@ -859,6 +843,19 @@ public class Form1Controller {
 		drawerTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 		// klavye odak
 		bomDrawer.requestFocus();
+	}
+
+	private void productMaterialsCost() {
+		ObservableList<VeriModel> bilesenListesi = services
+				.getBilesenler(upgradeTableView.getSelectionModel().getSelectedItem().getUrunId());
+
+		Double bilesenToplamMaliyet = 0.0;
+		for (int i = 0; i < bilesenListesi.size(); i++) {
+			bilesenToplamMaliyet += bilesenListesi.get(i).getMiktar() * bilesenListesi.get(i).getMaliyet();
+		}
+		services.ürünMaliyetGüncelle(upgradeTableView.getSelectionModel().getSelectedItem().getUrunId(),
+				bilesenToplamMaliyet);
+		tableViewUpgrade(upgradeTableView, "ürünler");
 	}
 
 	@FXML
@@ -909,16 +906,88 @@ public class Form1Controller {
 		});
 		stokDrawerTableViewColumn1.setCellFactory(CheckBoxTableCell.forTableColumn(stokDrawerTableViewColumn1));
 		stokDrawerTableViewColumn1.setEditable(true);
-		List<Integer> checkedIds = stokdrawerTableView.getItems().stream()
-				.filter(vm -> materialSelectMap.getOrDefault(vm.getUrunId(), new SimpleBooleanProperty(false)).get())
-				.map(VeriModel::getUrunId).toList();
+		BooleanProperty FALSE = new SimpleBooleanProperty(false);
+		ObservableList<VeriModel> selectedMaterials = stokdrawerTableView.getItems().stream()
+				.filter(vm -> materialSelectMap.getOrDefault(vm.getUrunId(), FALSE).get())
+				.collect(java.util.stream.Collectors
+						.toCollection(javafx.collections.FXCollections::observableArrayList));
 
-		VeriModel sel = upgradeTableView.getSelectionModel().getSelectedItem();
-		for (int i = 0; i < checkedIds.size(); i++) {
-			services.içindekileriEkle(sel.getUrunId(), checkedIds.get(i), 1.0, sel.getBirim());
+		openQtyDrawer(selectedMaterials);
+	}
+
+	private final java.util.Map<Integer, Spinner<Double>> qtySpinners = new java.util.HashMap<>();
+
+	private void openQtyDrawer(ObservableList<VeriModel> selectedMaterials) {
+		// önce temizle
+		drawerToolBox.getChildren().clear();
+		qtySpinners.clear();
+
+		for (VeriModel m : selectedMaterials) {
+			Label name = new Label(
+					m.getUrunAdi() + " (Birim: " + (m.getBirim() == null ? "" : m.getBirim().toUpperCase()) + ")");
+			name.setStyle("-fx-font-size: 13px;");
+
+			Spinner<Double> sp = new Spinner<>();
+			sp.setPrefWidth(100);
+			sp.setEditable(true);
+
+			// Kendi util’inle düzgün giriş (ondalıklı, negatif yok, scale=3 ör.)
+			ValidationUtil.applyDecimalSpinner(sp, /* scale */3, /* maxLen */12, /* allowNegative */false);
+			// Varsayılan bir değer (istersen 0.0 da koyabilirsin)
+			sp.getValueFactory().setValue(1.0);
+
+			HBox row = new HBox(10);
+			Region spacerLeft = new Region();
+			HBox.setHgrow(spacerLeft, Priority.ALWAYS);
+			row.getChildren().addAll(sp, spacerLeft, name);
+
+			drawerToolBox.getChildren().add(row);
+			qtySpinners.put(m.getUrunId(), sp);
 		}
-		drawerTableView.setItems(services.getBilesenler(sel.getUrunId()));
 
+		drawerMateralSaveBtn.setOnAction(_ -> {
+			onQtySave(selectedMaterials);
+			VeriModel sel = upgradeTableView.getSelectionModel().getSelectedItem();
+			drawerTableView.setItems(services.getBilesenler(sel.getUrunId()));
+		});
+
+		bomMaterialDrawer.setVisible(true);
+		var tt = new javafx.animation.TranslateTransition(javafx.util.Duration.millis(180), drawerMaterialPane);
+		tt.setToX(0);
+		tt.play();
+	}
+
+	@FXML
+	private void onQtyScrimClick() {
+		closeQtyDrawer();
+	}
+
+	@FXML
+	private void onQtyCancel() {
+		closeQtyDrawer();
+	}
+
+	private void closeQtyDrawer() {
+		var tt = new javafx.animation.TranslateTransition(javafx.util.Duration.millis(180), drawerMaterialPane);
+		tt.setToX(drawerMaterialPane.getPrefWidth());
+		tt.setOnFinished(_ -> bomMaterialDrawer.setVisible(false));
+		tt.play();
+	}
+
+	@FXML
+	private void onQtySave(ObservableList<VeriModel> selectedMaterials) {
+		// spinner’lardan miktarları topla → resultRef/set → close
+		for (int i = 0; i < qtySpinners.size(); i++) {
+			services.içindekileriEkle(upgradeTableView.getSelectionModel().getSelectedItem().getUrunId(),
+					selectedMaterials.get(i).getUrunId(),
+					qtySpinners.get(selectedMaterials.get(i).getUrunId()).getValue(),
+					selectedMaterials.get(i).getBirim());
+		}
+		VeriModel sel = upgradeTableView.getSelectionModel().getSelectedItem();
+		if (sel == null)
+			return;
+
+		closeQtyDrawer();
 	}
 
 	// textfielden ürünleri çekip aramak için oluşturuldu
