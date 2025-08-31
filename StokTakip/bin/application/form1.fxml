@@ -599,11 +599,9 @@
 							<Button fx:id="drawerMateralSaveBtn" text="Kaydet"
 								styleClass="button-primary" />
 						</HBox>
-
 					</VBox>
 				</children>
 			</AnchorPane>
 		</StackPane>
-
 	</children>
 </StackPane>

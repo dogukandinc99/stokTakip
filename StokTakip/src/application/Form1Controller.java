@@ -1,10 +1,9 @@
 package application;
 
 import java.io.File;
+import java.nio.channels.Pipe.SourceChannel;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -16,16 +15,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
@@ -41,7 +36,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
 public class Form1Controller {
@@ -329,9 +323,8 @@ public class Form1Controller {
 		setupSearchListener(upgradeSearchTextbox, upgradeTableView);
 		setupSearchListener(upgradeSearchChoiceBox, upgradeTableView);
 
+		formManagedProporty();
 		switchForm();
-
-		categoryChoiceboxVisible();
 
 		loadProductDetailsToFields();
 		valueCategoriInsertDataBase();
@@ -348,13 +341,14 @@ public class Form1Controller {
 		bindSaveButton();
 		bindUpdateAndDeleteButton();
 		bindMaterialButton();
+		bindChoiceBox();
 
 		// Drawer aç: butona tıklayınca
 		editMaterialBtn.setOnAction(_ -> openDrawerAndLoad());
 
 		// "Hazır" şimdilik sadece kapanış yapsın (persist'i sonraki adımda ekleyeceğiz)
 		drawerReadyBtn.setOnAction(_ -> {
-			productMaterialsCost();
+			tableViewUpgrade(upgradeTableView, "ürünler");
 			closeDrawer();
 		});
 
@@ -374,6 +368,7 @@ public class Form1Controller {
 
 	}
 
+	// sayfalar arası geçiş
 	private void switchForm() {
 		homeBtn.setOnAction(_ -> {
 			showForm(mainForm, mainTableView, "ürünler");
@@ -387,6 +382,58 @@ public class Form1Controller {
 		settingsBtn.setOnAction(_ -> {
 			showForm(settingsForm, settingstableview, "kategoriler");
 		});
+	}
+
+	// sayfalar arası geçiş için oluşturuldu.
+	private void showForm(AnchorPane visibleForm, TableView<VeriModel> tableView, String tabloAdi) {
+
+		mainForm.setVisible(false);
+		addStockForm.setVisible(false);
+		updateStockForm.setVisible(false);
+		settingsForm.setVisible(false);
+
+		visibleForm.setVisible(true);
+
+		tableViewUpgrade(tableView, tabloAdi);
+	}
+
+	private void formManagedProporty() {
+		mainForm.managedProperty().bind(mainForm.visibleProperty());
+		addStockForm.managedProperty().bind(addStockForm.visibleProperty());
+		updateStockForm.managedProperty().bind(updateStockForm.visibleProperty());
+		settingsForm.managedProperty().bind(settingsForm.visibleProperty());
+	}
+
+	// kategorileri choicebxlara koymak için oluşturuldu.
+	private void ChoiceBoxs() {
+		fillChoiceBox(mainChoiceBox);
+		fillChoiceBox(categorychoicebox);
+		fillChoiceBox(upgradeSearchChoiceBox);
+		fillChoiceBox(upgradeChoiceBox);
+		fillChoiceBox(drawerSearchChoiceBox);
+	}
+
+	// kategorileri veritabanından çekmek için oluşturuldu.
+	private void fillChoiceBox(ChoiceBox<VeriModel> choiceBox) {
+		ObservableList<VeriModel> kategoriList = services.ürünListele("kategoriler");
+
+		choiceBox.setConverter(new StringConverter<VeriModel>() {
+			@Override
+			public String toString(VeriModel kategori) {
+				return (kategori != null && kategori.getKategori() != null) ? kategori.getKategori().toUpperCase() : "";
+			}
+
+			@Override
+			public VeriModel fromString(String string) {
+				return null;
+			}
+		});
+
+		choiceBox.setItems(kategoriList);
+
+		if (!kategoriList.isEmpty()) {
+			choiceBox.getSelectionModel().select(0);
+		}
 	}
 
 	// spinner ayarları için oluşturuldu.
@@ -433,6 +480,15 @@ public class Form1Controller {
 		addProductBtn.disableProperty().unbind();
 		// Yeniden bağlamadan önce unbind et (aynı metoda tekrar girilirse hata olmasın)
 		addProductBtn.disableProperty().bind(invalidForm);
+
+		var invalidForm2 = Bindings.createBooleanBinding(() -> {
+			boolean kategoriName = categoriTextBox.getText() == null || categoriTextBox.getText().trim().isEmpty();
+			return kategoriName;
+		}, categoriTextBox.textProperty());
+
+		newcategoribtn.disableProperty().unbind();
+		// Yeniden bağlamadan önce unbind et (aynı metoda tekrar girilirse hata olmasın)
+		newcategoribtn.disableProperty().bind(invalidForm2);
 	}
 
 	private void bindUpdateAndDeleteButton() {
@@ -452,6 +508,29 @@ public class Form1Controller {
 		// Yeniden bağlamadan önce unbind et (aynı metoda tekrar girilirse hata olmasın)
 		upgradeProductBtn.disableProperty().bind(invalidForm);
 		deleteProductBtn.disableProperty().bind(invalidForm);
+
+		var invalidForm2 = Bindings.createBooleanBinding(() -> {
+
+			boolean kategori = settingstableview.getSelectionModel().getSelectedItem() == null;
+			return kategori;
+		}, settingstableview.getSelectionModel().selectedItemProperty());
+
+		deletecategoribtn.disableProperty().unbind();
+		// Yeniden bağlamadan önce unbind et (aynı metoda tekrar girilirse hata olmasın)
+		deletecategoribtn.disableProperty().bind(invalidForm2);
+	}
+
+	private void bindChoiceBox() {
+		costtextbox.disableProperty().unbind();
+		costtextbox.editableProperty().unbind();
+		// "Ürünler" seçili mi?
+		var isUrunler = Bindings.createBooleanBinding(() -> {
+			VeriModel vm = categorychoicebox.getValue();
+			return vm != null && "ürünler".equalsIgnoreCase(vm.getKategori());
+		}, categorychoicebox.valueProperty());
+
+		// A) Tamamen devre dışı bırak (gri)
+		costtextbox.disableProperty().bind(isUrunler);
 	}
 
 	private void bindMaterialButton() {
@@ -538,50 +617,6 @@ public class Form1Controller {
 		tableViewUpgrade(tableView, "ürünler");
 	}
 
-	// sayfalar arası geçiş için oluşturuldu.
-	private void showForm(AnchorPane visibleForm, TableView<VeriModel> tableView, String tabloAdi) {
-		mainForm.setVisible(false);
-		addStockForm.setVisible(false);
-		updateStockForm.setVisible(false);
-		settingsForm.setVisible(false);
-
-		visibleForm.setVisible(true);
-
-		tableViewUpgrade(tableView, tabloAdi);
-	}
-
-	// kategorileri choicebxlara koymak için oluşturuldu.
-	private void ChoiceBoxs() {
-		fillChoiceBox(mainChoiceBox);
-		fillChoiceBox(categorychoicebox);
-		fillChoiceBox(upgradeSearchChoiceBox);
-		fillChoiceBox(upgradeChoiceBox);
-		fillChoiceBox(drawerSearchChoiceBox);
-	}
-
-	// kategorileri veritabanından çekmek için oluşturuldu.
-	private void fillChoiceBox(ChoiceBox<VeriModel> choiceBox) {
-		ObservableList<VeriModel> kategoriList = services.ürünListele("kategoriler");
-
-		choiceBox.setConverter(new StringConverter<VeriModel>() {
-			@Override
-			public String toString(VeriModel kategori) {
-				return (kategori != null && kategori.getKategori() != null) ? kategori.getKategori().toUpperCase() : "";
-			}
-
-			@Override
-			public VeriModel fromString(String string) {
-				return null;
-			}
-		});
-
-		choiceBox.setItems(kategoriList);
-
-		if (!kategoriList.isEmpty()) {
-			choiceBox.getSelectionModel().select(0);
-		}
-	}
-
 	// tabloları güncellemek için oluşturuldu
 	private void tableViewUpgrade(TableView<VeriModel> tableView, String table) {
 		try {
@@ -592,16 +627,13 @@ public class Form1Controller {
 		}
 	}
 
+	
 	// kategori eklemek için oluşturuldu.
 	private void valueCategoriInsertDataBase() {
 		newcategoribtn.setOnAction(_ -> {
 			String categoriString = categoriTextBox.getText().trim().toLowerCase();
-			if (categoriString.isEmpty()) {
-				information("Bilgi", null, "Kategori ismi boş girilemez.", AlertType.INFORMATION);
-			} else {
-				services.kategoriEkle(categoriString);
-			}
 			try {
+				services.kategoriEkle(categoriString);
 				tableViewUpgrade(settingstableview, "kategoriler");
 				ChoiceBoxs();
 			} catch (Exception e) {
@@ -615,28 +647,12 @@ public class Form1Controller {
 	private void valueCategoryDeleteDataBase() {
 		deletecategoribtn.setOnAction(_ -> {
 			VeriModel selectCategory = settingstableview.getSelectionModel().getSelectedItem();
-			if (settingstableview.getSelectionModel().getSelectedItem() == null) {
-				System.out.println("Lütfen bir kategori seçin.");
-				return;
-			} else {
+			try {
 				services.kategoriSil(selectCategory.getKategoriId());
-			}
-			tableViewUpgrade(settingstableview, "kategoriler");
-			ChoiceBoxs();
-		});
-	}
-
-	// ürünler kategorisi seçildiğinde maliyet girilip girilememesini engellemek
-	// için oluşturuldu.
-	void categoryChoiceboxVisible() {
-		categorychoicebox.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
-			if (newValue != null) {
-				VeriModel categoryChoiceBoxValue = newValue;
-				if (categoryChoiceBoxValue.getKategori().equals("ürünler")) {
-					costtextbox.setDisable(true);
-				} else {
-					costtextbox.setDisable(false);
-				}
+				tableViewUpgrade(settingstableview, "kategoriler");
+				ChoiceBoxs();
+			} catch (Exception e) {
+				System.out.println("valueCategoryDeleteDataBase sorun var: " + e.getMessage());
 			}
 		});
 	}
@@ -652,15 +668,14 @@ public class Form1Controller {
 			Double maliyet = 0.0;
 			String paraBirimi = currencychoicebox.getValue();
 
-			System.out.println(costtextbox.getText());
 			if (!costtextbox.getText().isEmpty()) {
 				maliyet = Double.parseDouble(costtextbox.getText());
 			}
 			if (!category.getKategori().equals("ürünler")) {
 				services.ürünEkle(barkod, ürünAdi, ürünAdet, birim, category.getKategori(), maliyet, paraBirimi);
 			} else if (category.getKategori().equals("ürünler")) {
-				ObservableList<VeriModel> tableSelectedList = addProductTableView.getSelectionModel()
-						.getSelectedItems();
+				ObservableList<VeriModel> tableSelectedList = FXCollections
+						.observableArrayList(addProductTableView.getSelectionModel().getSelectedItems());
 
 				boolean kontrol = false;
 				for (int i = 0; i < tableSelectedList.size(); i++) {
@@ -671,8 +686,8 @@ public class Form1Controller {
 				}
 				try {
 					if (!kontrol) {
-						valueProductMaterialsInsertDataBase(barkod, ürünAdi, ürünAdet, birim, category.getKategori(),
-								paraBirimi, tableSelectedList);
+						services.ürünEkle(barkod, ürünAdi, ürünAdet, birim, category.getKategori(), 0.0, paraBirimi);
+						openQtyDrawer(tableSelectedList);
 					} else {
 						information("Bilgi", null,
 								"Ürünü ekleyebilmek için tablodan Ham Madde ve/veya Ambalaj seçimi yapmanız gerekmektedir...",
@@ -706,69 +721,23 @@ public class Form1Controller {
 		});
 	}
 
-	// ürün eklerken ham madde ve ambalaj seçileceğinden dolayı
-	// yeni bir form oluştursun ve veritabanına eklesin diye oluşturuldu.
-	private void valueProductMaterialsInsertDataBase(String barkod, String urunAdi, Double urunAdet, String birim,
-			String kategori, String paraBirimi, ObservableList<VeriModel> selectedMaterials) {
-
-		Stage stage = new Stage();
-		VBox vBox = new VBox(10);
-		vBox.setPadding(new Insets(10));
-
-		Label titleLabel = new Label("Hammadde Miktarlarını Girin:");
-		vBox.getChildren().add(titleLabel);
-
-		List<Spinner<Double>> spinners = new ArrayList<>();
-		List<VeriModel> selectedItems = new ArrayList<>();
-
-		for (VeriModel material : selectedMaterials) {
-			Label label = new Label(material.getUrunAdi() + ":");
-			Label birimlb = new Label(material.getBirim().toUpperCase());
-			Spinner<Double> spinner = new Spinner<>();
-			spinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 10000, 1));
-			spinners.add(spinner);
-			selectedItems.add(material);
-			HBox row = new HBox(10, label, spinner, birimlb);
-			vBox.getChildren().add(row);
-		}
-
-		Button saveButton = new Button("Kaydet");
-
-		saveButton.setOnAction(_ -> {
-			double maliyetToplam = 0;
-
-			for (int i = 0; i < selectedItems.size(); i++) {
-				services.içindekileriEkle(services.sonId("ürünler"), selectedItems.get(i).getUrunId(),
-						(spinners.get(i).getValue()).doubleValue(), selectedItems.get(i).getBirim());
-				maliyetToplam += (spinners.get(i).getValue() * selectedItems.get(i).getMaliyet());
-			}
-			services.ürünEkle(barkod, urunAdi, urunAdet, birim, kategori, maliyetToplam, paraBirimi);
-			stage.close();
-
-		});
-
-		vBox.getChildren().add(saveButton);
-
-		Scene scene = new Scene(vBox);
-		stage.setScene(scene);
-		stage.setTitle("Bileşen Seçimi");
-		stage.showAndWait();
-
-	}
-
 	// ürün silmek için oluşturuldu.
 	private void valueProductDeleteDataBase() {
 		deleteProductBtn.setOnAction(_ -> {
-			VeriModel selectProduct = upgradeTableView.getSelectionModel().getSelectedItem();
+			ObservableList<VeriModel> selectProduct = FXCollections
+					.observableArrayList(upgradeTableView.getSelectionModel().getSelectedItem());
+			
 			if (upgradeTableView.getSelectionModel().getSelectedItem() == null) {
-				System.out.println("Lütfen bir kategori seçin.");
+				System.out.println("Lütfen bir stok seçin.");
 				return;
 			} else {
-				services.ürünSil(selectProduct.getUrunId());
+				services.ürünSil(selectProduct.get(0).getUrunId());
+				ObservableList<VeriModel> bilesenList = services.getBilesenler(selectProduct.get(0).getUrunId());
+				for (VeriModel m : bilesenList) {
+					services.bilesenSil(selectProduct.get(0).getUrunId(), m.getUrunId());
+				}
 			}
-			tableViewUpgrade(upgradeTableView, "ürünler");
 		});
-
 	}
 
 	// güncelleme yaparken seçilen ürünün bilgileri textfieldları doldurması için
@@ -845,17 +814,18 @@ public class Form1Controller {
 		bomDrawer.requestFocus();
 	}
 
-	private void productMaterialsCost() {
-		ObservableList<VeriModel> bilesenListesi = services
-				.getBilesenler(upgradeTableView.getSelectionModel().getSelectedItem().getUrunId());
-
+	private void productMaterialsCost(int ürün_id) {
+		ObservableList<VeriModel> bilesenListesi = services.getBilesenler(ürün_id);
+		System.out.println(bilesenListesi.get(0).getUrunId());
 		Double bilesenToplamMaliyet = 0.0;
 		for (int i = 0; i < bilesenListesi.size(); i++) {
+
 			bilesenToplamMaliyet += bilesenListesi.get(i).getMiktar() * bilesenListesi.get(i).getMaliyet();
+
+			System.out.println(bilesenListesi.get(i).getMaliyet());
 		}
-		services.ürünMaliyetGüncelle(upgradeTableView.getSelectionModel().getSelectedItem().getUrunId(),
-				bilesenToplamMaliyet);
-		tableViewUpgrade(upgradeTableView, "ürünler");
+		services.ürünMaliyetGüncelle(ürün_id, bilesenToplamMaliyet);
+
 	}
 
 	@FXML
@@ -880,7 +850,7 @@ public class Form1Controller {
 
 		drawerTableViewColumn1.setCellValueFactory(cd -> {
 			VeriModel row = cd.getValue();
-			return drawerSelectMap.computeIfAbsent(row.getUrunId(), k -> new SimpleBooleanProperty(false));
+			return drawerSelectMap.computeIfAbsent(row.getUrunId(), _ -> new SimpleBooleanProperty(false));
 		});
 		drawerTableViewColumn1.setCellFactory(CheckBoxTableCell.forTableColumn(drawerTableViewColumn1));
 		drawerTableViewColumn1.setEditable(true);
@@ -892,6 +862,7 @@ public class Form1Controller {
 		for (int i = 0; i < checkedIds.size(); i++) {
 			services.bilesenSil(sel.getUrunId(), checkedIds.get(i));
 		}
+		productMaterialsCost(sel.getUrunId());
 		drawerTableView.setItems(services.getBilesenler(sel.getUrunId()));
 	}
 
@@ -902,7 +873,7 @@ public class Form1Controller {
 
 		stokDrawerTableViewColumn1.setCellValueFactory(cd -> {
 			VeriModel row = cd.getValue();
-			return materialSelectMap.computeIfAbsent(row.getUrunId(), k -> new SimpleBooleanProperty(false));
+			return materialSelectMap.computeIfAbsent(row.getUrunId(), _ -> new SimpleBooleanProperty(false));
 		});
 		stokDrawerTableViewColumn1.setCellFactory(CheckBoxTableCell.forTableColumn(stokDrawerTableViewColumn1));
 		stokDrawerTableViewColumn1.setEditable(true);
@@ -915,13 +886,12 @@ public class Form1Controller {
 		openQtyDrawer(selectedMaterials);
 	}
 
-	private final java.util.Map<Integer, Spinner<Double>> qtySpinners = new java.util.HashMap<>();
+	private final java.util.Map<Integer, Double> qtySpinners = new java.util.HashMap<>();
 
 	private void openQtyDrawer(ObservableList<VeriModel> selectedMaterials) {
 		// önce temizle
 		drawerToolBox.getChildren().clear();
 		qtySpinners.clear();
-
 		for (VeriModel m : selectedMaterials) {
 			Label name = new Label(
 					m.getUrunAdi() + " (Birim: " + (m.getBirim() == null ? "" : m.getBirim().toUpperCase()) + ")");
@@ -936,19 +906,38 @@ public class Form1Controller {
 			// Varsayılan bir değer (istersen 0.0 da koyabilirsin)
 			sp.getValueFactory().setValue(1.0);
 
+			sp.getValueFactory().valueProperty().addListener((_, _, newV) -> {
+				qtySpinners.put(m.getUrunId(), newV == null ? 0.0 : newV);
+			});
+
+			// Kullanıcı kutuya yazıp focus kaybedince değeri commit et
+			sp.focusedProperty().addListener((obs, was, isNow) -> {
+				if (!isNow) {
+					var vf = sp.getValueFactory();
+					var txt = sp.getEditor().getText();
+					try {
+						vf.setValue(vf.getConverter().fromString(txt));
+					} catch (Exception ignore) {
+					}
+				}
+			});
+
 			HBox row = new HBox(10);
 			Region spacerLeft = new Region();
 			HBox.setHgrow(spacerLeft, Priority.ALWAYS);
 			row.getChildren().addAll(sp, spacerLeft, name);
 
 			drawerToolBox.getChildren().add(row);
-			qtySpinners.put(m.getUrunId(), sp);
 		}
+		System.out.println("buradayım");
 
 		drawerMateralSaveBtn.setOnAction(_ -> {
-			onQtySave(selectedMaterials);
-			VeriModel sel = upgradeTableView.getSelectionModel().getSelectedItem();
-			drawerTableView.setItems(services.getBilesenler(sel.getUrunId()));
+			for (int i = 0; i < selectedMaterials.size(); i++) {
+				services.içindekileriEkle(services.sonId("ürünler") - 1, selectedMaterials.get(i).getUrunId(),
+						qtySpinners.get(selectedMaterials.get(i).getUrunId()), selectedMaterials.get(i).getBirim());
+				productMaterialsCost(services.sonId("ürünler") - 1);
+				closeQtyDrawer();
+			}
 		});
 
 		bomMaterialDrawer.setVisible(true);
@@ -972,22 +961,6 @@ public class Form1Controller {
 		tt.setToX(drawerMaterialPane.getPrefWidth());
 		tt.setOnFinished(_ -> bomMaterialDrawer.setVisible(false));
 		tt.play();
-	}
-
-	@FXML
-	private void onQtySave(ObservableList<VeriModel> selectedMaterials) {
-		// spinner’lardan miktarları topla → resultRef/set → close
-		for (int i = 0; i < qtySpinners.size(); i++) {
-			services.içindekileriEkle(upgradeTableView.getSelectionModel().getSelectedItem().getUrunId(),
-					selectedMaterials.get(i).getUrunId(),
-					qtySpinners.get(selectedMaterials.get(i).getUrunId()).getValue(),
-					selectedMaterials.get(i).getBirim());
-		}
-		VeriModel sel = upgradeTableView.getSelectionModel().getSelectedItem();
-		if (sel == null)
-			return;
-
-		closeQtyDrawer();
 	}
 
 	// textfielden ürünleri çekip aramak için oluşturuldu

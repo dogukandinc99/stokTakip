@@ -69,14 +69,14 @@ public class Services {
 		}
 	}
 
+	public void ürünSil(int ürünId) {
+		DataBaseHelper.deleteValueTable("ürünler", "id=?", ürünId);
+	}
+
 	public void içindekileriEkle(int urun_id, int ürünBilesenleri, Double miktar, String birim) {
 		DataBaseHelper.insertTable("product_ingredients", "urun_id,hammadde_id,miktar,birim", urun_id, ürünBilesenleri,
 				miktar, birim);
 		System.out.println("İçindekiler başarıl birşekilde eklendi.");
-	}
-
-	public void ürünSil(int ürünId) {
-		DataBaseHelper.deleteValueTable("ürünler", "id=?", ürünId);
 	}
 
 	public void bilesenSil(int urunId, int bilesenId) {
@@ -117,18 +117,6 @@ public class Services {
 		sorgu.put("kategori_ad", new Pair<>("=", arammaMetni));
 		ObservableList<VeriModel> liste = DataBaseHelper.listele("*", tabloAdi, null, sorgu, "OR");
 		return liste;
-	}
-
-	public boolean tabloVarMi(String tabloAdi) {
-		boolean kontrol = false;
-		Map<String, Pair<String, Object>> sorgu = new HashMap<String, Pair<String, Object>>();
-		sorgu.put("type", new Pair<String, Object>("=", "table"));
-		sorgu.put("name", new Pair<String, Object>("=", tabloAdi));
-		ObservableList<VeriModel> liste = DataBaseHelper.listele("*", "sqlite_master", null, sorgu, "AND");
-		if (!liste.isEmpty()) {
-			kontrol = true;
-		}
-		return kontrol;
 	}
 
 	boolean degerVarMi(String tabloAdi, String sütunAdi, String arananDeger) {
@@ -193,14 +181,14 @@ public class Services {
 		}
 	}
 
-	public void ürünMaliyetGüncelle(int güncellenenBilesenId, Double yeniBilesenMaliyet) {	
+	public void ürünMaliyetGüncelle(int güncellenenÜrünId, Double yeniBilesenMaliyet) {
 
 		Map<String, Object> yeniDeger = new HashMap<String, Object>();
 		yeniDeger.put("maliyet", yeniBilesenMaliyet);
 
 		Map<String, Object> kosul = new HashMap<String, Object>();
-		kosul.put("id", güncellenenBilesenId);
-		
+		kosul.put("id", güncellenenÜrünId);
+
 		DataBaseHelper.updateTable("ürünler", yeniDeger, kosul);
 	}
 
