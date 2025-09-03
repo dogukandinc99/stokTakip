@@ -59,7 +59,7 @@ public class Services {
 		DataBaseHelper.deleteValueTable("kategoriler", "id=?", kategoriId);
 	}
 
-	public void ürünEkle(String barkod, String ürünAdi, Double ürünMiktari, String birim, String kategori,
+	public void urunEkle(String barkod, String ürünAdi, Double ürünMiktari, String birim, String kategori,
 			Double maliyet, String paraBirimi) {
 		if (!degerVarMi("ürünler", "barkod", barkod) || !degerVarMi("ürünler", "urun_adi", ürünAdi)) {
 			DataBaseHelper.insertTable("ürünler", "id,barkod,urun_adi,urun_adet,birim,kategori_ad,maliyet,para_birimi",
@@ -69,11 +69,11 @@ public class Services {
 		}
 	}
 
-	public void ürünSil(int ürünId) {
+	public void urunSil(int ürünId) {
 		DataBaseHelper.deleteValueTable("ürünler", "id=?", ürünId);
 	}
 
-	public void içindekileriEkle(int urun_id, int ürünBilesenleri, Double miktar, String birim) {
+	public void icindekileriEkle(int urun_id, int ürünBilesenleri, Double miktar, String birim) {
 		DataBaseHelper.insertTable("product_ingredients", "urun_id,hammadde_id,miktar,birim", urun_id, ürünBilesenleri,
 				miktar, birim);
 		System.out.println("İçindekiler başarıl birşekilde eklendi.");
@@ -83,7 +83,7 @@ public class Services {
 		DataBaseHelper.deleteValueTable("product_ingredients", "urun_id=? and hammadde_id=?", urunId, bilesenId);
 	}
 
-	public void ürünGüncelle(int ürünId, String barkod, String ürünAdi, Double ürünMiktari, String birim,
+	public void urunGuncelle(int ürünId, String barkod, String ürünAdi, Double ürünMiktari, String birim,
 			String kategori, Double maliyet) {
 		Map<String, Object> yeniDeger = new HashMap<String, Object>();
 		yeniDeger.put("barkod", barkod);
@@ -135,7 +135,7 @@ public class Services {
 		return lastId;
 	}
 
-	public void maliyetGüncelle(int güncellenenBilesenId, Double yeniBilesenMaliyet) {
+	public void maliyetGuncelle(int güncellenenBilesenId, Double yeniBilesenMaliyet) {
 		Map<String, Pair<String, Object>> sorgu = new HashMap<String, Pair<String, Object>>();
 		sorgu.put("hammadde_id", new Pair<String, Object>("=", güncellenenBilesenId));
 		ObservableList<VeriModel> kullanılanÜrünlerliste = DataBaseHelper.listele("*", "product_ingredients", null,
@@ -181,7 +181,7 @@ public class Services {
 		}
 	}
 
-	public void ürünMaliyetGüncelle(int güncellenenÜrünId, Double yeniBilesenMaliyet) {
+	public void urunMaliyetGuncelle(int güncellenenÜrünId, Double yeniBilesenMaliyet) {
 
 		Map<String, Object> yeniDeger = new HashMap<String, Object>();
 		yeniDeger.put("maliyet", yeniBilesenMaliyet);
@@ -192,14 +192,27 @@ public class Services {
 		DataBaseHelper.updateTable("ürünler", yeniDeger, kosul);
 	}
 
-	public ObservableList<VeriModel> getBilesenler(int ürünId) {
-		StringBuilder bilesenListesi = new StringBuilder();
+	public ObservableList<VeriModel> icerdigiBilesenler(int ürünId) {
 
 		Map<String, Pair<String, String>> join = new HashMap<String, Pair<String, String>>();
 		join.put("ürünler u", new Pair<String, String>("JOIN", "pi.hammadde_id = u.id"));
 
 		Map<String, Pair<String, Object>> sorgu = new HashMap<String, Pair<String, Object>>();
 		sorgu.put("pi.urun_id", new Pair<String, Object>("=", ürünId));
+
+		ObservableList<VeriModel> liste = DataBaseHelper.listele("u.id, u.urun_adi, pi.miktar, u.birim, u.maliyet",
+				"product_ingredients pi", join, sorgu, null);
+
+		return liste;
+	}
+
+	public ObservableList<VeriModel> icerdigiUrunler(int ürünId) {
+
+		Map<String, Pair<String, String>> join = new HashMap<String, Pair<String, String>>();
+		join.put("ürünler u", new Pair<String, String>("JOIN", "pi.urun_id = u.id"));
+
+		Map<String, Pair<String, Object>> sorgu = new HashMap<String, Pair<String, Object>>();
+		sorgu.put("pi.hammadde_id", new Pair<String, Object>("=", ürünId));
 
 		ObservableList<VeriModel> liste = DataBaseHelper.listele("u.id, u.urun_adi, pi.miktar, u.birim, u.maliyet",
 				"product_ingredients pi", join, sorgu, null);

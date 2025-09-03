@@ -627,7 +627,6 @@ public class Form1Controller {
 		}
 	}
 
-	
 	// kategori eklemek için oluşturuldu.
 	private void valueCategoriInsertDataBase() {
 		newcategoribtn.setOnAction(_ -> {
@@ -672,7 +671,7 @@ public class Form1Controller {
 				maliyet = Double.parseDouble(costtextbox.getText());
 			}
 			if (!category.getKategori().equals("ürünler")) {
-				services.ürünEkle(barkod, ürünAdi, ürünAdet, birim, category.getKategori(), maliyet, paraBirimi);
+				services.urunEkle(barkod, ürünAdi, ürünAdet, birim, category.getKategori(), maliyet, paraBirimi);
 			} else if (category.getKategori().equals("ürünler")) {
 				ObservableList<VeriModel> tableSelectedList = FXCollections
 						.observableArrayList(addProductTableView.getSelectionModel().getSelectedItems());
@@ -686,7 +685,7 @@ public class Form1Controller {
 				}
 				try {
 					if (!kontrol) {
-						services.ürünEkle(barkod, ürünAdi, ürünAdet, birim, category.getKategori(), 0.0, paraBirimi);
+						services.urunEkle(barkod, ürünAdi, ürünAdet, birim, category.getKategori(), 0.0, paraBirimi);
 						openQtyDrawer(tableSelectedList);
 					} else {
 						information("Bilgi", null,
@@ -709,7 +708,7 @@ public class Form1Controller {
 			if (!ürün.isEmpty()) {
 				double toplam = ürün.get(0).getUrunAdet();
 				toplam += mainQuantityspinner.getValue();
-				services.ürünGüncelle(ürün.get(0).getUrunId(), ürün.get(0).getBarkod(), ürün.get(0).getUrunAdi(),
+				services.urunGuncelle(ürün.get(0).getUrunId(), ürün.get(0).getBarkod(), ürün.get(0).getUrunAdi(),
 						toplam, ürün.get(0).getBirim(), ürün.get(0).getKategori(), ürün.get(0).getMaliyet());
 				tableViewUpgrade(mainTableView, "ürünler");
 			} else {
@@ -726,16 +725,28 @@ public class Form1Controller {
 		deleteProductBtn.setOnAction(_ -> {
 			ObservableList<VeriModel> selectProduct = FXCollections
 					.observableArrayList(upgradeTableView.getSelectionModel().getSelectedItem());
-			
+
 			if (upgradeTableView.getSelectionModel().getSelectedItem() == null) {
 				System.out.println("Lütfen bir stok seçin.");
 				return;
 			} else {
-				services.ürünSil(selectProduct.get(0).getUrunId());
-				ObservableList<VeriModel> bilesenList = services.getBilesenler(selectProduct.get(0).getUrunId());
-				for (VeriModel m : bilesenList) {
-					services.bilesenSil(selectProduct.get(0).getUrunId(), m.getUrunId());
+				if (selectProduct.get(0).getKategori().toLowerCase().equals("ürünler")) {
+					ObservableList<VeriModel> bilesenList = services
+							.icerdigiBilesenler(selectProduct.get(0).getUrunId());
+					for (VeriModel m : bilesenList) {
+						services.bilesenSil(selectProduct.get(0).getUrunId(), m.getUrunId());
+					}
+				} else {
+					ObservableList<VeriModel> icerdigiUrunlerListesi = services
+							.icerdigiUrunler(selectProduct.get(0).getUrunId());
+					if (icerdigiUrunlerListesi != null) {
+						for (VeriModel m : icerdigiUrunlerListesi) {
+							services.bilesenSil(m.getUrunId(), selectProduct.get(0).getUrunId());
+							productMaterialsCost(m.getUrunId());
+						}
+					}
 				}
+				services.urunSil(selectProduct.get(0).getUrunId());
 			}
 		});
 	}
@@ -773,21 +784,21 @@ public class Form1Controller {
 			VeriModel productList = upgradeTableView.getSelectionModel().getSelectedItem();
 
 			if (productList.getKategori().toLowerCase().equals("ürünler")) {
-				services.ürünGüncelle(productList.getUrunId(), upgradeBarkodTextBox.getText().trim().toLowerCase(),
+				services.urunGuncelle(productList.getUrunId(), upgradeBarkodTextBox.getText().trim().toLowerCase(),
 						upgradeProductNameTextbox.getText().trim().toLowerCase(),
 						upgradeproductquantityspinner.getValue(), upgradeUnitChoiceBox.getValue(),
 						upgradeChoiceBox.getValue().getKategori(), Double.parseDouble(upgradeCostTextbox.getText()));
 			} else if (productList.getKategori().toLowerCase().equals("ham maddeler")
 					|| productList.getKategori().toLowerCase().equals("ambalajlar")) {
 				if (productList.getMaliyet() != Double.parseDouble(upgradeCostTextbox.getText())) {
-					services.maliyetGüncelle(productList.getUrunId(), Double.parseDouble(upgradeCostTextbox.getText()));
+					services.maliyetGuncelle(productList.getUrunId(), Double.parseDouble(upgradeCostTextbox.getText()));
 				}
-				services.ürünGüncelle(productList.getUrunId(), upgradeBarkodTextBox.getText().trim().toLowerCase(),
+				services.urunGuncelle(productList.getUrunId(), upgradeBarkodTextBox.getText().trim().toLowerCase(),
 						upgradeProductNameTextbox.getText().trim().toLowerCase(),
 						upgradeproductquantityspinner.getValue(), upgradeUnitChoiceBox.getValue(),
 						upgradeChoiceBox.getValue().getKategori(), Double.parseDouble(upgradeCostTextbox.getText()));
 			} else {
-				services.ürünGüncelle(productList.getUrunId(), upgradeBarkodTextBox.getText().trim().toLowerCase(),
+				services.urunGuncelle(productList.getUrunId(), upgradeBarkodTextBox.getText().trim().toLowerCase(),
 						upgradeProductNameTextbox.getText().trim().toLowerCase(),
 						upgradeproductquantityspinner.getValue(), upgradeUnitChoiceBox.getValue(),
 						upgradeChoiceBox.getValue().getKategori(), Double.parseDouble(upgradeCostTextbox.getText()));
@@ -808,14 +819,14 @@ public class Form1Controller {
 		var t = new javafx.animation.TranslateTransition(javafx.util.Duration.millis(220), drawerPane);
 		t.setToX(0);
 		t.play();
-		drawerTableView.setItems(services.getBilesenler(sel.getUrunId()));
+		drawerTableView.setItems(services.icerdigiBilesenler(sel.getUrunId()));
 		drawerTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 		// klavye odak
 		bomDrawer.requestFocus();
 	}
 
 	private void productMaterialsCost(int ürün_id) {
-		ObservableList<VeriModel> bilesenListesi = services.getBilesenler(ürün_id);
+		ObservableList<VeriModel> bilesenListesi = services.icerdigiBilesenler(ürün_id);
 		System.out.println(bilesenListesi.get(0).getUrunId());
 		Double bilesenToplamMaliyet = 0.0;
 		for (int i = 0; i < bilesenListesi.size(); i++) {
@@ -824,7 +835,7 @@ public class Form1Controller {
 
 			System.out.println(bilesenListesi.get(i).getMaliyet());
 		}
-		services.ürünMaliyetGüncelle(ürün_id, bilesenToplamMaliyet);
+		services.urunMaliyetGuncelle(ürün_id, bilesenToplamMaliyet);
 
 	}
 
@@ -863,7 +874,7 @@ public class Form1Controller {
 			services.bilesenSil(sel.getUrunId(), checkedIds.get(i));
 		}
 		productMaterialsCost(sel.getUrunId());
-		drawerTableView.setItems(services.getBilesenler(sel.getUrunId()));
+		drawerTableView.setItems(services.icerdigiBilesenler(sel.getUrunId()));
 	}
 
 	private void onDrawerAdd() {
@@ -933,7 +944,7 @@ public class Form1Controller {
 
 		drawerMateralSaveBtn.setOnAction(_ -> {
 			for (int i = 0; i < selectedMaterials.size(); i++) {
-				services.içindekileriEkle(services.sonId("ürünler") - 1, selectedMaterials.get(i).getUrunId(),
+				services.icindekileriEkle(services.sonId("ürünler") - 1, selectedMaterials.get(i).getUrunId(),
 						qtySpinners.get(selectedMaterials.get(i).getUrunId()), selectedMaterials.get(i).getBirim());
 				productMaterialsCost(services.sonId("ürünler") - 1);
 				closeQtyDrawer();
@@ -1015,7 +1026,7 @@ public class Form1Controller {
 				if (!row.isEmpty()) {
 					VeriModel urun = row.getItem();
 					StringBuilder bilesenler = new StringBuilder();
-					ObservableList<VeriModel> bilesenListesi = services.getBilesenler(urun.getUrunId());
+					ObservableList<VeriModel> bilesenListesi = services.icerdigiBilesenler(urun.getUrunId());
 					if (bilesenListesi.isEmpty()) {
 						bilesenler.append("İÇİNDEKİLER\\nBulunamadı...");
 					} else {
