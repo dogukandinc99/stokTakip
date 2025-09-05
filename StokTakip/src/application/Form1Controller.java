@@ -1,7 +1,6 @@
 package application;
 
 import java.io.File;
-import java.nio.channels.Pipe.SourceChannel;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.List;
@@ -686,7 +685,11 @@ public class Form1Controller {
 				try {
 					if (!kontrol) {
 						services.urunEkle(barkod, ürünAdi, ürünAdet, birim, category.getKategori(), 0.0, paraBirimi);
-						openQtyDrawer(tableSelectedList);
+
+						Runnable onSaved = () -> {
+							tableViewUpgrade(addProductTableView, "ürünler");
+						};
+						openQtyDrawer(tableSelectedList, onSaved);
 					} else {
 						information("Bilgi", null,
 								"Ürünü ekleyebilmek için tablodan Ham Madde ve/veya Ambalaj seçimi yapmanız gerekmektedir...",
@@ -696,7 +699,7 @@ public class Form1Controller {
 					System.out.println("Beklenmedik bir hata ile karşılaştık.\nHata: " + e.getMessage());
 				}
 			}
-			tableViewUpgrade(addProductTableView, "ürünler");
+
 			return;
 		});
 	}
@@ -747,6 +750,7 @@ public class Form1Controller {
 					}
 				}
 				services.urunSil(selectProduct.get(0).getUrunId());
+				tableViewUpgrade(upgradeTableView, "ürünler");
 			}
 		});
 	}
@@ -803,14 +807,31 @@ public class Form1Controller {
 						upgradeproductquantityspinner.getValue(), upgradeUnitChoiceBox.getValue(),
 						upgradeChoiceBox.getValue().getKategori(), Double.parseDouble(upgradeCostTextbox.getText()));
 			}
-
 			tableViewUpgrade(upgradeTableView, "ürünler");
 		});
 	}
 
+	private void productMaterialsCost(int ürün_id) {
+		ObservableList<VeriModel> bilesenListesi = services.icerdigiBilesenler(ürün_id);
+		if (bilesenListesi != null) {
+			Double bilesenToplamMaliyet = 0.0;
+			for (int i = 0; i < bilesenListesi.size(); i++) {
+
+				bilesenToplamMaliyet += bilesenListesi.get(i).getMiktar() * bilesenListesi.get(i).getMaliyet();
+
+				System.out.println(bilesenListesi.get(i).getMaliyet());
+			}
+			services.urunMaliyetGuncelle(ürün_id, bilesenToplamMaliyet);
+		} else {
+			services.urunMaliyetGuncelle(ürün_id, 0.0);
+		}
+	}
+
+	ObservableList<VeriModel> stok;
+
 	private void openDrawerAndLoad() {
-		VeriModel sel = upgradeTableView.getSelectionModel().getSelectedItem();
-		if (sel == null)
+		stok = FXCollections.observableArrayList(upgradeTableView.getSelectionModel().getSelectedItem());
+		if (stok == null)
 			return;
 
 		bomDrawer.setVisible(true);
@@ -819,24 +840,10 @@ public class Form1Controller {
 		var t = new javafx.animation.TranslateTransition(javafx.util.Duration.millis(220), drawerPane);
 		t.setToX(0);
 		t.play();
-		drawerTableView.setItems(services.icerdigiBilesenler(sel.getUrunId()));
+		drawerTableView.setItems(services.icerdigiBilesenler(stok.get(0).getUrunId()));
 		drawerTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 		// klavye odak
 		bomDrawer.requestFocus();
-	}
-
-	private void productMaterialsCost(int ürün_id) {
-		ObservableList<VeriModel> bilesenListesi = services.icerdigiBilesenler(ürün_id);
-		System.out.println(bilesenListesi.get(0).getUrunId());
-		Double bilesenToplamMaliyet = 0.0;
-		for (int i = 0; i < bilesenListesi.size(); i++) {
-
-			bilesenToplamMaliyet += bilesenListesi.get(i).getMiktar() * bilesenListesi.get(i).getMaliyet();
-
-			System.out.println(bilesenListesi.get(i).getMaliyet());
-		}
-		services.urunMaliyetGuncelle(ürün_id, bilesenToplamMaliyet);
-
 	}
 
 	@FXML
@@ -869,12 +876,12 @@ public class Form1Controller {
 				.filter(vm -> drawerSelectMap.getOrDefault(vm.getUrunId(), new SimpleBooleanProperty(false)).get())
 				.map(VeriModel::getUrunId).toList();
 
-		VeriModel sel = upgradeTableView.getSelectionModel().getSelectedItem();
 		for (int i = 0; i < checkedIds.size(); i++) {
-			services.bilesenSil(sel.getUrunId(), checkedIds.get(i));
+			services.bilesenSil(stok.get(0).getUrunId(), checkedIds.get(i));
+
 		}
-		productMaterialsCost(sel.getUrunId());
-		drawerTableView.setItems(services.icerdigiBilesenler(sel.getUrunId()));
+		productMaterialsCost(stok.get(0).getUrunId());
+		drawerTableView.setItems(services.icerdigiBilesenler(stok.get(0).getUrunId()));
 	}
 
 	private void onDrawerAdd() {
@@ -894,12 +901,16 @@ public class Form1Controller {
 				.collect(java.util.stream.Collectors
 						.toCollection(javafx.collections.FXCollections::observableArrayList));
 
-		openQtyDrawer(selectedMaterials);
+		Runnable onSaved = () -> {
+			drawerTableView.setItems(services.icerdigiBilesenler(stok.get(0).getUrunId()));
+		};
+		openQtyDrawer(selectedMaterials, onSaved);
+
 	}
 
 	private final java.util.Map<Integer, Double> qtySpinners = new java.util.HashMap<>();
 
-	private void openQtyDrawer(ObservableList<VeriModel> selectedMaterials) {
+	private void openQtyDrawer(ObservableList<VeriModel> selectedMaterials, Runnable runnable) {
 		// önce temizle
 		drawerToolBox.getChildren().clear();
 		qtySpinners.clear();
@@ -947,8 +958,10 @@ public class Form1Controller {
 				services.icindekileriEkle(services.sonId("ürünler") - 1, selectedMaterials.get(i).getUrunId(),
 						qtySpinners.get(selectedMaterials.get(i).getUrunId()), selectedMaterials.get(i).getBirim());
 				productMaterialsCost(services.sonId("ürünler") - 1);
-				closeQtyDrawer();
 			}
+			if (runnable != null)
+				runnable.run();
+			closeQtyDrawer();
 		});
 
 		bomMaterialDrawer.setVisible(true);

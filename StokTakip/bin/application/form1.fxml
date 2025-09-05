@@ -296,6 +296,7 @@
 													<VBox>
 														<Label text="KATEGORİ" />
 														<ChoiceBox fx:id="upgradeChoiceBox"
+															disable="true" style="-fx-opacity: 1.0;"
 															prefWidth="150.0" />
 													</VBox>
 													<VBox>
