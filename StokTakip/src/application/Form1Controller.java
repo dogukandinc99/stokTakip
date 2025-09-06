@@ -143,6 +143,8 @@ public class Form1Controller {
 	private Label materialsQuantityLabel;
 	@FXML
 	private Label errorMessage;
+	@FXML
+	private Label mainErrorMessage;
 
 	@FXML
 	private Spinner<Double> productquantityspinner;
@@ -332,6 +334,7 @@ public class Form1Controller {
 		valueProductInsertDataBase();
 		valueProductDeleteDataBase();
 		valueProductAddDataBase();
+		valueProductRemoveDataBase();
 		exportToExcel();
 
 		setTooltipForTableview(mainTableView);
@@ -341,6 +344,7 @@ public class Form1Controller {
 		bindUpdateAndDeleteButton();
 		bindMaterialButton();
 		bindChoiceBox();
+		bindProductAddAndRemoveButton();
 
 		// Drawer aç: butona tıklayınca
 		editMaterialBtn.setOnAction(_ -> openDrawerAndLoad());
@@ -546,6 +550,26 @@ public class Form1Controller {
 		editMaterialBtn.visibleProperty().bind(showEditBtn);
 	}
 
+	private void bindProductAddAndRemoveButton() {
+		var invalidForm = Bindings.createBooleanBinding(() -> {
+
+			boolean kontrol = mainTableView.getSelectionModel().getSelectedItem() == null;
+			if (kontrol) {
+				mainErrorMessage.setText("Stok eklemek/çıkarmak için tablodan stok seçmeniz gerekiyor.");
+			}else {
+				mainErrorMessage.setText("Herhangi Bir Problem Göremedim...");
+			}
+			return kontrol;
+		}, mainTableView.getSelectionModel().selectedItemProperty());
+
+		// gizliyken yer kaplamasın
+		mainStokEkleBtn.disableProperty().unbind();
+		mainStokCikarBtn.disableProperty().unbind();
+		// Yeniden bağlamadan önce unbind et (aynı metoda tekrar girilirse hata olmasın)
+		mainStokEkleBtn.disableProperty().bind(invalidForm);
+		mainStokCikarBtn.disableProperty().bind(invalidForm);
+	}
+
 	private final ObservableMap<Integer, BooleanProperty> materialSelectMap = FXCollections.observableHashMap();
 
 	// tablo ayarları için oluşturuldu.
@@ -711,6 +735,25 @@ public class Form1Controller {
 			if (!ürün.isEmpty()) {
 				double toplam = ürün.get(0).getUrunAdet();
 				toplam += mainQuantityspinner.getValue();
+				services.urunGuncelle(ürün.get(0).getUrunId(), ürün.get(0).getBarkod(), ürün.get(0).getUrunAdi(),
+						toplam, ürün.get(0).getBirim(), ürün.get(0).getKategori(), ürün.get(0).getMaliyet());
+				tableViewUpgrade(mainTableView, "ürünler");
+			} else {
+				information("Bilgi", null,
+						"Stok adeti değiştirebilmek için listeden bir ürün seçmeniz gerekmektedir...",
+						AlertType.INFORMATION);
+				return;
+			}
+		});
+	}
+
+	// ürünün stoğuna ekleme veya çıkarma yapabilmek için oluşturuldu.
+	private void valueProductRemoveDataBase() {
+		mainStokCikarBtn.setOnAction(_ -> {
+			ObservableList<VeriModel> ürün = mainTableView.getSelectionModel().getSelectedItems();
+			if (!ürün.isEmpty()) {
+				double toplam = ürün.get(0).getUrunAdet();
+				toplam -= mainQuantityspinner.getValue();
 				services.urunGuncelle(ürün.get(0).getUrunId(), ürün.get(0).getBarkod(), ürün.get(0).getUrunAdi(),
 						toplam, ürün.get(0).getBirim(), ürün.get(0).getKategori(), ürün.get(0).getMaliyet());
 				tableViewUpgrade(mainTableView, "ürünler");

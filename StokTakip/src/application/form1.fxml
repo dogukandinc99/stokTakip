@@ -104,6 +104,14 @@
 													<Region prefHeight="1" prefWidth="3"
 														HBox.hgrow="ALWAYS" />
 												</HBox>
+												<HBox>
+													<Region prefHeight="1" prefWidth="3"
+														HBox.hgrow="ALWAYS" />
+													<Label fx:id="mainErrorMessage"
+														text="Stok eklemek/çıkarmak için tablodan stok seçmeniz gerekiyor." />
+													<Region prefHeight="1" prefWidth="3"
+														HBox.hgrow="ALWAYS" />
+												</HBox>
 											</VBox>
 											<!-- Stok arama alanı -->
 											<HBox spacing="5" styleClass="hBoxStyle"
