@@ -20,3 +20,25 @@ Launcher:	C:\Users\doguk\Desktop\StokTakip\runtime\bin\javaw.exe
 Launcher args:	--add-modules=javafx.controls,javafx.fxml -classpath "C:\Users\doguk\Desktop\StokTakip\StokTakip.exe;StokTakip.jar;lib\sqlite-jdbc-3.49.1.0.jar" application.Main
 Args length:	161/32768 chars
 Exit code:	0
+
+
+Version:	3.50
+CmdLine:	C:\Users\doguk\Desktop\StokTakip\StokTakip.exe --l4j-debug
+JNI:		No
+WOW64:		Yes
+Working dir:	C:\Users\doguk\Desktop\StokTakip\.
+Requires JDK:	No
+Requires 64-Bit: Yes
+Java min ver:	1.017.000
+Java max ver:	
+Substitute:	EXEDIR = C:\Users\doguk\Desktop\StokTakip
+JRE paths:	C:\Users\doguk\Desktop\StokTakip\runtime
+Check launcher:	C:\Users\doguk\Desktop\StokTakip\runtime\bin\javaw.exe (OK)
+Version string: 1.023.000_002 / 64-Bit (OK)
+Main class:	application.Main
+Add classpath:	StokTakip.jar
+Add classpath:	lib\sqlite-jdbc-3.49.1.0.jar
+Launcher:	C:\Users\doguk\Desktop\StokTakip\runtime\bin\javaw.exe
+Launcher args:	--add-modules=javafx.controls,javafx.fxml -classpath "C:\Users\doguk\Desktop\StokTakip\StokTakip.exe;StokTakip.jar;lib\sqlite-jdbc-3.49.1.0.jar" application.Main
+Args length:	161/32768 chars
+Exit code:	0
